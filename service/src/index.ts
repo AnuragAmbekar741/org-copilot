@@ -1,8 +1,9 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import express, { Request, Response } from "express";
 import cors from "cors";
-import dotenv from "dotenv";
-
-dotenv.config();
+import authRoutes from "./routes/auth.routes";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -27,6 +28,9 @@ app.get("/health", (req: Request, res: Response) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+// Auth routes
+app.use("/auth", authRoutes);
 
 // Start server
 app.listen(PORT, () => {
