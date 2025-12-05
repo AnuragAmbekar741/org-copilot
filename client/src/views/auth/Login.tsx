@@ -1,21 +1,21 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { ArrowRight, BarChart3 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema, type LoginFormValues } from "./schema";
+import { useLogin } from "@/hooks/useAuth";
+import { Button, Input, Label } from "@/components/ui";
 
 export function Login() {
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+  const { mutateAsync: login, isPending } = useLogin();
+  const form = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: "", password: "" },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Login", formData);
-    // Add API call here
-  };
+  const onSubmit = form.handleSubmit(async (values) => {
+    await login(values);
+  });
 
   return (
     <div className="flex min-h-screen w-full bg-black text-white font-mono selection:bg-zinc-800">
@@ -37,21 +37,20 @@ export function Login() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={onSubmit} className="space-y-6">
             <div className="space-y-2 group">
               <Label className="text-xs uppercase tracking-widest text-zinc-500 group-focus-within:text-white transition-colors">
                 Email Address
               </Label>
               <Input
-                value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
+                {...form.register("email")}
                 className="bg-transparent border-zinc-800 border-x-0 border-t-0 border-b rounded-none focus-visible:ring-0 focus-visible:border-white px-0 h-12 text-sm transition-colors placeholder:text-zinc-800"
                 placeholder="name@company.com"
                 type="email"
-                required
               />
+              <p className="text-xs text-red-400">
+                {form.formState.errors.email?.message}
+              </p>
             </div>
 
             <div className="space-y-2 group">
@@ -59,26 +58,25 @@ export function Login() {
                 Password
               </Label>
               <Input
-                value={formData.password}
-                onChange={(e) =>
-                  setFormData({ ...formData, password: e.target.value })
-                }
+                {...form.register("password")}
                 className="bg-transparent border-zinc-800 border-x-0 border-t-0 border-b rounded-none focus-visible:ring-0 focus-visible:border-white px-0 h-12 text-sm transition-colors placeholder:text-zinc-800"
                 type="password"
                 placeholder="••••••••"
-                required
               />
+              <p className="text-xs text-red-400">
+                {form.formState.errors.password?.message}
+              </p>
             </div>
 
             <Button
               type="submit"
+              disabled={isPending}
               className="w-full h-14 mt-8 rounded-none bg-white text-black hover:bg-zinc-200 text-xs uppercase tracking-[0.15em] font-medium group transition-all"
             >
-              Enter Dashboard
+              {isPending ? "Signing In..." : "Enter Dashboard"}
               <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Button>
           </form>
-
           <div className="mt-8 text-center">
             <Link
               to="/signup"

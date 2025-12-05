@@ -32,7 +32,7 @@ app.get("/health", (req: Request, res: Response) => {
 });
 
 // Auth routes
-app.use("/auth", authRoutes);
+app.use("/api", authRoutes);
 app.use("/financial-items", financialItemRoutes);
 app.use("/api", scenarioRoutes);
 // Start server

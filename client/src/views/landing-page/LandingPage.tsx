@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Terminal } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export function LandingPage() {
   return (
@@ -26,9 +27,6 @@ export function LandingPage() {
           <div className="absolute bottom-0 right-0 w-4 h-4 border-b border-r border-zinc-700" />
 
           <h1 className="text-5xl md:text-7xl lg:text-8xl 2xl:text-9xl font-light tracking-tighter text-white/90 leading-[0.9] uppercase">
-            <span className="block font-thin text-zinc-600 text-lg md:text-2xl lg:text-3xl mb-4 tracking-[0.3em]">
-              Scenario_Mode
-            </span>
             Will You{" "}
             <span className="bg-zinc-100 text-black px-2 md:px-4">Make It</span>
             <br />
@@ -66,14 +64,17 @@ export function LandingPage() {
 
         {/* Tech CTA */}
         <div className="mt-16 md:mt-20">
-          <Button
-            size="lg"
-            className="h-14 px-10 rounded-none border border-zinc-800 bg-transparent text-zinc-400 hover:text-black hover:bg-white hover:border-white transition-all duration-300 text-xs md:text-sm uppercase tracking-[0.15em] group"
-          >
-            <Terminal className="mr-3 h-4 w-4" />
-            Initialize Pilot
-            <ArrowRight className="ml-3 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-          </Button>
+          {/* Wrap the button in a Link */}
+          <Link to="/signup">
+            <Button
+              size="lg"
+              className="h-14 px-10 rounded-none border border-zinc-800 bg-transparent text-zinc-400 hover:text-black hover:bg-white hover:border-white transition-all duration-300 text-xs md:text-sm uppercase tracking-[0.15em] group"
+            >
+              <Terminal className="mr-3 h-4 w-4" />
+              Initialize Pilot
+              <ArrowRight className="ml-3 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+            </Button>
+          </Link>
         </div>
       </main>
     </div>
