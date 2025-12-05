@@ -2,9 +2,9 @@ import React from "react";
 import { type UseFieldArrayReturn, type UseFormReturn } from "react-hook-form";
 import { X, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { type ScenarioFormValues } from "@/views/dashboard/home/schema";
+import { FormField } from "@/components/ui/form-field";
 
 type SelectedItemsListProps = {
   fields: UseFieldArrayReturn<ScenarioFormValues, "financialItems">["fields"];
@@ -100,34 +100,30 @@ export const SelectedItemsList: React.FC<SelectedItemsListProps> = ({
                       </select>
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-xs text-zinc-500">Value ($)</Label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      {...form.register(`financialItems.${index}.value`, {
-                        valueAsNumber: true,
-                      })}
-                      className="bg-transparent border-zinc-800 border rounded-none focus-visible:ring-0 focus-visible:border-white px-2 h-8 text-sm"
-                    />
-                  </div>
+                  <FormField
+                    label="Value ($)"
+                    register={form.register(`financialItems.${index}.value`, {
+                      valueAsNumber: true,
+                    })}
+                    type="number"
+                    step="0.01"
+                    variant="boxed"
+                  />
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-xs text-zinc-500">Starts At</Label>
-                      <Input
-                        type="date"
-                        {...form.register(`financialItems.${index}.startsAt`)}
-                        className="bg-transparent border-zinc-800 border rounded-none focus-visible:ring-0 focus-visible:border-white px-2 h-8 text-sm"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-xs text-zinc-500">Ends At</Label>
-                      <Input
-                        type="date"
-                        {...form.register(`financialItems.${index}.endsAt`)}
-                        className="bg-transparent border-zinc-800 border rounded-none focus-visible:ring-0 focus-visible:border-white px-2 h-8 text-sm"
-                      />
-                    </div>
+                    <FormField
+                      label="Starts At"
+                      register={form.register(
+                        `financialItems.${index}.startsAt`
+                      )}
+                      type="date"
+                      variant="boxed"
+                    />
+                    <FormField
+                      label="Ends At"
+                      register={form.register(`financialItems.${index}.endsAt`)}
+                      type="date"
+                      variant="boxed"
+                    />
                   </div>
                 </div>
               )}

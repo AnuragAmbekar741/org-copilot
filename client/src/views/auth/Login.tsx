@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginFormValues } from "./schema";
 import { useLogin } from "@/hooks/useAuth";
 import { Button, Input, Label } from "@/components/ui";
+import { FormField } from "@/components/ui/form-field";
 
 export function Login() {
   const { mutateAsync: login, isPending, failureReason } = useLogin();
@@ -18,9 +19,9 @@ export function Login() {
   });
 
   return (
-    <div className="flex min-h-screen w-full bg-black text-white font-mono selection:bg-zinc-800">
+    <div className="flex min-h-screen w-full bg-zinc-900 text-white font-mono selection:bg-zinc-800">
       {/* Left: Login Form */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 sm:px-12 lg:px-24 border-r border-zinc-900 relative z-10 bg-black">
+      <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 sm:px-12 lg:px-24 relative z-10 bg-zinc-900">
         <div className="max-w-md w-full mx-auto">
           <div className="mb-12">
             <div className="flex items-center gap-2 mb-6">
@@ -48,39 +49,21 @@ export function Login() {
               </div>
             )}
 
-            <div className="space-y-2 group">
-              <Label className="text-xs uppercase tracking-widest text-zinc-500 group-focus-within:text-white transition-colors">
-                Email Address
-              </Label>
-              <Input
-                {...form.register("email")}
-                className="bg-transparent border-zinc-800 border-x-0 border-t-0 border-b rounded-none focus-visible:ring-0 focus-visible:border-white px-0 h-12 text-sm transition-colors placeholder:text-zinc-800"
-                placeholder="name@company.com"
-                type="email"
-              />
-              {form.formState.errors.email && (
-                <p className="text-xs text-red-400">
-                  {form.formState.errors.email.message}
-                </p>
-              )}
-            </div>
+            <FormField
+              label="Email Address"
+              register={form.register("email")}
+              error={form.formState.errors.email?.message}
+              placeholder="name@company.com"
+              type="email"
+            />
 
-            <div className="space-y-2 group">
-              <Label className="text-xs uppercase tracking-widest text-zinc-500 group-focus-within:text-white transition-colors">
-                Password
-              </Label>
-              <Input
-                {...form.register("password")}
-                className="bg-transparent border-zinc-800 border-x-0 border-t-0 border-b rounded-none focus-visible:ring-0 focus-visible:border-white px-0 h-12 text-sm transition-colors placeholder:text-zinc-800"
-                type="password"
-                placeholder="••••••••"
-              />
-              {form.formState.errors.password && (
-                <p className="text-xs text-red-400">
-                  {form.formState.errors.password.message}
-                </p>
-              )}
-            </div>
+            <FormField
+              label="Password"
+              register={form.register("password")}
+              error={form.formState.errors.password?.message}
+              placeholder="••••••••"
+              type="password"
+            />
 
             <Button
               type="submit"
@@ -103,10 +86,10 @@ export function Login() {
       </div>
 
       {/* Right: Login Visual (Efficiency) */}
-      <div className="hidden lg:flex w-1/2 relative bg-black items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#111_1px,transparent_1px),linear-gradient(to_bottom,#111_1px,transparent_1px)] bg-[size:2rem_2rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_100%,transparent_100%)] opacity-50" />
+      <div className="hidden lg:flex w-1/2 relative bg-zinc-950/80 items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#222_1px,transparent_1px),linear-gradient(to_bottom,#222_1px,transparent_1px)] bg-[size:2rem_2rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_100%,transparent_100%)] opacity-50" />
 
-        <div className="relative w-96 h-96 border border-zinc-800 bg-zinc-950/50 backdrop-blur-sm p-8 flex flex-col justify-between animate-in zoom-in-95 duration-500">
+        <div className="relative w-96 h-96 border border-zinc-800 bg-zinc-950 backdrop-blur-sm p-8 flex flex-col justify-between animate-in zoom-in-95 duration-500">
           <div className="absolute top-0 left-0 w-2 h-2 bg-white" />
           <div className="absolute bottom-0 right-0 w-2 h-2 bg-white" />
 

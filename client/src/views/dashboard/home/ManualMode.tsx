@@ -179,7 +179,19 @@ export const ManualMode: React.FC = () => {
               />
             </TabsContent>
             <TabsContent value="manual">
-              <ManualTab />
+              <ManualTab
+                onAddItem={(item) => {
+                  append({
+                    title: item.title,
+                    category: item.category,
+                    type: item.type,
+                    value: item.value,
+                    frequency: item.frequency,
+                    startsAt: item.startsAt,
+                    endsAt: item.endsAt || "",
+                  });
+                }}
+              />
             </TabsContent>
           </div>
         </Tabs>

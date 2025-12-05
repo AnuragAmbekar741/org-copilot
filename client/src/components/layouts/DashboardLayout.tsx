@@ -5,16 +5,11 @@ import {
   useLocation,
   useSearchParams,
 } from "react-router-dom";
-import {
-  Home,
-  FileText,
-  Settings,
-  PanelLeftClose,
-  PanelLeftOpen,
-  PenTool,
-} from "lucide-react";
+import { Home, FileText, Settings, PanelLeftClose, LogOut } from "lucide-react";
 import { cn } from "@/utils/cn";
 import { Button } from "@/components/ui/button";
+import { clearAccessToken } from "@/utils/storage";
+import { DashboardHeader } from "./DashboardHeader";
 
 const menuItems = [
   {
@@ -53,12 +48,17 @@ export const DashboardLayout = () => {
     }
   };
 
+  const handleLogout = () => {
+    clearAccessToken();
+    navigate("/login", { replace: true });
+  };
+
   return (
-    <div className="flex h-screen w-full bg-zinc-950 text-zinc-200 font-sans selection:bg-zinc-800/50">
+    <div className="flex h-screen w-full bg-zinc-900 text-zinc-200 font-sans selection:bg-zinc-800/50">
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 border-r border-zinc-800/50 bg-zinc-900/50 transition-all duration-300 ease-out",
+          "fixed inset-y-0 left-0 z-50 border-r-[var(--dashboard-border-width)] border-[var(--dashboard-border)] bg-zinc-800/60 transition-all duration-300 ease-out",
           isSidebarOpen ? "translate-x-0" : "-translate-x-full",
           "lg:static lg:translate-x-0",
           isSidebarOpen ? "lg:w-64" : "lg:w-0 lg:border-0"
@@ -66,7 +66,7 @@ export const DashboardLayout = () => {
       >
         <div
           className={cn(
-            "flex h-16 items-center justify-between border-b border-zinc-800/50 px-6 transition-opacity duration-300",
+            "flex h-16 items-center justify-between border-b-[var(--dashboard-border-width)] border-[var(--dashboard-border)] px-6 transition-opacity duration-300",
             isSidebarOpen ? "opacity-100" : "opacity-0 lg:pointer-events-none"
           )}
         >
@@ -127,7 +127,7 @@ export const DashboardLayout = () => {
 
         <div
           className={cn(
-            "absolute bottom-0 w-full p-4 border-t border-zinc-800/50 transition-opacity duration-300",
+            "absolute bottom-0 w-full p-4 border-t-[var(--dashboard-border-width)] border-[var(--dashboard-border)] transition-opacity duration-300",
             isSidebarOpen ? "opacity-100" : "opacity-0 lg:pointer-events-none"
           )}
         >
@@ -135,7 +135,7 @@ export const DashboardLayout = () => {
             <div className="h-8 w-8 rounded-full bg-zinc-800 flex items-center justify-center text-xs text-zinc-400 font-medium shrink-0">
               US
             </div>
-            <div className="flex flex-col min-w-0">
+            <div className="flex flex-col min-w-0 flex-1">
               <span className="text-xs text-zinc-300 font-medium whitespace-nowrap">
                 User Pilot
               </span>
@@ -143,43 +143,27 @@ export const DashboardLayout = () => {
                 Level 3 Clearance
               </span>
             </div>
+            <button
+              onClick={handleLogout}
+              className="text-zinc-400 hover:text-zinc-200 transition-colors p-1.5 hover:bg-zinc-800/40 rounded-none"
+              title="Logout"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
           </div>
         </div>
       </aside>
 
       {/* Main Content Wrapper */}
-      <div className="flex flex-1 flex-col min-w-0 bg-zinc-950/50 no-scrollbar">
+      <div className="flex flex-1 flex-col min-w-0 bg-zinc-900/80 no-scrollbar">
         {/* Top Header */}
-        <header className="flex h-16 items-center justify-between gap-4 border-b border-zinc-800/50 bg-zinc-900/30 px-6 backdrop-blur-md sticky top-0 z-40">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-zinc-400 hover:text-zinc-200 h-8 w-8"
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            >
-              {isSidebarOpen ? (
-                <PanelLeftClose className="h-5 w-5" />
-              ) : (
-                <PanelLeftOpen className="h-5 w-5" />
-              )}
-            </Button>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <Button
-              variant="outline"
-              className={cn(
-                "border-zinc-700 text-zinc-300 hover:text-white hover:bg-zinc-800 rounded-none text-xs uppercase tracking-wider h-9",
-                isManualMode && "bg-zinc-800 text-white border-zinc-600"
-              )}
-              onClick={toggleManualMode}
-            >
-              <PenTool className="mr-2 h-3 w-3" />
-              {isManualMode ? "Exit Manual Mode" : "Build Manually"}
-            </Button>
-          </div>
-        </header>
+        <DashboardHeader
+          isSidebarOpen={isSidebarOpen}
+          onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+          isManualMode={isManualMode}
+          onToggleManualMode={toggleManualMode}
+          currentPath={location.pathname}
+        />
 
         {/* Content Area */}
         <main className="flex-1 overflow-auto p-6">
