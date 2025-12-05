@@ -23,7 +23,7 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (res) => res,
   (err) => {
-    if (err?.response?.status === 401) {
+    if (err?.response?.status === 403) {
       clearAccessToken();
       window.location.href = "/login";
     }

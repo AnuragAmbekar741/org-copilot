@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Input, Label } from "@/components/ui";
 
 export function Signup() {
-  const { mutateAsync: signup, isPending } = useSignup();
+  const { mutateAsync: signup, isPending, failureReason } = useSignup();
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
     defaultValues: { name: "", email: "", password: "" },
@@ -38,6 +38,16 @@ export function Signup() {
           </div>
 
           <form onSubmit={onSubmit} className="space-y-6">
+            {failureReason && (
+              <div className="p-3 bg-red-950/20 border border-red-500/30 rounded-none">
+                <p className="text-xs text-red-400">
+                  {failureReason instanceof Error
+                    ? failureReason.message
+                    : "An error occurred"}
+                </p>
+              </div>
+            )}
+
             <div className="space-y-2 group">
               <Label className="text-xs uppercase tracking-widest text-zinc-500 group-focus-within:text-white transition-colors">
                 Full Name
@@ -47,9 +57,11 @@ export function Signup() {
                 className="bg-transparent border-zinc-800 border-x-0 border-t-0 border-b rounded-none focus-visible:ring-0 focus-visible:border-white px-0 h-12 text-sm transition-colors placeholder:text-zinc-800"
                 placeholder="John Doe"
               />
-              <p className="text-xs text-red-400">
-                {form.formState.errors.name?.message}
-              </p>
+              {form.formState.errors.name && (
+                <p className="text-xs text-red-400">
+                  {form.formState.errors.name.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2 group">
@@ -62,9 +74,11 @@ export function Signup() {
                 placeholder="name@company.com"
                 type="email"
               />
-              <p className="text-xs text-red-400">
-                {form.formState.errors.email?.message}
-              </p>
+              {form.formState.errors.email && (
+                <p className="text-xs text-red-400">
+                  {form.formState.errors.email.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2 group">
@@ -77,9 +91,11 @@ export function Signup() {
                 type="password"
                 placeholder="••••••••"
               />
-              <p className="text-xs text-red-400">
-                {form.formState.errors.password?.message}
-              </p>
+              {form.formState.errors.password && (
+                <p className="text-xs text-red-400">
+                  {form.formState.errors.password.message}
+                </p>
+              )}
             </div>
 
             <Button

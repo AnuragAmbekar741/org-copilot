@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { ProtectedRoute } from "@/components/protected-route";
 import { PublicRoute } from "@/components/public-route";
 import { LandingPage, Home, Scenario, Login, Signup } from "@/views";
+import { DashboardLayout } from "./components/layouts/DashboardLayout";
 
 function App() {
   return (
@@ -28,21 +29,16 @@ function App() {
             }
           />
           <Route
-            path="/dashboard/home"
+            path="/dashboard"
             element={
               <ProtectedRoute>
-                <Home />
+                <DashboardLayout />
               </ProtectedRoute>
             }
-          />
-          <Route
-            path="/dashboard/scenario"
-            element={
-              <ProtectedRoute>
-                <Scenario />
-              </ProtectedRoute>
-            }
-          />
+          >
+            <Route path="home" element={<Home />} />
+            <Route path="scenario" element={<Scenario />} />
+          </Route>
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>

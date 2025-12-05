@@ -7,7 +7,7 @@ import { useLogin } from "@/hooks/useAuth";
 import { Button, Input, Label } from "@/components/ui";
 
 export function Login() {
-  const { mutateAsync: login, isPending } = useLogin();
+  const { mutateAsync: login, isPending, failureReason } = useLogin();
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "" },
@@ -38,6 +38,16 @@ export function Login() {
           </div>
 
           <form onSubmit={onSubmit} className="space-y-6">
+            {failureReason && (
+              <div className="p-3 bg-red-950/20 border border-red-500/30 rounded-none">
+                <p className="text-xs text-red-400">
+                  {failureReason instanceof Error
+                    ? failureReason.message
+                    : "An error occurred"}
+                </p>
+              </div>
+            )}
+
             <div className="space-y-2 group">
               <Label className="text-xs uppercase tracking-widest text-zinc-500 group-focus-within:text-white transition-colors">
                 Email Address
@@ -48,9 +58,11 @@ export function Login() {
                 placeholder="name@company.com"
                 type="email"
               />
-              <p className="text-xs text-red-400">
-                {form.formState.errors.email?.message}
-              </p>
+              {form.formState.errors.email && (
+                <p className="text-xs text-red-400">
+                  {form.formState.errors.email.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2 group">
@@ -63,9 +75,11 @@ export function Login() {
                 type="password"
                 placeholder="••••••••"
               />
-              <p className="text-xs text-red-400">
-                {form.formState.errors.password?.message}
-              </p>
+              {form.formState.errors.password && (
+                <p className="text-xs text-red-400">
+                  {form.formState.errors.password.message}
+                </p>
+              )}
             </div>
 
             <Button

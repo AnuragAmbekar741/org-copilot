@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Terminal } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export function LandingPage() {
@@ -63,16 +63,33 @@ export function LandingPage() {
         </div>
 
         {/* Tech CTA */}
-        <div className="mt-16 md:mt-20">
-          {/* Wrap the button in a Link */}
-          <Link to="/signup">
+        <div className="mt-16 md:mt-24">
+          <Link
+            to="/signup"
+            className="group relative inline-flex items-center justify-center focus:outline-none"
+          >
+            {/* Layer 1: The Deep Shadow/Base (Furthest back) */}
+            {/* Stays anchored but moves slightly to react to the press */}
+            <div className="absolute inset-0 translate-x-4 translate-y-4 bg-[linear-gradient(45deg,#18181b_25%,transparent_25%,transparent_50%,#18181b_50%,#18181b_75%,transparent_75%,transparent_100%)] bg-[size:8px_8px] border border-zinc-800 opacity-60 transition-transform duration-300 ease-out group-hover:translate-x-2 group-hover:translate-y-2" />
+
+            {/* Layer 2: The Solid Mid-Block (Gives the thickness) */}
+            <div className="absolute inset-0 translate-x-2 translate-y-2 bg-zinc-800 border border-zinc-700 transition-transform duration-300 ease-out group-hover:translate-x-1 group-hover:translate-y-1 group-hover:bg-zinc-700" />
+
+            {/* Layer 3: The Main Button Face (Top) */}
             <Button
               size="lg"
-              className="h-14 px-10 rounded-none border border-zinc-800 bg-transparent text-zinc-400 hover:text-black hover:bg-white hover:border-white transition-all duration-300 text-xs md:text-sm uppercase tracking-[0.15em] group"
+              className="relative h-16 min-w-[240px] rounded-none border border-zinc-500 bg-black text-white hover:bg-zinc-100 hover:text-black hover:border-white transition-all duration-300 ease-out uppercase tracking-[0.15em] group-active:translate-x-2 group-active:translate-y-2"
             >
-              <Terminal className="mr-3 h-4 w-4" />
-              Initialize Pilot
-              <ArrowRight className="ml-3 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              <div className="flex items-center gap-4 text-xs font-bold z-10">
+                <span>Know Your Numbers!</span>
+                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </div>
+
+              {/* Technical Corners on the Button Face */}
+              <div className="absolute top-0 left-0 w-1.5 h-1.5 bg-zinc-500 group-hover:bg-black transition-colors" />
+              <div className="absolute bottom-0 right-0 w-1.5 h-1.5 bg-zinc-500 group-hover:bg-black transition-colors" />
+              <div className="absolute top-0 right-0 w-1.5 h-1.5 border-t border-r border-zinc-500 group-hover:border-black transition-colors" />
+              <div className="absolute bottom-0 left-0 w-1.5 h-1.5 border-b border-l border-zinc-500 group-hover:border-black transition-colors" />
             </Button>
           </Link>
         </div>
