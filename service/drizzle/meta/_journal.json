@@ -15,6 +15,20 @@
       "when": 1764916373827,
       "tag": "0001_closed_shaman",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1764922551913,
+      "tag": "0002_steady_tyrannus",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1764922596357,
+      "tag": "0003_curved_joshua_kane",
+      "breakpoints": true
     }
   ]
 }
