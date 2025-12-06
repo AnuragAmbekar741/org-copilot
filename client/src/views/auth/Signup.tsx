@@ -5,7 +5,7 @@ import { useSignup } from "@/hooks/useAuth";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui";
-import { FormField } from "@/components/ui/form-field";
+import { FormField } from "@/components/wrappers/form-field";
 
 export function Signup() {
   const { mutateAsync: signup, isPending, failureReason } = useSignup();

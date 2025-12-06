@@ -1,11 +1,11 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
-import { FormField } from "@/components/ui/form-field";
-import { FormSelect } from "@/components/ui/form-select";
+import { FormField } from "@/components/wrappers/form-field";
+import { FormSelect } from "@/components/wrappers/form-select";
 import { z } from "zod";
 import { Plus } from "lucide-react";
+import { AppButton } from "@/components/wrappers/app-button";
 
 const manualItemSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
@@ -86,12 +86,14 @@ export const ManualTab: React.FC<ManualTabProps> = ({ onAddItem }) => {
       <div className="grid grid-cols-2 gap-4">
         <FormSelect
           label="Type"
-          register={form.register("type")}
+          control={form.control}
+          name="type"
           error={form.formState.errors.type?.message}
           options={[
             { value: "revenue", label: "Revenue" },
             { value: "cost", label: "Cost" },
           ]}
+          variant="boxed"
         />
 
         <FormField
@@ -101,19 +103,22 @@ export const ManualTab: React.FC<ManualTabProps> = ({ onAddItem }) => {
           placeholder="0.00"
           type="number"
           step="0.01"
+          variant="underline"
         />
       </div>
 
       {/* Frequency */}
       <FormSelect
         label="Frequency"
-        register={form.register("frequency")}
+        control={form.control}
+        name="frequency"
         error={form.formState.errors.frequency?.message}
         options={[
           { value: "monthly", label: "Monthly" },
           { value: "one_time", label: "One Time" },
           { value: "yearly", label: "Yearly" },
         ]}
+        variant="boxed"
       />
 
       {/* StartsAt and EndsAt in one row */}
@@ -123,6 +128,7 @@ export const ManualTab: React.FC<ManualTabProps> = ({ onAddItem }) => {
           register={form.register("startsAt")}
           error={form.formState.errors.startsAt?.message}
           type="date"
+          variant="boxed"
         />
 
         <FormField
@@ -130,16 +136,11 @@ export const ManualTab: React.FC<ManualTabProps> = ({ onAddItem }) => {
           register={form.register("endsAt")}
           error={form.formState.errors.endsAt?.message}
           type="date"
+          variant="boxed"
         />
       </div>
 
-      <Button
-        type="submit"
-        className="w-full h-12 rounded-none bg-white text-black hover:bg-zinc-200 text-xs uppercase tracking-[0.15em] font-medium group transition-all"
-      >
-        <Plus className="mr-2 h-4 w-4" />
-        Add Item
-      </Button>
+      <AppButton type="submit" variant="outline" label="Add Item" icon={Plus} />
     </form>
   );
 };

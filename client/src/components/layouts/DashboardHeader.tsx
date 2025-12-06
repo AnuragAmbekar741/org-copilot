@@ -1,6 +1,6 @@
-import { PanelLeftClose, PanelLeftOpen, PenTool } from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/utils/cn";
+import { AppButton } from "@/components/wrappers/app-button";
 
 type DashboardHeaderProps = {
   isSidebarOpen: boolean;
@@ -38,17 +38,11 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 
       {isOverviewRoute && (
         <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            className={cn(
-              "border-zinc-700 text-zinc-300 hover:text-white hover:bg-zinc-800 rounded-none text-xs uppercase tracking-wider h-9",
-              isManualMode && "bg-zinc-800 text-white border-zinc-600"
-            )}
+          <AppButton
             onClick={onToggleManualMode}
-          >
-            <PenTool className="mr-2 h-3 w-3" />
-            {isManualMode ? "Exit Manual Mode" : "Build Manually"}
-          </Button>
+            label={isManualMode ? "Build With Prompt" : "Build Manually"}
+            isActive
+          />
         </div>
       )}
     </header>

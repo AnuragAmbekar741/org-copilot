@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
 import { scenarioSchema, type ScenarioFormValues } from "./schema";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ScenarioForm } from "@/components/home/ScenarioForm";
@@ -10,6 +9,7 @@ import { SelectedItemsList } from "@/components/home/SelectedItemsList";
 import { TemplatesTab } from "@/components/home/TemplateTabs";
 import { ManualTab } from "@/components/home/ManualTab";
 import { useCreateScenario } from "@/hooks/useScenario";
+import { AppButton } from "@/components/wrappers/app-button";
 
 type FinancialItem = {
   title: string;
@@ -44,7 +44,7 @@ export const ManualMode: React.FC = () => {
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, prepend, remove } = useFieldArray({
     control: form.control,
     name: "financialItems",
   });
@@ -73,10 +73,12 @@ export const ManualMode: React.FC = () => {
         }
       });
     } else {
-      // Select: Add all items from this template
+      // Select: Add all items from this template at the top
       setSelectedTemplates([...selectedTemplates, template.id]);
-      template.items.forEach((item) => {
-        append({
+      // Reverse the items array so they appear in order when prepended
+      const reversedItems = [...template.items].reverse();
+      reversedItems.forEach((item) => {
+        prepend({
           title: item.title,
           category: item.category,
           type: item.type,
@@ -124,8 +126,8 @@ export const ManualMode: React.FC = () => {
   return (
     <div className="flex h-full w-full">
       {/* Left Side - 40% - Title, Description & Selected Items */}
-      <div className="w-[40%] flex flex-col h-full overflow-auto px-6 py-6">
-        <div className="mb-8">
+      <div className="w-[50%] flex flex-col h-full overflow-auto px-6 py-7">
+        <div className="mb-12">
           <h1 className="text-3xl font-light text-white">
             Manual Scenario Builder
           </h1>
@@ -137,23 +139,28 @@ export const ManualMode: React.FC = () => {
         <form onSubmit={onSubmit} className="space-y-6 flex-1 flex flex-col">
           <ScenarioForm form={form} />
 
-          <SelectedItemsList
-            fields={fields}
-            remove={remove}
-            form={form}
-            expandedItems={expandedItems}
-            onToggleExpand={toggleExpand}
-            onRemove={handleRemove}
-          />
+          {/* Scrollable container for selected items */}
+          <div className="flex-1 min-h-0 flex flex-col">
+            <div className="max-h-[400px] overflow-y-auto pr-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+              <SelectedItemsList
+                fields={fields}
+                remove={remove}
+                form={form}
+                expandedItems={expandedItems}
+                onToggleExpand={toggleExpand}
+                onRemove={handleRemove}
+              />
+            </div>
+          </div>
 
-          <Button
+          <AppButton
             type="submit"
+            variant="outline"
+            label={isPending ? "Creating..." : "Initialize Scenario"}
+            icon={ArrowRight}
             disabled={isPending}
-            className="w-full h-14 mt-auto rounded-none bg-white text-black hover:bg-zinc-200 text-xs uppercase tracking-[0.15em] font-medium group transition-all"
-          >
-            {isPending ? "Creating..." : "Initialize Scenario"}
-            <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-          </Button>
+            className="group mt-auto"
+          />
         </form>
       </div>
 
@@ -161,7 +168,7 @@ export const ManualMode: React.FC = () => {
       <div className="w-px bg-zinc-800/50 h-full"></div>
 
       {/* Right Side - 60% - Tabs & Content */}
-      <div className="w-[60%] flex flex-col h-full px-6 py-6">
+      <div className="w-[50%] flex flex-col h-full px-6 py-6">
         <Tabs
           value={activeTab}
           onValueChange={(v) => setActiveTab(v as "templates" | "manual")}

@@ -4,7 +4,7 @@ import { X, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { type ScenarioFormValues } from "@/views/dashboard/home/schema";
-import { FormField } from "@/components/ui/form-field";
+import { FormField } from "@/components/wrappers/form-field";
 
 type SelectedItemsListProps = {
   fields: UseFieldArrayReturn<ScenarioFormValues, "financialItems">["fields"];
@@ -39,12 +39,13 @@ export const SelectedItemsList: React.FC<SelectedItemsListProps> = ({
               className="border border-zinc-800 bg-zinc-900/30 rounded-none"
             >
               <div className="flex items-center justify-between p-3">
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 flex items-center gap-3">
                   <div className="text-sm text-zinc-200 font-medium truncate">
                     {field.title || `Item ${index + 1}`}
                   </div>
-                  <div className="text-xs text-zinc-500 mt-0.5">
-                    {field.category} • ${Number(field.value).toLocaleString()}
+                  <div className="text-xs text-zinc-500">{field.category}</div>
+                  <div className="text-xs text-zinc-500">
+                    ${Number(field.value).toLocaleString()}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -52,7 +53,7 @@ export const SelectedItemsList: React.FC<SelectedItemsListProps> = ({
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="h-6 w-6 p-0 text-zinc-400 hover:text-zinc-200"
+                    className="h-6 w-6 p-0 text-zinc-400 hover:text-zinc-200 hover:border hover:border-zinc-800 hover:bg-transparent hover:rounded-none transition-all"
                     onClick={() => onToggleExpand(index)}
                   >
                     {isExpanded ? (
@@ -65,7 +66,7 @@ export const SelectedItemsList: React.FC<SelectedItemsListProps> = ({
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="h-6 w-6 p-0 text-zinc-400 hover:text-red-400"
+                    className="h-6 w-6 p-0 text-zinc-400 hover:text-red-400 hover:border hover:border-zinc-800 hover:bg-transparent hover:rounded-none transition-all"
                     onClick={() => {
                       remove(index);
                       onRemove(index);

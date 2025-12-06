@@ -1,7 +1,7 @@
 import React from "react";
 import { type UseFormReturn } from "react-hook-form";
 import { type ScenarioFormValues } from "@/views/dashboard/home/schema";
-import { FormField } from "@/components/ui/form-field";
+import { FormField } from "@/components/wrappers/form-field";
 
 type ScenarioFormProps = {
   form: UseFormReturn<ScenarioFormValues>;

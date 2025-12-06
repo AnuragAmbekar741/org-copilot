@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginFormValues } from "./schema";
 import { useLogin } from "@/hooks/useAuth";
 import { Button, Input, Label } from "@/components/ui";
-import { FormField } from "@/components/ui/form-field";
+import { FormField } from "@/components/wrappers/form-field";
 
 export function Login() {
   const { mutateAsync: login, isPending, failureReason } = useLogin();

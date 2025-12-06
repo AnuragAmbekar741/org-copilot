@@ -28,8 +28,8 @@ export const FormField: React.FC<FormFieldProps> = ({
 }) => {
   const baseInputClasses =
     variant === "underline"
-      ? "bg-transparent border-zinc-800 border-x-0 border-t-0 border-b rounded-none focus-visible:ring-0 focus-visible:border-white px-0 h-12 text-sm transition-colors placeholder:text-zinc-500"
-      : "bg-transparent border-zinc-800 border rounded-none focus-visible:ring-0 focus-visible:border-white px-2 h-8 text-sm transition-colors placeholder:text-zinc-500";
+      ? "bg-transparent border-zinc-800 border-x-0 border-t-0 border-b rounded-none focus-visible:ring-0 focus-visible:border-white px-0 h-10 text-sm transition-colors placeholder:text-zinc-500"
+      : "bg-transparent border-zinc-800 border rounded-none focus-visible:ring-0 focus-visible:border-white px-2 py-2 h-10 text-sm transition-colors placeholder:text-zinc-500";
 
   return (
     <div className={`space-y-2 group ${className}`}>
