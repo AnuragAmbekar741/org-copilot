@@ -5,6 +5,7 @@ import { ProtectedRoute } from "@/components/protected-route";
 import { PublicRoute } from "@/components/public-route";
 import { LandingPage, Home, Scenario, Login, Signup } from "@/views";
 import { DashboardLayout } from "./components/layouts/DashboardLayout";
+import ScenarioDetails from "./views/dashboard/scenario-details/ScenarioDetails";
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
           >
             <Route path="home" element={<Home />} />
             <Route path="scenario" element={<Scenario />} />
+            <Route path="scenario/:id" element={<ScenarioDetails />} />
           </Route>
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>

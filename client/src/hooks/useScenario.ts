@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import {
   createScenarioApi,
   getScenariosApi,
+  getScenarioByIdApi,
   type CreateScenarioPayload,
   type ScenarioResponse,
 } from "@/api/scenario";
@@ -39,5 +40,18 @@ export const useScenarios = () => {
   return useQuery({
     queryKey: ["scenarios"],
     queryFn: getScenariosApi,
+  });
+};
+
+export const useScenario = (id: string | undefined) => {
+  return useQuery({
+    queryKey: ["scenario", id],
+    queryFn: () => {
+      if (!id) {
+        throw new Error("Scenario ID is required");
+      }
+      return getScenarioByIdApi(id);
+    },
+    enabled: !!id,
   });
 };

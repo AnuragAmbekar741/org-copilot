@@ -1,15 +1,17 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { useScenarios } from "@/hooks/useScenario";
 import { ScenarioCard } from "@/components/scenario/ScenarioCard";
 import { type Scenario as ScenarioType } from "@/api/scenario";
 import { Loader2 } from "lucide-react";
 
 export const Scenario: React.FC = () => {
+  const navigate = useNavigate();
   const { data: scenariosResponse, isLoading } = useScenarios();
   const scenarios = scenariosResponse?.data || [];
 
   const handleScenarioClick = (scenario: ScenarioType) => {
-    console.log("Clicked scenario:", scenario.id);
+    navigate(`/dashboard/scenario/${scenario.id}`);
   };
 
   if (isLoading) {
@@ -21,11 +23,11 @@ export const Scenario: React.FC = () => {
   }
 
   return (
-    <div className="flex h-full w-full ">
+    <div className="flex h-full w-full p-6">
       {/* Left Panel: Scenario List */}
-      <div className="w-full h-full p-8 overflow-auto">
+      <div className="w-full h-full px-2 overflow-auto">
         <div className="max-w-7xl mx-auto">
-          <div className="mb-10">
+          <div className="mb-6">
             <h1 className="text-3xl font-light text-white tracking-tight">
               Scenarios
             </h1>

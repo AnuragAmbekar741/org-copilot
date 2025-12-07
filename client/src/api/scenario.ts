@@ -1,17 +1,20 @@
 import { get, post } from "@/utils/request";
 
+export interface FinancialItem {
+  id?: string;
+  title: string;
+  category: string;
+  type: "cost" | "revenue";
+  value: number;
+  frequency: "monthly" | "one_time" | "yearly";
+  startsAt: string;
+  endsAt?: string;
+}
+
 export type CreateScenarioPayload = {
   title: string;
   description?: string;
-  financialItems?: Array<{
-    title: string;
-    category: string;
-    type: "cost" | "revenue";
-    value: number;
-    frequency: "monthly" | "one_time" | "yearly";
-    startsAt: string;
-    endsAt?: string;
-  }>;
+  financialItems?: FinancialItem[];
 };
 
 export type Scenario = {
@@ -34,6 +37,11 @@ export type ScenariosResponse = {
   data: Scenario[];
 };
 
+export type ScenarioByIdResponse = {
+  success: boolean;
+  data: Scenario;
+};
+
 export const createScenarioApi = async (payload: CreateScenarioPayload) => {
   const data = await post<ScenarioResponse, CreateScenarioPayload>(
     "/scenarios",
@@ -44,5 +52,10 @@ export const createScenarioApi = async (payload: CreateScenarioPayload) => {
 
 export const getScenariosApi = async () => {
   const data = await get<ScenariosResponse>("/scenarios");
+  return data;
+};
+
+export const getScenarioByIdApi = async (id: string) => {
+  const data = await get<ScenarioByIdResponse>(`/scenarios/${id}`);
   return data;
 };

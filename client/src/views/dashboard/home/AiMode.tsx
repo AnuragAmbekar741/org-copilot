@@ -58,15 +58,15 @@ export const AIMode: React.FC = () => {
           />
         </div>
         <div className="flex justify-between items-center">
-          <div className="text-xs text-zinc-600 flex items-center gap-2">
-            <Zap className="h-3 w-3" />
-            <span>Press Enter to generate</span>
-          </div>
+            <div className="text-xs text-zinc-600 flex items-center gap-2">
+              <Zap className="h-3 w-3" />
+              <span>Press Enter to generate</span>
+            </div>
           <AppButton
             variant="outline"
             label="Generate Scenario"
             icon={ArrowRight}
-            onClick={() => console.log("Generate:", prompt)}
+              onClick={() => console.log("Generate:", prompt)}
             className="w-auto"
           />
         </div>
