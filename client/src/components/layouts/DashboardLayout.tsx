@@ -167,7 +167,7 @@ export const DashboardLayout = () => {
 
         {/* Content Area */}
         <main className="flex-1 overflow-auto p-6">
-          <div className="max-w-6xl mx-auto animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <div className="max-w-6xl animate-in fade-in slide-in-from-bottom-2 duration-500">
             <Outlet />
           </div>
         </main>

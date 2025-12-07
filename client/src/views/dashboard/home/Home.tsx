@@ -6,6 +6,15 @@ import { ManualMode } from "./ManualMode";
 export const Home: React.FC = () => {
   const [searchParams] = useSearchParams();
   const isManualMode = searchParams.get("mode") === "manual";
+  const baseStyle = "flex w-full mx-auto";
 
-  return isManualMode ? <ManualMode /> : <AIMode />;
+  return isManualMode ? (
+    <div className={baseStyle}>
+      <ManualMode />
+    </div>
+  ) : (
+    <div className={baseStyle}>
+      <AIMode />
+    </div>
+  );
 };

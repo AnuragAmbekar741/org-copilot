@@ -1,4 +1,4 @@
-import { post } from "@/utils/request";
+import { get, post } from "@/utils/request";
 
 export type CreateScenarioPayload = {
   title: string;
@@ -14,17 +14,24 @@ export type CreateScenarioPayload = {
   }>;
 };
 
+export type Scenario = {
+  id: string;
+  userId: string;
+  title: string;
+  description?: string;
+  financialItems?: unknown[];
+  createdAt?: string;
+  updatedAt?: string;
+};
+
 export type ScenarioResponse = {
   success: boolean;
-  data: {
-    id: string;
-    userId: string;
-    title: string;
-    description?: string;
-    financialItems?: unknown[];
-    createdAt?: string;
-    updatedAt?: string;
-  };
+  data: Scenario;
+};
+
+export type ScenariosResponse = {
+  success: boolean;
+  data: Scenario[];
 };
 
 export const createScenarioApi = async (payload: CreateScenarioPayload) => {
@@ -32,5 +39,10 @@ export const createScenarioApi = async (payload: CreateScenarioPayload) => {
     "/scenarios",
     payload
   );
+  return data;
+};
+
+export const getScenariosApi = async () => {
+  const data = await get<ScenariosResponse>("/scenarios");
   return data;
 };

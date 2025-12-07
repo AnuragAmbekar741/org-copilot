@@ -4,6 +4,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { scenarioSchema, type ScenarioFormValues } from "./schema";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Label } from "@/components/ui/label";
 import { ScenarioForm } from "@/components/home/ScenarioForm";
 import { SelectedItemsList } from "@/components/home/SelectedItemsList";
 import { TemplatesTab } from "@/components/home/TemplateTabs";
@@ -127,7 +128,7 @@ export const ManualMode: React.FC = () => {
     <div className="flex h-full w-full">
       {/* Left Side - 40% - Title, Description & Selected Items */}
       <div className="w-[50%] flex flex-col h-full overflow-auto px-6 py-7">
-        <div className="mb-12">
+        <div className="mb-8">
           <h1 className="text-3xl font-light text-white">
             Manual Scenario Builder
           </h1>
@@ -141,7 +142,10 @@ export const ManualMode: React.FC = () => {
 
           {/* Scrollable container for selected items */}
           <div className="flex-1 min-h-0 flex flex-col">
-            <div className="max-h-[400px] overflow-y-auto pr-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <Label className="text-xs uppercase tracking-widest text-zinc-500 my-1">
+              Selected Items ({fields.length})
+            </Label>
+            <div className=" max-h-[250px] 2xl:max-h-[400px] overflow-y-auto pr-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               <SelectedItemsList
                 fields={fields}
                 remove={remove}

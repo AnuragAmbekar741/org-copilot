@@ -26,112 +26,105 @@ export const SelectedItemsList: React.FC<SelectedItemsListProps> = ({
   if (fields.length === 0) return null;
 
   return (
-    <div className="space-y-2 mt-8">
-      <Label className="text-xs uppercase tracking-widest text-zinc-500">
-        Selected Items ({fields.length})
-      </Label>
-      <div className="space-y-2">
-        {fields.map((field, index) => {
-          const isExpanded = expandedItems.has(String(index));
-          return (
-            <div
-              key={field.id}
-              className="border border-zinc-800 bg-zinc-900/30 rounded-none"
-            >
-              <div className="flex items-center justify-between p-3">
-                <div className="flex-1 min-w-0 flex items-center gap-3">
-                  <div className="text-sm text-zinc-200 font-medium truncate">
-                    {field.title || `Item ${index + 1}`}
-                  </div>
-                  <div className="text-xs text-zinc-500">{field.category}</div>
-                  <div className="text-xs text-zinc-500">
-                    ${Number(field.value).toLocaleString()}
-                  </div>
+    <div className="space-y-2">
+      {fields.map((field, index) => {
+        const isExpanded = expandedItems.has(String(index));
+        return (
+          <div
+            key={field.id}
+            className="border border-zinc-800 bg-zinc-900/30 rounded-none"
+          >
+            <div className="flex items-center justify-between p-3">
+              <div className="flex-1 min-w-0 flex items-center gap-3">
+                <div className="text-sm text-zinc-200 font-medium truncate">
+                  {field.title || `Item ${index + 1}`}
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 w-6 p-0 text-zinc-400 hover:text-zinc-200 hover:border hover:border-zinc-800 hover:bg-transparent hover:rounded-none transition-all"
-                    onClick={() => onToggleExpand(index)}
-                  >
-                    {isExpanded ? (
-                      <ChevronUp className="h-4 w-4" />
-                    ) : (
-                      <ChevronDown className="h-4 w-4" />
-                    )}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 w-6 p-0 text-zinc-400 hover:text-red-400 hover:border hover:border-zinc-800 hover:bg-transparent hover:rounded-none transition-all"
-                    onClick={() => {
-                      remove(index);
-                      onRemove(index);
-                    }}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
+                <div className="text-xs text-zinc-500">{field.category}</div>
+                <div className="text-xs text-zinc-500">
+                  ${Number(field.value).toLocaleString()}
                 </div>
               </div>
-              {isExpanded && (
-                <div className="px-3 pb-3 space-y-3 border-t border-zinc-800 pt-3">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-xs text-zinc-500">Type</Label>
-                      <select
-                        {...form.register(`financialItems.${index}.type`)}
-                        className="bg-transparent border-zinc-800 border rounded-none focus:outline-none focus:border-white px-2 h-8 text-sm text-zinc-200 w-full"
-                      >
-                        <option value="cost">Cost</option>
-                        <option value="revenue">Revenue</option>
-                      </select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-xs text-zinc-500">Frequency</Label>
-                      <select
-                        {...form.register(`financialItems.${index}.frequency`)}
-                        className="bg-transparent border-zinc-800 border rounded-none focus:outline-none focus:border-white px-2 h-8 text-sm text-zinc-200 w-full"
-                      >
-                        <option value="monthly">Monthly</option>
-                        <option value="one_time">One Time</option>
-                        <option value="yearly">Yearly</option>
-                      </select>
-                    </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0 text-zinc-400 hover:text-zinc-200 hover:border hover:border-zinc-800 hover:bg-transparent hover:rounded-none transition-all"
+                  onClick={() => onToggleExpand(index)}
+                >
+                  {isExpanded ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0 text-zinc-400 hover:text-red-400 hover:border hover:border-zinc-800 hover:bg-transparent hover:rounded-none transition-all"
+                  onClick={() => {
+                    remove(index);
+                    onRemove(index);
+                  }}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            {isExpanded && (
+              <div className="px-3 pb-3 space-y-3 border-t border-zinc-800 pt-3">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-xs text-zinc-500">Type</Label>
+                    <select
+                      {...form.register(`financialItems.${index}.type`)}
+                      className="bg-transparent border-zinc-800 border rounded-none focus:outline-none focus:border-white px-2 h-8 text-sm text-zinc-200 w-full"
+                    >
+                      <option value="cost">Cost</option>
+                      <option value="revenue">Revenue</option>
+                    </select>
                   </div>
-                  <FormField
-                    label="Value ($)"
-                    register={form.register(`financialItems.${index}.value`, {
-                      valueAsNumber: true,
-                    })}
-                    type="number"
-                    step="0.01"
-                    variant="boxed"
-                  />
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      label="Starts At"
-                      register={form.register(
-                        `financialItems.${index}.startsAt`
-                      )}
-                      type="date"
-                      variant="boxed"
-                    />
-                    <FormField
-                      label="Ends At"
-                      register={form.register(`financialItems.${index}.endsAt`)}
-                      type="date"
-                      variant="boxed"
-                    />
+                  <div className="space-y-2">
+                    <Label className="text-xs text-zinc-500">Frequency</Label>
+                    <select
+                      {...form.register(`financialItems.${index}.frequency`)}
+                      className="bg-transparent border-zinc-800 border rounded-none focus:outline-none focus:border-white px-2 h-8 text-sm text-zinc-200 w-full"
+                    >
+                      <option value="monthly">Monthly</option>
+                      <option value="one_time">One Time</option>
+                      <option value="yearly">Yearly</option>
+                    </select>
                   </div>
                 </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+                <FormField
+                  label="Value ($)"
+                  register={form.register(`financialItems.${index}.value`, {
+                    valueAsNumber: true,
+                  })}
+                  type="number"
+                  step="0.01"
+                  variant="boxed"
+                />
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    label="Starts At"
+                    register={form.register(`financialItems.${index}.startsAt`)}
+                    type="date"
+                    variant="boxed"
+                  />
+                  <FormField
+                    label="Ends At"
+                    register={form.register(`financialItems.${index}.endsAt`)}
+                    type="date"
+                    variant="boxed"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 };

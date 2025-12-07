@@ -1,8 +1,9 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
   createScenarioApi,
+  getScenariosApi,
   type CreateScenarioPayload,
   type ScenarioResponse,
 } from "@/api/scenario";
@@ -31,5 +32,12 @@ export const useCreateScenario = () => {
         duration: 4000,
       });
     },
+  });
+};
+
+export const useScenarios = () => {
+  return useQuery({
+    queryKey: ["scenarios"],
+    queryFn: getScenariosApi,
   });
 };
