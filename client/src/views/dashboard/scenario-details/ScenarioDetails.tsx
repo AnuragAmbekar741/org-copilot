@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { type FinancialItem } from "@/api/scenario";
 import { useScenario } from "@/hooks/useScenario";
 import { TimelineColumn } from "@/components/scenario-details/TimelineColumn";
@@ -15,6 +15,9 @@ import {
 } from "@/components/scenario-details/helpers/dateHelpers";
 import { ToggleButtonGroup } from "@/components/scenario-details/ToggleButtonGroup";
 import { FinancialItemsList } from "@/components/scenario-details/FinancialItemsList";
+import { AddRevenueModal } from "@/components/modal/AddRevenueModal";
+import { useCreateFinancialItem } from "@/hooks/useScenario";
+import { AppButton } from "@/components/wrappers/app-button";
 import { cn } from "@/utils/cn";
 
 const ScenarioDetails: React.FC = () => {
@@ -31,6 +34,10 @@ const ScenarioDetails: React.FC = () => {
   const [itemModifications, setItemModifications] = useState<
     Record<string, Partial<FinancialItem>>
   >({});
+
+  const [isAddRevenueOpen, setIsAddRevenueOpen] = useState(false);
+  const { mutateAsync: createFinancialItem, isPending: isCreatingItem } =
+    useCreateFinancialItem(id || "");
 
   // Derive base items from API response using useMemo
   const baseItems = useMemo(() => {
@@ -231,6 +238,14 @@ const ScenarioDetails: React.FC = () => {
             value={viewMode}
             onChange={setViewMode}
           />
+
+          {/* Add Revenue Button */}
+          <AppButton
+            variant="default"
+            label="Add Revenue"
+            icon={Plus}
+            onClick={() => setIsAddRevenueOpen(true)}
+          />
         </div>
       </div>
 
@@ -316,6 +331,16 @@ const ScenarioDetails: React.FC = () => {
           />
         </div>
       )}
+
+      <AddRevenueModal
+        open={isAddRevenueOpen}
+        onOpenChange={setIsAddRevenueOpen}
+        onAdd={async (item) => {
+          if (!id) return;
+          await createFinancialItem(item);
+        }}
+        isPending={isCreatingItem}
+      />
     </div>
   );
 };

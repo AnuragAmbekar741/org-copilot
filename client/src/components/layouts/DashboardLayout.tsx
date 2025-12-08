@@ -13,12 +13,12 @@ import { DashboardHeader } from "./DashboardHeader";
 
 const menuItems = [
   {
-    title: "Overview",
+    title: "Create",
     icon: Home,
     path: "/dashboard/home",
   },
   {
-    title: "Scenarios",
+    title: "Analyze",
     icon: FileText,
     path: "/dashboard/scenario",
   },
@@ -170,9 +170,6 @@ export const DashboardLayout = () => {
           <div
             className={cn(
               "animate-in fade-in slide-in-from-bottom-2 duration-500 w-full h-full"
-              // location.pathname.includes("/scenario/")
-              //   ? "w-full h-full"
-              //   : "max-w-6xl"
             )}
           >
             <Outlet />

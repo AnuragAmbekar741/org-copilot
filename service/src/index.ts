@@ -33,7 +33,7 @@ app.get("/health", (req: Request, res: Response) => {
 
 // Auth routes
 app.use("/api", authRoutes);
-app.use("/financial-items", financialItemRoutes);
+app.use("/api", financialItemRoutes);
 app.use("/api", scenarioRoutes);
 // Start server
 app.listen(PORT, () => {
