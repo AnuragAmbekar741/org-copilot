@@ -54,11 +54,11 @@ export const DashboardLayout = () => {
   };
 
   return (
-    <div className="flex h-screen w-full bg-zinc-900 text-zinc-200 font-sans selection:bg-zinc-800/50">
+    <div className="flex h-screen w-full bg-background text-foreground font-sans selection:bg-zinc-800/50">
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 border-r-[var(--dashboard-border-width)] border-[var(--dashboard-border)] bg-zinc-800/60 transition-all duration-300 ease-out",
+          "fixed inset-y-0 left-0 z-50 border-r border-border bg-sidebar transition-all duration-300 ease-out",
           isSidebarOpen ? "translate-x-0" : "-translate-x-full",
           "lg:static lg:translate-x-0",
           isSidebarOpen ? "lg:w-64" : "lg:w-0 lg:border-0"
@@ -66,7 +66,7 @@ export const DashboardLayout = () => {
       >
         <div
           className={cn(
-            "flex h-16 items-center justify-between border-b-[var(--dashboard-border-width)] border-[var(--dashboard-border)] px-6 transition-opacity duration-300",
+            "flex h-16 items-center justify-between border-b border-border px-6 transition-opacity duration-300",
             isSidebarOpen ? "opacity-100" : "opacity-0 lg:pointer-events-none"
           )}
         >
@@ -103,8 +103,8 @@ export const DashboardLayout = () => {
                   className={cn(
                     "group flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm transition-all duration-200 ease-in-out whitespace-nowrap",
                     isActive
-                      ? "bg-zinc-800/60 text-zinc-50 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]"
-                      : "text-zinc-400 hover:bg-zinc-800/40 hover:text-zinc-200"
+                      ? "bg-sidebar text-zinc-50 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]"
+                      : "text-zinc-400 hover:bg-sidebar hover:text-zinc-200"
                   )}
                 >
                   <Icon
@@ -127,12 +127,12 @@ export const DashboardLayout = () => {
 
         <div
           className={cn(
-            "absolute bottom-0 w-full p-4 border-t-[var(--dashboard-border-width)] border-[var(--dashboard-border)] transition-opacity duration-300",
+            "absolute bottom-0 w-full p-4 border-t border-border transition-opacity duration-300",
             isSidebarOpen ? "opacity-100" : "opacity-0 lg:pointer-events-none"
           )}
         >
           <div className="flex items-center gap-3 px-2 py-2 rounded-none">
-            <div className="h-8 w-8 rounded-full bg-zinc-800 flex items-center justify-center text-xs text-zinc-400 font-medium shrink-0">
+            <div className="h-8 w-8 rounded-full bg-sidebar flex items-center justify-center text-xs text-zinc-400 font-medium shrink-0">
               US
             </div>
             <div className="flex flex-col min-w-0 flex-1">
@@ -145,7 +145,7 @@ export const DashboardLayout = () => {
             </div>
             <button
               onClick={handleLogout}
-              className="text-zinc-400 hover:text-zinc-200 transition-colors p-1.5 hover:bg-zinc-800/40 rounded-none"
+              className="text-zinc-400 hover:text-zinc-200 transition-colors p-1.5 hover:bg-sidebar rounded-none"
               title="Logout"
             >
               <LogOut className="h-4 w-4" />
@@ -155,7 +155,7 @@ export const DashboardLayout = () => {
       </aside>
 
       {/* Main Content Wrapper */}
-      <div className="flex flex-1 flex-col min-w-0 bg-zinc-900/80 no-scrollbar">
+      <div className="flex flex-1 flex-col min-w-0 bg-background no-scrollbar">
         {/* Top Header */}
         <DashboardHeader
           isSidebarOpen={isSidebarOpen}
@@ -166,7 +166,7 @@ export const DashboardLayout = () => {
         />
 
         {/* Content Area */}
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 overflow-auto bg-background">
           <div
             className={cn(
               "animate-in fade-in slide-in-from-bottom-2 duration-500 w-full h-full"

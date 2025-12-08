@@ -20,7 +20,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   const isOverviewRoute = currentPath === "/dashboard/home";
 
   return (
-    <header className="flex h-16 items-center justify-between gap-4 border-b-[var(--dashboard-border-width)] border-[var(--dashboard-border)] bg-zinc-800/40 px-6 backdrop-blur-md sticky top-0 z-40">
+    <header className="flex h-16 items-center justify-between gap-4 border-b border-border bg-background/80 px-6 backdrop-blur-md sticky top-0 z-40">
       <div className="flex items-center gap-4">
         <Button
           variant="ghost"

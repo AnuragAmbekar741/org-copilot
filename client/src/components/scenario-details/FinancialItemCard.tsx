@@ -24,9 +24,8 @@ export const FinancialItemCard: React.FC<FinancialItemCardProps> = ({
       className={cn(
         "group relative bg-zinc-950 border border-zinc-800 p-3 cursor-move transition-all duration-200",
         "hover:shadow-lg active:scale-[0.98]",
-        isRevenue
-          ? "hover:border-emerald-500/50 hover:shadow-emerald-500/10 border-l-2 border-l-emerald-500"
-          : "hover:border-rose-500/50 hover:shadow-rose-500/10 border-l-2 border-l-rose-500"
+        // Removed specific color hover borders
+        "hover:border-zinc-700"
       )}
     >
       <div className="flex justify-between items-start mb-1.5">
@@ -47,7 +46,8 @@ export const FinancialItemCard: React.FC<FinancialItemCardProps> = ({
         <span
           className={cn(
             "font-mono text-xs",
-            isRevenue ? "text-emerald-400" : "text-rose-400"
+            // Removed specific color text
+            isRevenue ? "text-zinc-200" : "text-zinc-400"
           )}
         >
           ${item.value.toLocaleString()}

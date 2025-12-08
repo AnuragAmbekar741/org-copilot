@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Calendar } from "lucide-react";
 import { cn } from "@/utils/cn";
 import { FinancialItemCard } from "./FinancialItemCard";
+import { GroupedCategoryCard } from "./GroupedCategoryCard";
 import { type FinancialItem } from "@/api/scenario";
 import { calculateItemPeriodValue } from "./helpers/dateHelpers";
 
@@ -16,34 +17,69 @@ type TimelineColumnProps = {
   period: TimePeriod;
   items: FinancialItem[];
   draggedItem: FinancialItem | null;
+  draggedCategory: { category: string; items: FinancialItem[] } | null;
   onDragOver: (e: React.DragEvent) => void;
   onDrop: (e: React.DragEvent, period: TimePeriod) => void;
   onDragStart: (e: React.DragEvent, item: FinancialItem) => void;
+  onCategoryDragStart: (
+    e: React.DragEvent,
+    category: string,
+    items: FinancialItem[]
+  ) => void;
   onDragEnd: (e: React.DragEvent) => void;
   shouldDisplayItem: (item: FinancialItem, period: TimePeriod) => boolean;
   isItemActiveInPeriod: (item: FinancialItem, period: TimePeriod) => boolean;
+  groupMode: "group" | "ungroup";
 };
 
 export const TimelineColumn: React.FC<TimelineColumnProps> = ({
   period,
   items,
   draggedItem,
+  draggedCategory,
   onDragOver,
   onDrop,
   onDragStart,
+  onCategoryDragStart,
   onDragEnd,
   shouldDisplayItem,
+  groupMode,
 }) => {
   // Items to display as cards (only in their start period)
   const itemsToDisplay = items.filter((item) =>
     shouldDisplayItem(item, period)
   );
-  const revenueItemsToDisplay = itemsToDisplay.filter(
-    (item) => item.type === "revenue"
-  );
-  const costItemsToDisplay = itemsToDisplay.filter(
-    (item) => item.type === "cost"
-  );
+
+  // Group items by category if groupMode is "group"
+  const groupedItems = useMemo(() => {
+    if (groupMode === "ungroup") {
+      return {
+        revenue: itemsToDisplay.filter((item) => item.type === "revenue"),
+        cost: itemsToDisplay.filter((item) => item.type === "cost"),
+      };
+    }
+
+    // Group by category
+    const revenueGroups: Record<string, FinancialItem[]> = {};
+    const costGroups: Record<string, FinancialItem[]> = {};
+
+    itemsToDisplay.forEach((item) => {
+      const category = item.category || "Uncategorized";
+      if (item.type === "revenue") {
+        if (!revenueGroups[category]) {
+          revenueGroups[category] = [];
+        }
+        revenueGroups[category].push(item);
+      } else {
+        if (!costGroups[category]) {
+          costGroups[category] = [];
+        }
+        costGroups[category].push(item);
+      }
+    });
+
+    return { revenue: revenueGroups, cost: costGroups };
+  }, [itemsToDisplay, groupMode]);
 
   // Calculate totals using period value calculation
   const totals = {
@@ -56,6 +92,43 @@ export const TimelineColumn: React.FC<TimelineColumnProps> = ({
     net: 0,
   };
   totals.net = totals.revenue - totals.cost;
+
+  const renderItems = (itemsToRender: FinancialItem[]) => {
+    return itemsToRender.map((item) => (
+      <FinancialItemCard
+        key={item.id}
+        item={item}
+        onDragStart={onDragStart}
+        onDragEnd={onDragEnd}
+      />
+    ));
+  };
+
+  const renderGroupedItems = (
+    groups: Record<string, FinancialItem[]>,
+    type: "revenue" | "cost"
+  ) => {
+    return Object.entries(groups).map(([category, categoryItems]) => {
+      const isDragged =
+        draggedCategory?.category === category &&
+        draggedCategory.items.length === categoryItems.length &&
+        draggedCategory.items.every((item) =>
+          categoryItems.some((ci) => ci.id === item.id)
+        );
+
+      return (
+        <GroupedCategoryCard
+          key={category}
+          category={category}
+          items={categoryItems}
+          period={period}
+          onDragStart={(e) => onCategoryDragStart(e, category, categoryItems)}
+          onDragEnd={onDragEnd}
+          isDragged={isDragged}
+        />
+      );
+    });
+  };
 
   return (
     <div
@@ -86,23 +159,20 @@ export const TimelineColumn: React.FC<TimelineColumnProps> = ({
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-xs">
             <span className="text-zinc-500">Revenue</span>
-            <span className="font-mono text-emerald-400">
+            <span className="font-mono text-zinc-300">
               ${totals.revenue.toLocaleString()}
             </span>
           </div>
           <div className="flex items-center justify-between text-xs">
             <span className="text-zinc-500">Cost</span>
-            <span className="font-mono text-rose-400">
+            <span className="font-mono text-zinc-400">
               ${totals.cost.toLocaleString()}
             </span>
           </div>
           <div className="flex items-center justify-between pt-1 border-t border-zinc-800">
             <span className="text-zinc-500 text-xs font-medium">Net</span>
             <span
-              className={cn(
-                "font-mono text-sm font-medium",
-                totals.net >= 0 ? "text-emerald-400" : "text-rose-400"
-              )}
+              className={cn("font-mono text-sm font-medium", "text-zinc-200")}
             >
               ${totals.net.toLocaleString()}
             </span>
@@ -112,29 +182,29 @@ export const TimelineColumn: React.FC<TimelineColumnProps> = ({
 
       {/* Period Content */}
       <div
-        className="flex-1 overflow-y-auto p-3 space-y-2 min-h-0"
+        className="flex-1 overflow-y-auto p-3 no-scrollbar space-y-2 min-h-0"
         onDragOver={onDragOver}
         onDrop={(e) => onDrop(e, period)}
       >
         {/* Revenue Items */}
-        {revenueItemsToDisplay.map((item) => (
-          <FinancialItemCard
-            key={item.id}
-            item={item}
-            onDragStart={onDragStart}
-            onDragEnd={onDragEnd}
-          />
-        ))}
+        {groupMode === "group" &&
+        typeof groupedItems.revenue === "object" &&
+        !Array.isArray(groupedItems.revenue)
+          ? renderGroupedItems(
+              groupedItems.revenue as Record<string, FinancialItem[]>,
+              "revenue"
+            )
+          : renderItems((groupedItems.revenue as FinancialItem[]) || [])}
 
         {/* Cost Items */}
-        {costItemsToDisplay.map((item) => (
-          <FinancialItemCard
-            key={item.id}
-            item={item}
-            onDragStart={onDragStart}
-            onDragEnd={onDragEnd}
-          />
-        ))}
+        {groupMode === "group" &&
+        typeof groupedItems.cost === "object" &&
+        !Array.isArray(groupedItems.cost)
+          ? renderGroupedItems(
+              groupedItems.cost as Record<string, FinancialItem[]>,
+              "cost"
+            )
+          : renderItems((groupedItems.cost as FinancialItem[]) || [])}
 
         {/* Empty State */}
         {itemsToDisplay.length === 0 && (
