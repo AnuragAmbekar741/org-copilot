@@ -6,6 +6,7 @@ import cors from "cors";
 import authRoutes from "./routes/auth.routes";
 import financialItemRoutes from "./routes/financial-item.rotues";
 import scenarioRoutes from "./routes/scenario.routes";
+import aiRoutes from "./routes/ai.routes";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -35,6 +36,7 @@ app.get("/health", (req: Request, res: Response) => {
 app.use("/api", authRoutes);
 app.use("/api", financialItemRoutes);
 app.use("/api", scenarioRoutes);
+app.use("/api", aiRoutes);
 // Start server
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
