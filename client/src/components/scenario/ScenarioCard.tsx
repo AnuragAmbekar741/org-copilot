@@ -1,6 +1,6 @@
 import React from "react";
 import { ArrowRight, Calendar, Trash } from "lucide-react";
-import { type Scenario } from "@/api/scenario";
+import { type Scenario, type FinancialItem } from "@/api/scenario";
 import { cn } from "@/utils/cn";
 
 type ScenarioCardProps = {
@@ -17,13 +17,13 @@ export const ScenarioCard: React.FC<ScenarioCardProps> = ({
   isDeleting,
 }) => {
   // Calculate totals
-  const items = (scenario.financialItems as any[]) || [];
+  const items = (scenario.financialItems as FinancialItem[]) || [];
   const revenue = items
-    .filter((i: any) => i.type === "revenue")
-    .reduce((sum: number, i: any) => sum + Number(i.value), 0);
+    .filter((i) => i.type === "revenue")
+    .reduce((sum, i) => sum + Number(i.value), 0);
   const costs = items
-    .filter((i: any) => i.type === "cost")
-    .reduce((sum: number, i: any) => sum + Number(i.value), 0);
+    .filter((i) => i.type === "cost")
+    .reduce((sum, i) => sum + Number(i.value), 0);
 
   const formattedDate = scenario.createdAt
     ? new Date(scenario.createdAt).toLocaleDateString("en-US", {

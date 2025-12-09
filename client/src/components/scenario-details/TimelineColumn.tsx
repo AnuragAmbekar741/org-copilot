@@ -104,10 +104,7 @@ export const TimelineColumn: React.FC<TimelineColumnProps> = ({
     ));
   };
 
-  const renderGroupedItems = (
-    groups: Record<string, FinancialItem[]>,
-    type: "revenue" | "cost"
-  ) => {
+  const renderGroupedItems = (groups: Record<string, FinancialItem[]>) => {
     return Object.entries(groups).map(([category, categoryItems]) => {
       const isDragged =
         draggedCategory?.category === category &&
@@ -142,7 +139,7 @@ export const TimelineColumn: React.FC<TimelineColumnProps> = ({
       onDrop={(e) => onDrop(e, period)}
     >
       {/* Period Header */}
-      <div className="p-4 border-b border-zinc-800 bg-zinc-900/40 backdrop-blur-sm sticky top-0 z-10 flex-shrink-0">
+      <div className="p-4 border-b border-zinc-800 bg-zinc-900/40 backdrop-blur-sm sticky top-0 z-10 shrink-0">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Calendar className="w-3.5 h-3.5 text-zinc-500" />
@@ -191,8 +188,7 @@ export const TimelineColumn: React.FC<TimelineColumnProps> = ({
         typeof groupedItems.revenue === "object" &&
         !Array.isArray(groupedItems.revenue)
           ? renderGroupedItems(
-              groupedItems.revenue as Record<string, FinancialItem[]>,
-              "revenue"
+              groupedItems.revenue as Record<string, FinancialItem[]>
             )
           : renderItems((groupedItems.revenue as FinancialItem[]) || [])}
 
@@ -201,8 +197,7 @@ export const TimelineColumn: React.FC<TimelineColumnProps> = ({
         typeof groupedItems.cost === "object" &&
         !Array.isArray(groupedItems.cost)
           ? renderGroupedItems(
-              groupedItems.cost as Record<string, FinancialItem[]>,
-              "cost"
+              groupedItems.cost as Record<string, FinancialItem[]>
             )
           : renderItems((groupedItems.cost as FinancialItem[]) || [])}
 
