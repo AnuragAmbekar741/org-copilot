@@ -93,9 +93,9 @@ export const ScenarioCard: React.FC<ScenarioCardProps> = ({
             <Trash className="w-3 h-3" />
             <span>{isDeleting ? "Deleting..." : "Delete"}</span>
           </button>
-          <div className="flex items-center gap-1 group-hover:text-white transition-colors text-zinc-500">
-            <span>Details</span>
-            <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-1" />
+        <div className="flex items-center gap-1 group-hover:text-white transition-colors text-zinc-500">
+          <span>Details</span>
+          <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-1" />
           </div>
         </div>
       </div>

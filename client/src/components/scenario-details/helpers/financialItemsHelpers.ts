@@ -37,34 +37,9 @@ export const groupItemsByCategory = (
  * Calculate period value for an item based on view mode
  * For monthly items: monthly view = value (as-is), quarterly view = value * 3
  */
-const getItemPeriodValue = (
-  item: FinancialItem,
-  period: TimePeriod,
-  viewMode: "month" | "quarter"
-): number => {
-  // Skip inactive periods
-  if (!isItemActiveInPeriod(item, period)) return 0;
-
-  // Base period value (handles monthly active-month math)
-  const base = calculateItemPeriodValue(item, period);
-
-  // Normalize by view mode
-  if (item.frequency === "yearly") {
-    // Spread yearly across the displayed period
-    return viewMode === "quarter" ? base / 4 : base / 12;
-  }
-
-  // Monthly + one_time use the base; base already respects period length
-  return base;
-};
-
-/**
- * Calculate analytics for financial items across all periods
- */
 export const calculateAnalytics = (
   items: FinancialItem[],
-  periods: TimePeriod[],
-  viewMode: "month" | "quarter"
+  periods: TimePeriod[]
 ): Analytics => {
   let totalRevenue = 0;
   let totalCost = 0;
@@ -73,7 +48,8 @@ export const calculateAnalytics = (
   // Calculate totals across all periods
   periods.forEach((period) => {
     items.forEach((item) => {
-      const periodValue = getItemPeriodValue(item, period, viewMode);
+      if (!isItemActiveInPeriod(item, period)) return;
+      const periodValue = calculateItemPeriodValue(item, period);
       const cat = item.category || "Uncategorized";
 
       if (!categoryTotals[cat]) {

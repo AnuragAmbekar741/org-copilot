@@ -15,11 +15,11 @@ import {
   calculateAnalytics,
 } from "./helpers/financialItemsHelpers";
 import { type TimePeriod } from "./TimelineColumn";
+import { Separator } from "../ui/separator";
 
 type FinancialItemsListProps = {
   items: FinancialItem[];
   groupMode: "group" | "ungroup";
-  viewMode: "month" | "quarter";
   periods: TimePeriod[];
 };
 
@@ -27,7 +27,6 @@ export const FinancialItemsList: React.FC<FinancialItemsListProps> = ({
   items,
   groupMode,
   periods,
-  viewMode,
 }) => {
   // Group items by category if groupMode is "group"
   const groupedItems = useMemo(() => {
@@ -39,21 +38,12 @@ export const FinancialItemsList: React.FC<FinancialItemsListProps> = ({
 
   // Analytics Calculations - period-aware
   const analytics = useMemo(
-    () => calculateAnalytics(items, periods, viewMode),
-    [items, periods, viewMode]
+    () => calculateAnalytics(items, periods),
+    [items, periods]
   );
 
-  // Display value respects both view mode (month/quarter) and item frequency
   const getItemDisplayValue = (item: FinancialItem): number => {
-    if (viewMode === "month") {
-      if (item.frequency === "monthly") return item.value;
-      else return Math.round(item.value / 12);
-    }
-    if (viewMode === "quarter") {
-      if (item.frequency === "monthly") return item.value * 3;
-      else return Math.round(item.value / 3);
-    }
-    return 0;
+    return item.value; // display stored (annualized) value directly
   };
 
   const renderTableHeader = () => (
@@ -102,27 +92,19 @@ export const FinancialItemsList: React.FC<FinancialItemsListProps> = ({
           </span>
         </TableCell>
         <TableCell className="py-3">
-          {hasRevenue && hasCost ? (
-            <div className="flex gap-1">
-              <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 bg-emerald-500/10 text-emerald-500/70 border border-emerald-500/20">
-                Revenue
-              </span>
-              <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 bg-rose-500/10 text-rose-500/70 border border-rose-500/20">
-                Cost
-              </span>
-            </div>
-          ) : (
-            <span
-              className={cn(
-                "text-[9px] uppercase tracking-wider px-1.5 py-0.5",
-                type === "revenue"
-                  ? "bg-emerald-500/10 text-emerald-500/70 border border-emerald-500/20"
-                  : "bg-rose-500/10 text-rose-500/70 border border-rose-500/20"
-              )}
-            >
-              {type}
-            </span>
-          )}
+          <span
+            className={cn(
+              "text-[9px] uppercase tracking-wider px-1.5 py-0.5 border",
+              // Use neutral for mixed, specific for others but maybe less intense
+              type === "Mixed"
+                ? "bg-zinc-800 text-zinc-400 border-zinc-700"
+                : type === "revenue"
+                ? "bg-emerald-500/10 text-emerald-500/70 border-emerald-500/20"
+                : "bg-rose-500/10 text-rose-500/70 border-rose-500/20"
+            )}
+          >
+            {type}
+          </span>
         </TableCell>
         <TableCell className="text-right py-3">
           <div className="flex flex-col items-end gap-0.5">
@@ -174,9 +156,9 @@ export const FinancialItemsList: React.FC<FinancialItemsListProps> = ({
         </TableCell>
         <TableCell className="text-right py-3">
           <span
-            key={`${item.id}-${displayValue}-${viewMode}`} // key forces re-mount on change
+            key={`${item.id}-${displayValue}`}
             className={cn(
-              "font-mono text-xs inline-block animate-in fade-in zoom-in-95 duration-300", // animation classes
+              "font-mono text-xs inline-block animate-in fade-in zoom-in-95 duration-300",
               item.type === "revenue" ? "text-zinc-200" : "text-zinc-400"
             )}
           >
@@ -221,103 +203,16 @@ export const FinancialItemsList: React.FC<FinancialItemsListProps> = ({
       </div>
 
       {/* Analytics Section - 40% */}
-      <div className="w-[40%] h-full bg-zinc-950 p-8 overflow-y-auto">
-        <h3 className="text-xs font-medium text-zinc-500 uppercase tracking-widest mb-8">
-          Financial Overview
-        </h3>
-
-        {/* Key Metrics */}
-        <div className="grid grid-cols-2 gap-4 mb-8">
-          <div className="p-5 bg-zinc-900/20 border border-zinc-800">
-            <div className="text-[10px] text-zinc-500 uppercase tracking-widest mb-2">
-              Total Revenue
-            </div>
-            <div className="text-2xl font-mono text-emerald-400">
-              ${analytics.totalRevenue.toLocaleString()}
-            </div>
-          </div>
-          <div className="p-5 bg-zinc-900/20 border border-zinc-800">
-            <div className="text-[10px] text-zinc-500 uppercase tracking-widest mb-2">
-              Total Burn
-            </div>
-            <div className="text-2xl font-mono text-rose-400">
-              ${analytics.totalCost.toLocaleString()}
-            </div>
-          </div>
-          <div className="col-span-2 p-5 bg-zinc-900/20 border border-zinc-800">
-            <div className="text-[10px] text-zinc-500 uppercase tracking-widest mb-2">
-              Net Flow
-            </div>
-            <div
-              key={`net-${analytics.net}`}
-              className={cn(
-                "text-3xl font-mono inline-block animate-in fade-in slide-in-from-bottom-1 duration-300",
-                analytics.net >= 0 ? "text-emerald-400" : "text-rose-400"
-              )}
-            >
-              {analytics.net >= 0 ? "+" : ""}${analytics.net.toLocaleString()}
-            </div>
-          </div>
+      <div className="w-[40%] h-full bg-zinc-950 overflow-y-auto">
+        <div className="px-3 py-2.5">
+          <h3 className="text-xs font-medium text-zinc-500 uppercase tracking-widest">
+            Financial Overview
+          </h3>
         </div>
 
-        {/* Category Breakdown */}
-        <div>
-          <h4 className="text-xs font-medium text-zinc-500 uppercase tracking-widest mb-4">
-            Category Breakdown
-          </h4>
-          <div className="space-y-3">
-            {Object.entries(analytics.categoryTotals).map(([cat, totals]) => {
-              const totalVal = totals.revenue + totals.cost;
-              const revPct =
-                totalVal > 0 ? (totals.revenue / totalVal) * 100 : 0;
-              const costPct = totalVal > 0 ? (totals.cost / totalVal) * 100 : 0;
+        <Separator className="w-full bg-zinc-800" />
 
-              return (
-                <div
-                  key={cat}
-                  className="p-4 border border-zinc-800/50 bg-zinc-900/10 hover:bg-zinc-900/20 transition-colors"
-                >
-                  <div className="flex justify-between items-center mb-3">
-                    <span className="text-xs text-zinc-300 font-medium tracking-wide">
-                      {cat}
-                    </span>
-                    <span
-                      key={`${cat}-${totals.revenue - totals.cost}-${viewMode}`} // key forces re-mount on change
-                      className={cn(
-                        "text-xs font-mono inline-block animate-in fade-in zoom-in-95 duration-300", // animation classes
-                        totals.revenue - totals.cost >= 0
-                          ? "text-emerald-500/70"
-                          : "text-rose-500/70"
-                      )}
-                    >
-                      {totals.revenue - totals.cost >= 0 ? "+" : ""}$
-                      {(totals.revenue - totals.cost).toLocaleString()}
-                    </span>
-                  </div>
-                  {/* Visual Breakdown Bar */}
-                  <div className="h-1.5 w-full bg-zinc-900 flex mb-2">
-                    {totals.revenue > 0 && (
-                      <div
-                        className="h-full bg-emerald-500/40"
-                        style={{ width: `${revPct}%` }}
-                      />
-                    )}
-                    {totals.cost > 0 && (
-                      <div
-                        className="h-full bg-rose-500/40"
-                        style={{ width: `${costPct}%` }}
-                      />
-                    )}
-                  </div>
-                  <div className="flex justify-between text-[10px] text-zinc-600 font-mono">
-                    <span>In: ${totals.revenue.toLocaleString()}</span>
-                    <span>Out: ${totals.cost.toLocaleString()}</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        <div className="p-3">{/* Future content goes here */}</div>
       </div>
     </div>
   );

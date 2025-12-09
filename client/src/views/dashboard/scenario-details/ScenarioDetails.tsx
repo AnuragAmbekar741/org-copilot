@@ -6,7 +6,6 @@ import { useScenario } from "@/hooks/useScenario";
 import { TimelineColumn } from "@/components/scenario-details/TimelineColumn";
 import { type TimePeriod } from "@/components/scenario-details/TimelineColumn";
 import { generateMonthlyPeriods } from "@/components/scenario-details/helpers/monthlyView";
-import { generateQuarterlyPeriods } from "@/components/scenario-details/helpers/quarterlyView";
 import {
   shouldDisplayItem,
   isItemActiveInPeriod,
@@ -23,7 +22,6 @@ import { cn } from "@/utils/cn";
 const ScenarioDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { data: scenarioResponse, isLoading, error } = useScenario(id);
-  const [viewMode, setViewMode] = useState<"month" | "quarter">("month");
   const [viewType, setViewType] = useState<"pipeline" | "list">("pipeline");
   const [groupMode, setGroupMode] = useState<"group" | "ungroup">("ungroup");
   const [draggedItem, setDraggedItem] = useState<FinancialItem | null>(null);
@@ -74,13 +72,10 @@ const ScenarioDetails: React.FC = () => {
   }, [baseItems]);
 
   // Generate time periods based on view mode and start date
-  const timePeriods = useMemo(() => {
-    if (viewMode === "month") {
-      return generateMonthlyPeriods(startDate, 12);
-    } else {
-      return generateQuarterlyPeriods(startDate, 4);
-    }
-  }, [startDate, viewMode]);
+  const timePeriods = useMemo(
+    () => generateMonthlyPeriods(startDate, 12),
+    [startDate]
+  );
 
   // Calculate overall totals across all periods
   const overallTotals = useMemo(() => {
@@ -229,20 +224,10 @@ const ScenarioDetails: React.FC = () => {
             onChange={setGroupMode}
           />
 
-          {/* View Mode Toggle - Month/Quarter */}
-          <ToggleButtonGroup
-            options={[
-              { value: "month", label: "Month" },
-              { value: "quarter", label: "Quarter" },
-            ]}
-            value={viewMode}
-            onChange={setViewMode}
-          />
-
           {/* Add Revenue Button */}
           <AppButton
             variant="default"
-            label="Add Revenue"
+            label="Financial Item"
             icon={Plus}
             onClick={() => setIsAddRevenueOpen(true)}
           />
@@ -326,7 +311,6 @@ const ScenarioDetails: React.FC = () => {
           <FinancialItemsList
             items={items}
             groupMode={groupMode}
-            viewMode={viewMode}
             periods={timePeriods}
           />
         </div>

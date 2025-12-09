@@ -3,22 +3,45 @@ import { cn } from "@/utils/cn";
 import { type Template, type FinancialItem } from "@/constants/templates";
 
 type BadgeProps = {
-  type: "revenue" | "cost";
+  type?: "revenue" | "cost"; // Made optional
   children: React.ReactNode;
   borderColor?: string;
+  variant?: "category" | "value"; // Added variant
 };
 
-const Badge: React.FC<BadgeProps> = ({ type, children, borderColor }) => {
+const Badge: React.FC<BadgeProps> = ({
+  type,
+  children,
+  borderColor,
+  variant = "value",
+}) => {
   const isRevenue = type === "revenue";
-  const bgColor = isRevenue ? "bg-green-300" : "bg-red-300";
-  const defaultBorderColor = borderColor || "border-zinc-950";
+  const isCost = type === "cost";
+
+  // Default neutral style
+  let bgColor = "bg-zinc-900";
+  let textColor = "text-zinc-400";
+  let borderStyle = borderColor || "border-zinc-800";
+
+  if (variant === "value") {
+    if (isRevenue) {
+      bgColor = "bg-emerald-500/10";
+      textColor = "text-emerald-500";
+      borderStyle = "border-emerald-500/20";
+    } else if (isCost) {
+      bgColor = "bg-rose-500/10";
+      textColor = "text-rose-500";
+      borderStyle = "border-rose-500/20";
+    }
+  }
 
   return (
     <span
       className={cn(
-        "text-xs px-2 py-1 rounded-none border text-black font-medium",
+        "text-xs px-2 py-1 rounded-none border font-medium",
         bgColor,
-        defaultBorderColor
+        textColor,
+        borderStyle
       )}
     >
       {children}
@@ -91,14 +114,14 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
           <div className="flex items-center gap-2 flex-wrap mt-1">
             {/* Revenue Category Badges */}
             {Object.entries(revenueCategories).map(([category, count]) => (
-              <Badge key={`revenue-${category}`} type="revenue">
+              <Badge key={`revenue-${category}`} variant="category">
                 {count > 1 ? `${count} ${category}` : category}
               </Badge>
             ))}
 
             {/* Cost Category Badges */}
             {Object.entries(costCategories).map(([category, count]) => (
-              <Badge key={`cost-${category}`} type="cost">
+              <Badge key={`cost-${category}`} variant="category">
                 {count > 1 ? `${count} ${category}` : category}
               </Badge>
             ))}
@@ -115,14 +138,18 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({
           {/* Revenue Total (Upper) */}
           {revenueItems.length > 0 && (
             <div className="flex items-center gap-2 flex-wrap">
-              <Badge type="revenue">${totalRevenue.toLocaleString()}</Badge>
+              <Badge type="revenue" variant="value">
+                ${totalRevenue.toLocaleString()}
+              </Badge>
             </div>
           )}
 
           {/* Cost Total (Lower) */}
           {costItems.length > 0 && (
             <div className="flex items-center gap-2 flex-wrap">
-              <Badge type="cost">${totalCost.toLocaleString()}</Badge>
+              <Badge type="cost" variant="value">
+                ${totalCost.toLocaleString()}
+              </Badge>
             </div>
           )}
         </div>

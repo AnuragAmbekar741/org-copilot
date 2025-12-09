@@ -1,6 +1,16 @@
-import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AppButton } from "@/components/wrappers/app-button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useNavigate, useParams } from "react-router-dom";
+import { type Scenario } from "@/api/scenario";
+import { cn } from "@/utils/cn";
 
 type DashboardHeaderProps = {
   isSidebarOpen: boolean;
@@ -8,6 +18,9 @@ type DashboardHeaderProps = {
   isManualMode: boolean;
   onToggleManualMode: () => void;
   currentPath: string;
+  scenarios?: Scenario[];
+  currentScenario?: Scenario;
+  currentScenarioId?: string;
 };
 
 export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
@@ -16,12 +29,23 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   isManualMode,
   onToggleManualMode,
   currentPath,
+  scenarios = [],
+  currentScenario,
+  currentScenarioId,
 }) => {
+  const navigate = useNavigate();
   const isOverviewRoute = currentPath === "/dashboard/home";
+  const isScenarioDetailRoute =
+    currentPath.startsWith("/dashboard/scenario/") && currentScenarioId;
+  const isAnalyzeRoute = currentPath === "/dashboard/scenario";
+
+  const handleScenarioChange = (scenarioId: string) => {
+    navigate(`/dashboard/scenario/${scenarioId}`);
+  };
 
   return (
     <header className="flex h-16 items-center justify-between gap-4 border-b border-border bg-background/80 px-6 backdrop-blur-md sticky top-0 z-40">
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 flex-1">
         <Button
           variant="ghost"
           size="icon"
@@ -34,6 +58,43 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             <PanelLeftOpen className="h-5 w-5" />
           )}
         </Button>
+
+        {/* Breadcrumbs for Analyze routes */}
+        {(isAnalyzeRoute || isScenarioDetailRoute) && (
+          <div className="flex items-center gap-2 text-sm text-zinc-400">
+            <button
+              onClick={() => navigate("/dashboard/scenario")}
+              className="hover:text-white transition-colors uppercase tracking-wider text-xs"
+            >
+              Analyze
+            </button>
+            {/* Scenario Dropdown on detail page */}
+            {isScenarioDetailRoute && scenarios.length > 0 && (
+              <div className="flex items-center gap-2">
+                <ChevronRight className="h-3 w-3" />
+                <Select
+                  value={currentScenarioId}
+                  onValueChange={handleScenarioChange}
+                >
+                  <SelectTrigger className="w-[200px] h-8 text-xs bg-transparent border-zinc-800 border rounded-none focus-visible:ring-0 focus-visible:border-white text-zinc-200 hover:text-white transition-colors">
+                    <SelectValue placeholder="Select scenario" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-none left-1.5 border-zinc-800 bg-zinc-950">
+                    {scenarios.map((scenario) => (
+                      <SelectItem
+                        key={scenario.id}
+                        value={scenario.id || ""}
+                        className="rounded-none hover:bg-zinc-800"
+                      >
+                        {scenario.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {isOverviewRoute && (

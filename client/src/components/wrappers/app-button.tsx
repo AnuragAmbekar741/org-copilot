@@ -61,9 +61,7 @@ export const AppButton: React.FC<AppButtonProps> = ({
       disabled={disabled}
       className={cn(appButtonVariants({ variant, isActive }), className)}
     >
-      {Icon && (
-        <Icon className="mr-2 h-4 w-4 transition-transform duration-200" />
-      )}
+      {Icon && <Icon className="h-4 w-4 transition-transform duration-200" />}
       {label}
     </Button>
   );

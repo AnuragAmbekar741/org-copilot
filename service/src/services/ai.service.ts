@@ -24,17 +24,18 @@ Key guidelines:
 1. Extract all mentioned financial information (funding, revenue, costs, team salaries, etc.)
 2. Break down costs into logical categories (Engineering, Sales, Marketing, Operations, Infrastructure)
 3. For team members, calculate monthly costs (annual salary / 12)
-4. Include one-time costs (like funding) as "one_time" frequency
+4. Include funding as a "one_time" "revenue" item (NOT cost)
 5. Include recurring revenue (like ARR) as monthly revenue items
 6. Use today's date (${today}) as the start date for all items unless specified otherwise
-7. Create a professional, descriptive title and detailed description
+7. Create a concise title (max 2-3 words) and detailed description
 8. Ensure all values are in dollars (convert from millions, thousands, etc.)
 9. Include standard operational costs if not mentioned (e.g., cloud infrastructure, tools, office space)
+10. Name team members simply (e.g., "Engineer 1", "Sales Rep 1") WITHOUT including salary in the title
 
 Example conversions:
-- "1M funding" = $1,000,000 one-time cost
+- "1M funding" = $1,000,000 one-time revenue (Category: Funding)
 - "50k ARR" = $50,000 monthly revenue (or $4,167 monthly if annual)
-- "3 engineers at 150k each" = 3 items of $12,500 monthly cost each (150k/12)
+- "3 engineers at 150k each" = 3 items titled "Engineer 1", "Engineer 2", "Engineer 3" with $12,500 monthly cost
 - "150k salary" = $12,500 monthly cost
 
 Return a structured response matching the CreateScenarioDto type with title, optional description, and optional financialItems array.`;
@@ -47,8 +48,9 @@ Analyze this description and create a complete financial scenario. Make sure to:
 - Break down team costs into individual items
 - Include appropriate categories
 - Set appropriate frequencies (monthly for salaries/recurring revenue, one_time for funding)
+- Treat funding as REVENUE (one_time)
 - Use today's date (${today}) for startsAt
-- Create a professional title and description`;
+- Create a short title (max 2-3 words) and description`;
 
   const prompt = ChatPromptTemplate.fromMessages([
     ["system", systemPrompt],

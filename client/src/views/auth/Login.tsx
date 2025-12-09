@@ -110,13 +110,13 @@ export function Login() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
             >
-              <FormField
-                label="Email Address"
-                register={form.register("email")}
-                error={form.formState.errors.email?.message}
-                placeholder="name@company.com"
-                type="email"
-              />
+            <FormField
+              label="Email Address"
+              register={form.register("email")}
+              error={form.formState.errors.email?.message}
+              placeholder="name@company.com"
+              type="email"
+            />
             </motion.div>
 
             <motion.div
@@ -124,13 +124,13 @@ export function Login() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
             >
-              <FormField
-                label="Password"
-                register={form.register("password")}
-                error={form.formState.errors.password?.message}
-                placeholder="••••••••"
-                type="password"
-              />
+            <FormField
+              label="Password"
+              register={form.register("password")}
+              error={form.formState.errors.password?.message}
+              placeholder="••••••••"
+              type="password"
+            />
             </motion.div>
 
             <motion.div
@@ -138,14 +138,14 @@ export function Login() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7 }}
             >
-              <Button
-                type="submit"
-                disabled={isPending}
-                className="w-full h-14 mt-8 rounded-none bg-white text-black hover:bg-zinc-200 text-xs uppercase tracking-[0.15em] font-medium group transition-all"
-              >
-                {isPending ? "Signing In..." : "Enter Dashboard"}
-                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-              </Button>
+            <Button
+              type="submit"
+              disabled={isPending}
+              className="w-full h-14 mt-8 rounded-none bg-white text-black hover:bg-zinc-200 text-xs uppercase tracking-[0.15em] font-medium group transition-all"
+            >
+              {isPending ? "Signing In..." : "Enter Dashboard"}
+              <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+            </Button>
             </motion.div>
           </form>
           <motion.div
@@ -217,7 +217,7 @@ export function Login() {
               const isActive = i === activeBar;
               return (
                 <motion.div
-                  key={i}
+                key={i}
                   custom={h}
                   variants={barVariants}
                   animate={{
@@ -231,7 +231,7 @@ export function Login() {
                     transition: { duration: 0.2 },
                   }}
                   className="flex-1 origin-bottom"
-                />
+              />
               );
             })}
           </motion.div>

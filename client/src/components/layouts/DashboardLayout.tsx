@@ -4,12 +4,14 @@ import {
   useNavigate,
   useLocation,
   useSearchParams,
+  useParams,
 } from "react-router-dom";
 import { Home, FileText, Settings, PanelLeftClose, LogOut } from "lucide-react";
 import { cn } from "@/utils/cn";
 import { Button } from "@/components/ui/button";
 import { clearAccessToken } from "@/utils/storage";
 import { DashboardHeader } from "./DashboardHeader";
+import { useScenarios, useScenario } from "@/hooks/useScenario";
 
 const menuItems = [
   {
@@ -32,9 +34,18 @@ const menuItems = [
 export const DashboardLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { id: scenarioId } = useParams<{ id?: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const isManualMode = searchParams.get("mode") === "manual";
+
+  // Fetch scenarios for dropdown
+  const { data: scenariosResponse } = useScenarios();
+  const scenarios = scenariosResponse?.data || [];
+
+  // Fetch current scenario if on detail page
+  const { data: currentScenarioResponse } = useScenario(scenarioId);
+  const currentScenario = currentScenarioResponse?.data;
 
   const toggleManualMode = () => {
     if (isManualMode) {
@@ -163,6 +174,9 @@ export const DashboardLayout = () => {
           isManualMode={isManualMode}
           onToggleManualMode={toggleManualMode}
           currentPath={location.pathname}
+          scenarios={scenarios}
+          currentScenario={currentScenario}
+          currentScenarioId={scenarioId}
         />
 
         {/* Content Area */}
