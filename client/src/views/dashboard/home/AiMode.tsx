@@ -6,11 +6,21 @@ import {
   DollarSign,
   Users,
   Building2,
+  Loader2,
 } from "lucide-react";
 import { AppButton } from "@/components/wrappers/app-button";
+import { usePreviewScenarioFromPrompt } from "@/hooks/useScenario";
+import { type CreateScenarioPayload } from "@/api/scenario";
+import { cn } from "@/utils/cn";
 
-export const AIMode: React.FC = () => {
+type AIModeProps = {
+  onPreviewGenerated: (data: CreateScenarioPayload) => void;
+};
+
+export const AIMode: React.FC<AIModeProps> = ({ onPreviewGenerated }) => {
   const [prompt, setPrompt] = useState("");
+  const { mutateAsync: previewScenario, isPending } =
+    usePreviewScenarioFromPrompt();
 
   const quickStarts = [
     {
@@ -29,6 +39,28 @@ export const AIMode: React.FC = () => {
       text: "Design agency with 10 retainers of $5k/mo, calculating burn rate for new office...",
     },
   ];
+
+  const handleGenerate = async () => {
+    if (!prompt.trim()) {
+      return;
+    }
+    try {
+      const response = await previewScenario(prompt);
+      if (response?.success && response?.data) {
+        onPreviewGenerated(response.data);
+      }
+    } catch (error) {
+      // Error is already handled by the hook's onError
+      console.error("Failed to generate preview:", error);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      handleGenerate();
+    }
+  };
 
   return (
     <div className="flex flex-col h-full max-w-4xl mx-auto py-2 px-4 relative">
@@ -53,21 +85,26 @@ export const AIMode: React.FC = () => {
           <textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            placeholder="e.g., We are a bootstrapped SaaS with 5 employees, $20k MRR, growing 10% MoM. We want to hire a Sales Lead..."
+            onKeyDown={handleKeyDown}
+            placeholder="e.g., We have funding of 1M and ARR of 50k and engineering team of 3 engineers with 150k each"
             className="w-full h-32 bg-transparent border-zinc-800 border rounded-none focus:outline-none focus:border-white px-2 py-2 text-sm text-zinc-200 placeholder:text-zinc-500 resize-none transition-colors"
+            disabled={isPending}
           />
         </div>
         <div className="flex justify-between items-center">
-            <div className="text-xs text-zinc-600 flex items-center gap-2">
-              <Zap className="h-3 w-3" />
-              <span>Press Enter to generate</span>
-            </div>
+          <div className="text-xs text-zinc-600 flex items-center gap-2">
+            <Zap className="h-3 w-3" />
+            <span>
+              {isPending ? "Generating..." : "Press Cmd/Ctrl+Enter to generate"}
+            </span>
+          </div>
           <AppButton
             variant="outline"
-            label="Generate Scenario"
-            icon={ArrowRight}
-              onClick={() => console.log("Generate:", prompt)}
-            className="w-auto"
+            label={isPending ? "Thinking..." : "Generate Scenario"}
+            icon={isPending ? Loader2 : ArrowRight}
+            onClick={handleGenerate}
+            disabled={isPending || !prompt.trim()}
+            className={cn("w-auto", isPending && "[&_svg]:animate-spin")}
           />
         </div>
       </div>
@@ -80,7 +117,8 @@ export const AIMode: React.FC = () => {
             <button
               key={idx}
               onClick={() => setPrompt(item.text)}
-              className="group flex flex-col gap-3 p-4 border border-zinc-800 bg-zinc-900/20 rounded-none hover:bg-zinc-900/60 hover:border-zinc-700 transition-all text-left"
+              disabled={isPending}
+              className="group flex flex-col gap-3 p-4 border border-zinc-800 bg-zinc-900/20 rounded-none hover:bg-zinc-900/60 hover:border-zinc-700 transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <div className="h-8 w-8 border border-zinc-800 bg-zinc-900 flex items-center justify-center group-hover:border-zinc-600 transition-colors rounded-none">
                 <Icon className="h-4 w-4 text-zinc-400 group-hover:text-zinc-200" />

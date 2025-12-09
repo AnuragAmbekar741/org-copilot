@@ -1,6 +1,7 @@
 import { type FinancialItem } from "@/api/scenario";
 import { type TimePeriod } from "../TimelineColumn";
 import { calculateItemPeriodValue } from "./dateHelpers";
+import { isItemActiveInPeriod } from "./dateHelpers"; // if not already in scope
 
 export type CategoryTotals = {
   revenue: number;
@@ -41,16 +42,20 @@ const getItemPeriodValue = (
   period: TimePeriod,
   viewMode: "month" | "quarter"
 ): number => {
-  // For monthly items, apply view mode specific calculation
-  if (item.frequency === "monthly") {
-    if (viewMode === "quarter") {
-      return Math.floor(item.value * 3); // Quarterly amount (monthly * 3)
-    }
-    return Math.floor(item.value); // Monthly amount (use as-is)
+  // Skip inactive periods
+  if (!isItemActiveInPeriod(item, period)) return 0;
+
+  // Base period value (handles monthly active-month math)
+  const base = calculateItemPeriodValue(item, period);
+
+  // Normalize by view mode
+  if (item.frequency === "yearly") {
+    // Spread yearly across the displayed period
+    return viewMode === "quarter" ? base / 4 : base / 12;
   }
 
-  // For other frequencies, use standard period calculation
-  return calculateItemPeriodValue(item, period);
+  // Monthly + one_time use the base; base already respects period length
+  return base;
 };
 
 /**

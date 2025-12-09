@@ -15,7 +15,6 @@ import {
   calculateAnalytics,
 } from "./helpers/financialItemsHelpers";
 import { type TimePeriod } from "./TimelineColumn";
-import { calculateItemPeriodValue } from "./helpers/dateHelpers";
 
 type FinancialItemsListProps = {
   items: FinancialItem[];
@@ -44,20 +43,17 @@ export const FinancialItemsList: React.FC<FinancialItemsListProps> = ({
     [items, periods, viewMode]
   );
 
-  // Calculate display value for an item based on view mode
-  // For monthly items: monthly view = value (as-is), quarterly view = value * 3
+  // Display value respects both view mode (month/quarter) and item frequency
   const getItemDisplayValue = (item: FinancialItem): number => {
-    if (item.frequency === "monthly") {
-      if (viewMode === "quarter") {
-        return Math.floor(item.value * 3); // Quarterly amount (monthly * 3)
-      }
-      return Math.floor(item.value); // Monthly amount (use as-is)
+    if (viewMode === "month") {
+      if (item.frequency === "monthly") return item.value;
+      else return Math.round(item.value / 12);
     }
-
-    // For other frequencies, use period-based calculation
-    return periods.reduce((sum, period) => {
-      return sum + calculateItemPeriodValue(item, period);
-    }, 0);
+    if (viewMode === "quarter") {
+      if (item.frequency === "monthly") return item.value * 3;
+      else return Math.round(item.value / 3);
+    }
+    return 0;
   };
 
   const renderTableHeader = () => (
@@ -178,8 +174,9 @@ export const FinancialItemsList: React.FC<FinancialItemsListProps> = ({
         </TableCell>
         <TableCell className="text-right py-3">
           <span
+            key={`${item.id}-${displayValue}-${viewMode}`} // key forces re-mount on change
             className={cn(
-              "font-mono text-xs",
+              "font-mono text-xs inline-block animate-in fade-in zoom-in-95 duration-300", // animation classes
               item.type === "revenue" ? "text-zinc-200" : "text-zinc-400"
             )}
           >
@@ -252,8 +249,9 @@ export const FinancialItemsList: React.FC<FinancialItemsListProps> = ({
               Net Flow
             </div>
             <div
+              key={`net-${analytics.net}`}
               className={cn(
-                "text-3xl font-mono",
+                "text-3xl font-mono inline-block animate-in fade-in slide-in-from-bottom-1 duration-300",
                 analytics.net >= 0 ? "text-emerald-400" : "text-rose-400"
               )}
             >
@@ -284,8 +282,9 @@ export const FinancialItemsList: React.FC<FinancialItemsListProps> = ({
                       {cat}
                     </span>
                     <span
+                      key={`${cat}-${totals.revenue - totals.cost}-${viewMode}`} // key forces re-mount on change
                       className={cn(
-                        "text-xs font-mono",
+                        "text-xs font-mono inline-block animate-in fade-in zoom-in-95 duration-300", // animation classes
                         totals.revenue - totals.cost >= 0
                           ? "text-emerald-500/70"
                           : "text-rose-500/70"

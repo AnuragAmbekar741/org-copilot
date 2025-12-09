@@ -1,16 +1,20 @@
 import React from "react";
-import { ArrowRight, Calendar } from "lucide-react";
+import { ArrowRight, Calendar, Trash } from "lucide-react";
 import { type Scenario } from "@/api/scenario";
 import { cn } from "@/utils/cn";
 
 type ScenarioCardProps = {
   scenario: Scenario;
   onClick?: (scenario: Scenario) => void;
+  onDelete?: (scenario: Scenario) => void;
+  isDeleting?: boolean;
 };
 
 export const ScenarioCard: React.FC<ScenarioCardProps> = ({
   scenario,
   onClick,
+  onDelete,
+  isDeleting,
 }) => {
   // Calculate totals
   const items = (scenario.financialItems as any[]) || [];
@@ -76,9 +80,23 @@ export const ScenarioCard: React.FC<ScenarioCardProps> = ({
           <Calendar className="w-3 h-3" />
           <span>{formattedDate}</span>
         </div>
-        <div className="flex items-center gap-1 group-hover:text-white transition-colors text-zinc-500">
-          <span>Details</span>
-          <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-1" />
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete?.(scenario);
+            }}
+            disabled={isDeleting}
+            className="flex items-center gap-1 text-zinc-500 hover:text-rose-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Trash className="w-3 h-3" />
+            <span>{isDeleting ? "Deleting..." : "Delete"}</span>
+          </button>
+          <div className="flex items-center gap-1 group-hover:text-white transition-colors text-zinc-500">
+            <span>Details</span>
+            <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-1" />
+          </div>
         </div>
       </div>
     </div>

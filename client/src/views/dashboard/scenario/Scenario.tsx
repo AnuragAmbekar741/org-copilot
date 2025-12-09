@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useScenarios } from "@/hooks/useScenario";
+import { useScenarios, useDeleteScenario } from "@/hooks/useScenario";
 import { ScenarioCard } from "@/components/scenario/ScenarioCard";
 import { type Scenario as ScenarioType } from "@/api/scenario";
 import { Loader2 } from "lucide-react";
@@ -8,10 +8,16 @@ import { Loader2 } from "lucide-react";
 export const Scenario: React.FC = () => {
   const navigate = useNavigate();
   const { data: scenariosResponse, isLoading } = useScenarios();
+  const { mutateAsync: deleteScenario, isPending: isDeleting } =
+    useDeleteScenario();
   const scenarios = scenariosResponse?.data || [];
 
   const handleScenarioClick = (scenario: ScenarioType) => {
     navigate(`/dashboard/scenario/${scenario.id}`);
+  };
+
+  const handleDelete = async (scenario: ScenarioType) => {
+    await deleteScenario(scenario.id);
   };
 
   if (isLoading) {
@@ -47,6 +53,8 @@ export const Scenario: React.FC = () => {
                   key={scenario.id}
                   scenario={scenario}
                   onClick={handleScenarioClick}
+                  onDelete={handleDelete}
+                  isDeleting={isDeleting}
                 />
               ))}
             </div>

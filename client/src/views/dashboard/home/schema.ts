@@ -6,7 +6,7 @@ const financialItemSchema = z.object({
   type: z.enum(["cost", "revenue"], {
     message: "Type is required",
   }),
-  value: z.number().min(0, { message: "Value must be positive" }),
+  value: z.coerce.number().min(0, { message: "Value must be positive" }),
   frequency: z.enum(["monthly", "one_time", "yearly"], {
     message: "Frequency is required",
   }),
@@ -20,4 +20,4 @@ export const scenarioSchema = z.object({
   financialItems: z.array(financialItemSchema).optional(),
 });
 
-export type ScenarioFormValues = z.infer<typeof scenarioSchema>;
+export type ScenarioFormValues = z.input<typeof scenarioSchema>;

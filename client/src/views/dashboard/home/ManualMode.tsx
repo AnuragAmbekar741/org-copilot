@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,6 +11,7 @@ import { TemplatesTab } from "@/components/home/TemplateTabs";
 import { ManualTab } from "@/components/home/ManualTab";
 import { useCreateScenario } from "@/hooks/useScenario";
 import { AppButton } from "@/components/wrappers/app-button";
+import type { CreateScenarioPayload } from "@/api/scenario";
 
 type FinancialItem = {
   title: string;
@@ -29,7 +30,11 @@ type Template = {
   items: FinancialItem[];
 };
 
-export const ManualMode: React.FC = () => {
+type ManualModeProps = {
+  previewData?: CreateScenarioPayload | null;
+};
+
+export const ManualMode: React.FC<ManualModeProps> = ({ previewData }) => {
   const [activeTab, setActiveTab] = useState<"templates" | "manual">(
     "templates"
   );
@@ -45,12 +50,33 @@ export const ManualMode: React.FC = () => {
     },
   });
 
-  const { fields, append, prepend, remove } = useFieldArray({
+  const { fields, append, prepend, remove, replace } = useFieldArray({
     control: form.control,
     name: "financialItems",
   });
 
   const { mutateAsync: createScenario, isPending } = useCreateScenario();
+
+  // Populate form when previewData is available
+  useEffect(() => {
+    if (previewData) {
+      form.setValue("title", previewData.title || "");
+      form.setValue("description", previewData.description || "");
+
+      if (previewData.financialItems && previewData.financialItems.length > 0) {
+        const formattedItems = previewData.financialItems.map((item) => ({
+          title: item.title,
+          category: item.category,
+          type: item.type,
+          value: String(item.value), // Store as string for form inputs
+          frequency: item.frequency,
+          startsAt: item.startsAt,
+          endsAt: item.endsAt || "",
+        }));
+        replace(formattedItems);
+      }
+    }
+  }, [previewData, form, replace]);
 
   const handleTemplateSelect = (template: Template) => {
     if (selectedTemplates.includes(template.id)) {
@@ -83,7 +109,7 @@ export const ManualMode: React.FC = () => {
           title: item.title,
           category: item.category,
           type: item.type,
-          value: item.value,
+          value: String(item.value), // Convert to string for form consistency
           frequency: item.frequency,
           startsAt: item.startsAt,
           endsAt: item.endsAt || "",
@@ -103,30 +129,47 @@ export const ManualMode: React.FC = () => {
   };
 
   const handleRemove = (index: number) => {
-    console.log(index);
+    remove(index);
   };
 
-  const onSubmit = form.handleSubmit(async (values) => {
-    const payload = {
-      title: values.title,
-      description: values.description || undefined,
-      financialItems:
-        values.financialItems && values.financialItems.length > 0
-          ? values.financialItems.map((item) => ({
-              ...item,
-              value: Number(item.value),
-              startsAt: item.startsAt || new Date().toISOString(),
-              endsAt: item.endsAt || undefined,
-            }))
-          : undefined,
-    };
+  const onSubmit = form.handleSubmit(
+    async (values) => {
+      // After schema validation, values.value will be a number (coerced by z.coerce.number)
+      const payload = {
+        title: values.title,
+        description: values.description || undefined,
+        financialItems:
+          values.financialItems && values.financialItems.length > 0
+            ? values.financialItems.map((item) => {
+                return {
+                  title: item.title,
+                  category: item.category,
+                  type: item.type,
+                  value: Number(item.value),
+                  frequency: item.frequency,
+                  startsAt: item.startsAt || new Date().toISOString(),
+                  endsAt: item.endsAt || undefined,
+                };
+              })
+            : undefined,
+      };
 
-    await createScenario(payload);
-  });
+      await createScenario(payload);
+    },
+    (errors) => {
+      // Log validation errors for debugging
+      console.error("Form validation errors:", errors);
+      // Show first error
+      const firstError = Object.values(errors)[0];
+      if (firstError?.message) {
+        console.error("Validation error:", firstError.message);
+      }
+    }
+  );
 
   return (
     <div className="flex h-full w-full">
-      {/* Left Side - 40% - Title, Description & Selected Items */}
+      {/* Left Side - 50% - Title, Description & Selected Items */}
       <div className="w-[50%] flex flex-col h-full overflow-auto px-6 py-7">
         <div className="mb-8">
           <h1 className="text-3xl font-light text-white">
@@ -145,7 +188,7 @@ export const ManualMode: React.FC = () => {
             <Label className="text-xs uppercase tracking-widest text-zinc-500 my-1">
               Selected Items ({fields.length})
             </Label>
-            <div className=" max-h-[250px] 2xl:max-h-[400px] overflow-y-auto pr-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <div className="max-h-[250px] 2xl:max-h-[400px] overflow-y-auto pr-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               <SelectedItemsList
                 fields={fields}
                 remove={remove}
@@ -171,7 +214,7 @@ export const ManualMode: React.FC = () => {
       {/* Separator - Full Height */}
       <div className="w-px bg-zinc-800/50 h-full"></div>
 
-      {/* Right Side - 60% - Tabs & Content */}
+      {/* Right Side - 50% - Tabs & Content */}
       <div className="w-[50%] flex flex-col h-full px-6 py-6">
         <Tabs
           value={activeTab}
@@ -196,7 +239,7 @@ export const ManualMode: React.FC = () => {
                     title: item.title,
                     category: item.category,
                     type: item.type,
-                    value: item.value,
+                    value: item.value, // Remove String() conversion - z.coerce.number() accepts numbers
                     frequency: item.frequency,
                     startsAt: item.startsAt,
                     endsAt: item.endsAt || "",

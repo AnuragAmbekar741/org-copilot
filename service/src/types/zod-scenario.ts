@@ -1,11 +1,5 @@
+import { FinancialItemFrequency, FinancialItemType } from "./financial-item";
 import { z } from "zod";
-import { CreateScenarioDto } from "./scenario";
-import {
-  CreateFinancialItemDto,
-  FinancialItemType,
-  FinancialItemFrequency,
-} from "./financial-item";
-
 // Zod schema for CreateFinancialItemDto
 export const createFinancialItemSchema = z.object({
   title: z.string().describe("Clear, descriptive title for the financial item"),
@@ -26,23 +20,30 @@ export const createFinancialItemSchema = z.object({
     ])
     .describe("Frequency of the item"),
   startsAt: z.string().describe("Start date in YYYY-MM-DD format"),
+  // Make endsAt nullable (not optional) - it will always be present but can be null
   endsAt: z
     .string()
-    .optional()
-    .describe("End date in YYYY-MM-DD format if applicable"),
-}) satisfies z.ZodType<CreateFinancialItemDto>;
+    .nullable()
+    .describe(
+      "End date in YYYY-MM-DD format if applicable, or null if not applicable"
+    ),
+});
 
 // Zod schema for CreateScenarioDto
 export const createScenarioSchema = z.object({
   title: z.string().describe("A concise, professional scenario title"),
+  // Make description nullable (not optional)
   description: z
     .string()
-    .optional()
+    .nullable()
     .describe(
-      "A detailed description of the scenario including key financial assumptions"
+      "A detailed description of the scenario including key financial assumptions, or null if not provided"
     ),
+  // Make financialItems nullable (not optional)
   financialItems: z
     .array(createFinancialItemSchema)
-    .optional()
-    .describe("Array of all financial items for the scenario"),
-}) satisfies z.ZodType<CreateScenarioDto>;
+    .nullable()
+    .describe(
+      "Array of all financial items for the scenario, or null if empty"
+    ),
+});

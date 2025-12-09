@@ -56,10 +56,25 @@ Analyze this description and create a complete financial scenario. Make sure to:
   ]);
 
   try {
-    const result = await structuredModel.invoke(
+    const result = (await structuredModel.invoke(
       await prompt.format({ userPrompt })
-    );
-    return result;
+    )) as any;
+
+    // Transform null values to undefined to match CreateScenarioDto
+    const scenario: CreateScenarioDto = {
+      title: result.title,
+      description: result.description ?? undefined, // null -> undefined
+      financialItems: result.financialItems?.map((item: any) => ({
+        title: item.title,
+        category: item.category,
+        type: item.type,
+        value: item.value,
+        frequency: item.frequency,
+        startsAt: item.startsAt,
+        endsAt: item.endsAt ?? undefined, // null -> undefined
+      })),
+    };
+    return scenario;
   } catch (error) {
     console.error("Error generating scenario:", error);
     throw new Error(

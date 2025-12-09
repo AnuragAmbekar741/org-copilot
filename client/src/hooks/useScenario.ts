@@ -5,6 +5,7 @@ import {
   createScenarioApi,
   getScenariosApi,
   getScenarioByIdApi,
+  deleteScenarioApi,
   type CreateScenarioPayload,
   type ScenarioResponse,
 } from "@/api/scenario";
@@ -12,6 +13,7 @@ import {
   createFinancialItemApi,
   type CreateFinancialItemPayload,
 } from "@/api/financial-item";
+import { previewScenarioFromPromptApi } from "@/api/ai";
 
 export const useCreateScenario = () => {
   const navigate = useNavigate();
@@ -79,6 +81,47 @@ export const useCreateFinancialItem = (scenarioId: string) => {
       toast.error("Failed to add item", {
         description:
           error.message || "An error occurred while adding the item.",
+        duration: 4000,
+      });
+    },
+  });
+};
+
+export const usePreviewScenarioFromPrompt = () => {
+  return useMutation({
+    mutationFn: async (prompt: string) => {
+      const data = await previewScenarioFromPromptApi(prompt);
+      return data;
+    },
+    onError: (error: Error) => {
+      toast.error("Failed to preview scenario", {
+        description:
+          error.message || "An error occurred while previewing the scenario.",
+        duration: 4000,
+      });
+    },
+  });
+};
+
+export const useDeleteScenario = () => {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  return useMutation({
+    mutationFn: async (id: string) => deleteScenarioApi(id),
+    onSuccess: (_data, id) => {
+      queryClient.invalidateQueries({ queryKey: ["scenarios"] });
+      queryClient.removeQueries({ queryKey: ["scenario", id] });
+      toast.success("Scenario deleted", {
+        description: "Scenario removed successfully.",
+        duration: 3000,
+      });
+      navigate("/dashboard/home", { replace: true });
+    },
+    onError: (error: Error) => {
+      toast.error("Failed to delete scenario", {
+        description:
+          error.message || "An error occurred while deleting the scenario.",
         duration: 4000,
       });
     },
