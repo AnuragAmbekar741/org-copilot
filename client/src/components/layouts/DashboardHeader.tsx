@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { type Scenario } from "@/api/scenario";
 import { cn } from "@/utils/cn";
 
@@ -30,7 +30,6 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   onToggleManualMode,
   currentPath,
   scenarios = [],
-  currentScenario,
   currentScenarioId,
 }) => {
   const navigate = useNavigate();
@@ -41,6 +40,17 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 
   const handleScenarioChange = (scenarioId: string) => {
     navigate(`/dashboard/scenario/${scenarioId}`);
+  };
+
+  const getBreadcrumbLabel = () => {
+    if (isOverviewRoute) return "Overview";
+    if (isAnalyzeRoute || isScenarioDetailRoute) return "Analyze";
+    return "";
+  };
+
+  const handleBreadcrumbClick = () => {
+    if (isOverviewRoute) return; // Already there
+    navigate("/dashboard/scenario"); // Default to analyze list for analyze route
   };
 
   return (
@@ -59,42 +69,44 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           )}
         </Button>
 
-        {/* Breadcrumbs for Analyze routes */}
-        {(isAnalyzeRoute || isScenarioDetailRoute) && (
-          <div className="flex items-center gap-2 text-sm text-zinc-400">
-            <button
-              onClick={() => navigate("/dashboard/scenario")}
-              className="hover:text-white transition-colors uppercase tracking-wider text-xs"
-            >
-              Analyze
-            </button>
-            {/* Scenario Dropdown on detail page */}
-            {isScenarioDetailRoute && scenarios.length > 0 && (
-              <div className="flex items-center gap-2">
-                <ChevronRight className="h-3 w-3" />
-                <Select
-                  value={currentScenarioId}
-                  onValueChange={handleScenarioChange}
-                >
-                  <SelectTrigger className="w-[200px] h-8 text-xs bg-transparent border-zinc-800 border rounded-none focus-visible:ring-0 focus-visible:border-white text-zinc-200 hover:text-white transition-colors">
-                    <SelectValue placeholder="Select scenario" />
-                  </SelectTrigger>
-                  <SelectContent className="rounded-none left-1.5 border-zinc-800 bg-zinc-950">
-                    {scenarios.map((scenario) => (
-                      <SelectItem
-                        key={scenario.id}
-                        value={scenario.id || ""}
-                        className="rounded-none hover:bg-zinc-800"
-                      >
-                        {scenario.title}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+        {/* Dynamic Breadcrumbs */}
+        <div className="flex items-center gap-2 text-sm text-zinc-400">
+          <button
+            onClick={isOverviewRoute ? undefined : handleBreadcrumbClick}
+            className={cn(
+              "hover:text-white transition-colors uppercase tracking-wider text-xs",
+              isOverviewRoute && "cursor-default hover:text-zinc-400"
             )}
-          </div>
-        )}
+          >
+            {getBreadcrumbLabel()}
+          </button>
+
+          {/* Scenario Dropdown on detail page */}
+          {isScenarioDetailRoute && scenarios.length > 0 && (
+            <div className="flex items-center gap-2">
+              <ChevronRight className="h-3 w-3" />
+              <Select
+                value={currentScenarioId}
+                onValueChange={handleScenarioChange}
+              >
+                <SelectTrigger className="w-[200px] h-8 text-xs bg-transparent border-zinc-800 border rounded-none focus-visible:ring-0 focus-visible:border-white text-zinc-200 hover:text-white transition-colors">
+                  <SelectValue placeholder="Select scenario" />
+                </SelectTrigger>
+                <SelectContent className="rounded-none left-1.5 border-zinc-800 bg-zinc-950">
+                  {scenarios.map((scenario) => (
+                    <SelectItem
+                      key={scenario.id}
+                      value={scenario.id || ""}
+                      className="rounded-none hover:bg-zinc-800"
+                    >
+                      {scenario.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </div>
       </div>
 
       {isOverviewRoute && (

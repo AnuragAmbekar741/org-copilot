@@ -38,10 +38,7 @@ export const FinancialItemsList: React.FC<FinancialItemsListProps> = ({
   }, [items, groupMode]);
 
   // Analytics Calculations - period-aware
-  const analytics = useMemo(
-    () => calculateAnalytics(items, periods),
-    [items, periods]
-  );
+  const analytics = useMemo(() => calculateAnalytics(), [periods]);
 
   const getItemDisplayValue = (item: FinancialItem): number => {
     return item.value; // display stored (annualized) value directly

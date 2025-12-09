@@ -58,7 +58,6 @@ export const ManualMode: React.FC<ManualModeProps> = ({ previewData }) => {
 
   const { mutateAsync: createScenario, isPending } = useCreateScenario();
 
-  // Populate form when previewData is available
   useEffect(() => {
     if (previewData) {
       form.setValue("title", previewData.title || "");
@@ -69,7 +68,7 @@ export const ManualMode: React.FC<ManualModeProps> = ({ previewData }) => {
           title: item.title,
           category: item.category,
           type: item.type,
-          value: String(item.value), // Store as string for form inputs
+          value: String(item.value),
           frequency: item.frequency,
           startsAt: item.startsAt ?? 0,
           endsAt: item.endsAt ?? "",
@@ -89,7 +88,6 @@ export const ManualMode: React.FC<ManualModeProps> = ({ previewData }) => {
         selectedTemplates.filter((id) => id !== template.id)
       );
 
-      // Find and remove all items that match this template's items
       template.items.forEach((templateItem) => {
         const index = fields.findIndex(
           (item) =>
@@ -113,7 +111,7 @@ export const ManualMode: React.FC<ManualModeProps> = ({ previewData }) => {
           title: item.title,
           category: item.category,
           type: item.type,
-          value: String(item.value), // Convert to string for form consistency
+          value: String(item.value),
           frequency: item.frequency,
           startsAt: item.startsAt,
           endsAt: item.endsAt || "",
@@ -138,36 +136,32 @@ export const ManualMode: React.FC<ManualModeProps> = ({ previewData }) => {
 
   const onSubmit = form.handleSubmit(
     async (values) => {
-      // After schema validation, values.value will be a number (coerced by z.coerce.number)
       const payload = {
         title: values.title,
-        description: values.description || undefined,
+        description: values.description?.trim() ? values.description : null,
         financialItems:
           values.financialItems && values.financialItems.length > 0
-            ? values.financialItems.map((item) => {
-                return {
-                  title: item.title,
-                  category: item.category,
-                  type: item.type,
-                  value: Number(item.value),
-                  frequency: item.frequency,
-                  startsAt: item.startsAt ?? 0,
-                  endsAt:
-                    item.endsAt === "" || item.endsAt === undefined
-                      ? undefined
-                      : Number(item.endsAt),
-                };
-              })
-            : undefined,
-        timelineLength: values.timelineLength || 12,
+            ? values.financialItems.map((item) => ({
+                title: item.title,
+                category: item.category,
+                type: item.type,
+                value: Number(item.value),
+                frequency: item.frequency,
+                startsAt: Number(item.startsAt ?? 0),
+                endsAt:
+                  item.endsAt === "" || item.endsAt === undefined
+                    ? null
+                    : Number(item.endsAt),
+              }))
+            : null,
+        timelineLength: Number(values.timelineLength) || 12,
       };
+      console.log(payload);
 
       await createScenario(payload);
     },
     (errors) => {
-      // Log validation errors for debugging
       console.error("Form validation errors:", errors);
-      // Show first error
       const firstError = Object.values(errors)[0];
       if (firstError?.message) {
         console.error("Validation error:", firstError.message);
@@ -247,7 +241,7 @@ export const ManualMode: React.FC<ManualModeProps> = ({ previewData }) => {
                     title: item.title,
                     category: item.category,
                     type: item.type,
-                    value: item.value, // Remove String() conversion - z.coerce.number() accepts numbers
+                    value: item.value,
                     frequency: item.frequency,
                     startsAt: item.startsAt ?? 0,
                     endsAt: item.endsAt ?? "",

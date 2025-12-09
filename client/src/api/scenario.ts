@@ -13,8 +13,8 @@ export interface FinancialItem {
 
 export type CreateScenarioPayload = {
   title: string;
-  description?: string;
-  financialItems?: FinancialItem[];
+  description?: string | null;
+  financialItems?: FinancialItem[] | null;
   timelineLength: number;
 };
 

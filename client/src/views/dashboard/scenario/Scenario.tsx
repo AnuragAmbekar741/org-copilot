@@ -5,6 +5,8 @@ import { ScenarioCard } from "@/components/scenario/ScenarioCard";
 import { type Scenario as ScenarioType } from "@/api/scenario";
 import { Loader2 } from "lucide-react";
 
+import { EmptyScenarioState } from "@/components/common/EmptyScenarioState";
+
 export const Scenario: React.FC = () => {
   const navigate = useNavigate();
   const { data: scenariosResponse, isLoading } = useScenarios();
@@ -28,6 +30,10 @@ export const Scenario: React.FC = () => {
     );
   }
 
+  if (scenarios.length === 0) {
+    return <EmptyScenarioState />;
+  }
+
   return (
     <div className="flex h-full w-full p-6">
       {/* Left Panel: Scenario List */}
@@ -42,23 +48,18 @@ export const Scenario: React.FC = () => {
             </p>
           </div>
 
-          {scenarios.length === 0 ? (
-            <div className="text-center py-20 border border-zinc-800 border-dashed rounded-none bg-zinc-900/20">
-              <p className="text-zinc-500 text-sm">No scenarios created yet.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {scenarios.map((scenario) => (
-                <ScenarioCard
-                  key={scenario.id}
-                  scenario={scenario}
-                  onClick={handleScenarioClick}
-                  onDelete={handleDelete}
-                  isDeleting={isDeleting}
-                />
-              ))}
-            </div>
-          )}
+          {/* Replaced by EmptyScenarioState when no scenarios */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {scenarios.map((scenario) => (
+              <ScenarioCard
+                key={scenario.id}
+                scenario={scenario}
+                onClick={handleScenarioClick}
+                onDelete={handleDelete}
+                isDeleting={isDeleting}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </div>

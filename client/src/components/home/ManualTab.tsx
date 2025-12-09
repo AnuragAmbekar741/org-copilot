@@ -21,12 +21,11 @@ const manualItemSchema = z.object({
     .number()
     .int()
     .nonnegative({ message: "Starts at must be >= 0 (timeline index)" }),
-  endsAt: z
-    .preprocess(
-      (val) => (val === "" || val === undefined ? undefined : val),
-      z.coerce.number().int().nonnegative()
-    )
-    .optional(),
+  endsAt: z.preprocess(
+    (val) =>
+      val === "" || val === undefined || val === null ? null : Number(val),
+    z.number().int().nonnegative().nullable()
+  ),
 });
 
 type ManualItemFormValues = z.input<typeof manualItemSchema>;
@@ -136,7 +135,6 @@ export const ManualTab: React.FC<ManualTabProps> = ({ onAddItem }) => {
           register={form.register("startsAt")}
           error={form.formState.errors.startsAt?.message}
           type="number"
-          min="0"
           variant="boxed"
         />
 
@@ -145,7 +143,6 @@ export const ManualTab: React.FC<ManualTabProps> = ({ onAddItem }) => {
           register={form.register("endsAt")}
           error={form.formState.errors.endsAt?.message}
           type="number"
-          min="0"
           variant="boxed"
         />
       </div>

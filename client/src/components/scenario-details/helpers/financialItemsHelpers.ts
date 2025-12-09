@@ -1,5 +1,4 @@
 import { type FinancialItem } from "@/api/scenario";
-import { type TimePeriod } from "../TimelineColumn";
 
 export type CategoryTotals = {
   revenue: number;
@@ -32,10 +31,7 @@ export const groupItemsByCategory = (
 };
 
 // Totals/calculations removed per pipeline view requirement
-export const calculateAnalytics = (
-  _items: FinancialItem[],
-  _periods: TimePeriod[]
-): Analytics => {
+export const calculateAnalytics = (): Analytics => {
   return {
     totalRevenue: 0,
     totalCost: 0,
