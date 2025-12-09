@@ -110,13 +110,15 @@ export const SelectedItemsList: React.FC<SelectedItemsListProps> = ({
                   <FormField
                     label="Starts At"
                     register={form.register(`financialItems.${index}.startsAt`)}
-                    type="date"
+                    type="number"
+                    min="0"
                     variant="boxed"
                   />
                   <FormField
                     label="Ends At"
                     register={form.register(`financialItems.${index}.endsAt`)}
-                    type="date"
+                    type="number"
+                    min="0"
                     variant="boxed"
                   />
                 </div>

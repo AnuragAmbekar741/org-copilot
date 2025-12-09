@@ -31,6 +31,7 @@ Key guidelines:
 8. Ensure all values are in dollars (convert from millions, thousands, etc.)
 9. Include standard operational costs if not mentioned (e.g., cloud infrastructure, tools, office space)
 10. Name team members simply (e.g., "Engineer 1", "Sales Rep 1") WITHOUT including salary in the title
+11. Provide timelineLength as a positive integer number of timeline columns (e.g., months). Default to 12 if not obvious, but ensure it covers the latest startsAt/endsAt of all items.
 
 Example conversions:
 - "1M funding" = $1,000,000 one-time revenue (Category: Funding)
@@ -50,7 +51,8 @@ Analyze this description and create a complete financial scenario. Make sure to:
 - Set appropriate frequencies (monthly for salaries/recurring revenue, one_time for funding)
 - Treat funding as REVENUE (one_time)
 - Use today's date (${today}) for startsAt
-- Create a short title (max 2-3 words) and description`;
+- Create a short title (max 2-3 words) and description
+- Set timelineLength to a positive integer that covers the span of the scenario (default to 12 if not specified)`;
 
   const prompt = ChatPromptTemplate.fromMessages([
     ["system", systemPrompt],
@@ -65,7 +67,7 @@ Analyze this description and create a complete financial scenario. Make sure to:
     // Transform null values to undefined to match CreateScenarioDto
     const scenario: CreateScenarioDto = {
       title: result.title,
-      description: result.description ?? undefined, // null -> undefined
+      description: result.description ?? undefined,
       financialItems: result.financialItems?.map((item: any) => ({
         title: item.title,
         category: item.category,
@@ -73,8 +75,9 @@ Analyze this description and create a complete financial scenario. Make sure to:
         value: item.value,
         frequency: item.frequency,
         startsAt: item.startsAt,
-        endsAt: item.endsAt ?? undefined, // null -> undefined
+        endsAt: item.endsAt ?? undefined,
       })),
+      timelineLength: result.timelineLength ?? 12,
     };
     return scenario;
   } catch (error) {

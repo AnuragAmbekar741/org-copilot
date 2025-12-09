@@ -4,7 +4,6 @@ import { cn } from "@/utils/cn";
 import { FinancialItemCard } from "./FinancialItemCard";
 import { GroupedCategoryCard } from "./GroupedCategoryCard";
 import { type FinancialItem } from "@/api/scenario";
-import { calculateItemPeriodValue } from "./helpers/dateHelpers";
 
 export type TimePeriod = {
   id: string;
@@ -81,18 +80,6 @@ export const TimelineColumn: React.FC<TimelineColumnProps> = ({
     return { revenue: revenueGroups, cost: costGroups };
   }, [itemsToDisplay, groupMode]);
 
-  // Calculate totals using period value calculation
-  const totals = {
-    revenue: items
-      .filter((i) => i.type === "revenue")
-      .reduce((sum, item) => sum + calculateItemPeriodValue(item, period), 0),
-    cost: items
-      .filter((i) => i.type === "cost")
-      .reduce((sum, item) => sum + calculateItemPeriodValue(item, period), 0),
-    net: 0,
-  };
-  totals.net = totals.revenue - totals.cost;
-
   const renderItems = (itemsToRender: FinancialItem[]) => {
     return itemsToRender.map((item) => (
       <FinancialItemCard
@@ -152,29 +139,7 @@ export const TimelineColumn: React.FC<TimelineColumnProps> = ({
           </span>
         </div>
 
-        {/* Period Totals */}
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-zinc-500">Revenue</span>
-            <span className="font-mono text-zinc-300">
-              ${totals.revenue.toLocaleString()}
-            </span>
-          </div>
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-zinc-500">Cost</span>
-            <span className="font-mono text-zinc-400">
-              ${totals.cost.toLocaleString()}
-            </span>
-          </div>
-          <div className="flex items-center justify-between pt-1 border-t border-zinc-800">
-            <span className="text-zinc-500 text-xs font-medium">Net</span>
-            <span
-              className={cn("font-mono text-sm font-medium", "text-zinc-200")}
-            >
-              ${totals.net.toLocaleString()}
-            </span>
-          </div>
-        </div>
+        {/* Totals removed as per request */}
       </div>
 
       {/* Period Content */}

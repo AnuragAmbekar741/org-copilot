@@ -26,6 +26,7 @@ const mapScenario = async (
     title: scenario.title,
     description: scenario.description ?? undefined,
     financialItems: financialItems.length > 0 ? financialItems : [],
+    timelineLength: scenario.timelineLength,
     createdAt: scenario.createdAt,
     updatedAt: scenario.updatedAt,
   };
@@ -41,6 +42,7 @@ export const createScenario = async (
       userId,
       title: data.title,
       description: data.description ?? null,
+      timelineLength: data.timelineLength,
     })
     .returning();
 
@@ -62,6 +64,7 @@ export const createScenario = async (
     title: scenario.title,
     description: scenario.description ?? undefined,
     financialItems: createdFinancialItems,
+    timelineLength: scenario.timelineLength,
     createdAt: scenario.createdAt,
     updatedAt: scenario.updatedAt,
   };
@@ -108,6 +111,8 @@ export const updateScenario = async (
   if (data.title !== undefined) updateData.title = data.title;
   if (data.description !== undefined)
     updateData.description = data.description ?? null;
+  if (data.timelineLength !== undefined)
+    updateData.timelineLength = data.timelineLength;
   updateData.updatedAt = new Date();
 
   const rows = await db

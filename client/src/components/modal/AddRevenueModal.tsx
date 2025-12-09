@@ -21,8 +21,16 @@ const addRevenueSchema = z.object({
   frequency: z.enum(["monthly", "one_time", "yearly"], {
     message: "Frequency is required",
   }),
-  startsAt: z.string().min(1, { message: "Start date is required" }),
-  endsAt: z.string().optional(),
+  startsAt: z.coerce
+    .number()
+    .int()
+    .nonnegative({ message: "Starts at must be >= 0 (timeline index)" }),
+  endsAt: z
+    .preprocess(
+      (val) => (val === "" || val === undefined ? undefined : val),
+      z.coerce.number().int().nonnegative()
+    )
+    .optional(),
 });
 
 type AddRevenueFormValues = z.input<typeof addRevenueSchema>;
@@ -36,8 +44,8 @@ type AddRevenueModalProps = {
     type: "revenue";
     value: number;
     frequency: "monthly" | "one_time" | "yearly";
-    startsAt: string;
-    endsAt?: string;
+    startsAt: number;
+    endsAt?: number | null;
   }) => void;
   isPending?: boolean;
 };
@@ -55,8 +63,8 @@ export const AddRevenueModal: React.FC<AddRevenueModalProps> = ({
       category: "",
       value: 0,
       frequency: "monthly",
-      startsAt: new Date().toISOString().split("T")[0],
-      endsAt: "",
+      startsAt: 0,
+      endsAt: undefined,
     },
   });
 
@@ -70,7 +78,7 @@ export const AddRevenueModal: React.FC<AddRevenueModalProps> = ({
       value: parsed.value,
       frequency: parsed.frequency,
       startsAt: parsed.startsAt,
-      endsAt: parsed.endsAt || undefined,
+      endsAt: parsed.endsAt ?? undefined,
     });
     form.reset();
     onOpenChange(false);
@@ -133,14 +141,16 @@ export const AddRevenueModal: React.FC<AddRevenueModalProps> = ({
               label="Starts At"
               register={form.register("startsAt")}
               error={form.formState.errors.startsAt?.message}
-              type="date"
+              type="number"
+              min="0"
               variant="boxed"
             />
             <FormField
               label="Ends At (Optional)"
               register={form.register("endsAt")}
               error={form.formState.errors.endsAt?.message}
-              type="date"
+              type="number"
+              min="0"
               variant="boxed"
             />
           </div>

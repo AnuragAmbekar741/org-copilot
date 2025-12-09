@@ -4,6 +4,7 @@ export interface CreateScenarioDto {
   title: string;
   description?: string;
   financialItems?: CreateFinancialItemDto[];
+  timelineLength: number;
 }
 
 export interface ScenarioDto extends CreateScenarioDto {

@@ -1,4 +1,12 @@
-import { pgTable, uuid, text, timestamp, numeric } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  uuid,
+  text,
+  timestamp,
+  numeric,
+  integer,
+} from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import { scenarios } from "./scenario";
 
 export const financialItems = pgTable("financial_items", {
@@ -11,8 +19,8 @@ export const financialItems = pgTable("financial_items", {
   type: text("type").notNull(), // "cost" | "revenue"
   value: numeric("value", { precision: 15, scale: 2 }).notNull(),
   frequency: text("frequency").notNull(), // "monthly" | "one_time" | "yearly"
-  startsAt: timestamp("starts_at").notNull(),
-  endsAt: timestamp("ends_at"),
+  startsAt: integer("starts_at").notNull(),
+  endsAt: integer("ends_at").default(sql`null`),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

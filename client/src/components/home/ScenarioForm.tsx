@@ -23,6 +23,15 @@ export const ScenarioForm: React.FC<ScenarioFormProps> = ({ form }) => {
         error={form.formState.errors.description?.message}
         placeholder="Brief description of your scenario"
       />
+
+      <FormField
+        label="Timeline Length (periods)"
+        register={form.register("timelineLength", { valueAsNumber: true })}
+        error={form.formState.errors.timelineLength?.message}
+        type="number"
+        min="1"
+        placeholder="e.g. 12"
+      />
     </div>
   );
 };

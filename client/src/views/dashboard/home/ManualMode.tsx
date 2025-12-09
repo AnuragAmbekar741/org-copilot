@@ -19,8 +19,8 @@ type FinancialItem = {
   type: "revenue" | "cost";
   value: number;
   frequency: "monthly" | "one_time" | "yearly";
-  startsAt: string;
-  endsAt?: string;
+  startsAt: number;
+  endsAt?: number | null;
 };
 
 type Template = {
@@ -47,6 +47,7 @@ export const ManualMode: React.FC<ManualModeProps> = ({ previewData }) => {
       title: "",
       description: "",
       financialItems: [],
+      timelineLength: 12,
     },
   });
 
@@ -70,10 +71,13 @@ export const ManualMode: React.FC<ManualModeProps> = ({ previewData }) => {
           type: item.type,
           value: String(item.value), // Store as string for form inputs
           frequency: item.frequency,
-          startsAt: item.startsAt,
-          endsAt: item.endsAt || "",
+          startsAt: item.startsAt ?? 0,
+          endsAt: item.endsAt ?? "",
         }));
         replace(formattedItems);
+      }
+      if (previewData.timelineLength) {
+        form.setValue("timelineLength", previewData.timelineLength);
       }
     }
   }, [previewData, form, replace]);
@@ -147,11 +151,15 @@ export const ManualMode: React.FC<ManualModeProps> = ({ previewData }) => {
                   type: item.type,
                   value: Number(item.value),
                   frequency: item.frequency,
-                  startsAt: item.startsAt || new Date().toISOString(),
-                  endsAt: item.endsAt || undefined,
+                  startsAt: item.startsAt ?? 0,
+                  endsAt:
+                    item.endsAt === "" || item.endsAt === undefined
+                      ? undefined
+                      : Number(item.endsAt),
                 };
               })
             : undefined,
+        timelineLength: values.timelineLength || 12,
       };
 
       await createScenario(payload);
@@ -241,8 +249,8 @@ export const ManualMode: React.FC<ManualModeProps> = ({ previewData }) => {
                     type: item.type,
                     value: item.value, // Remove String() conversion - z.coerce.number() accepts numbers
                     frequency: item.frequency,
-                    startsAt: item.startsAt,
-                    endsAt: item.endsAt || "",
+                    startsAt: item.startsAt ?? 0,
+                    endsAt: item.endsAt ?? "",
                   });
                 }}
               />

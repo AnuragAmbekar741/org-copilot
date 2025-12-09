@@ -9,15 +9,14 @@ import { generateMonthlyPeriods } from "@/components/scenario-details/helpers/mo
 import {
   shouldDisplayItem,
   isItemActiveInPeriod,
-  formatDateForApi,
-  calculateItemPeriodValue,
+  indexToDate,
 } from "@/components/scenario-details/helpers/dateHelpers";
 import { ToggleButtonGroup } from "@/components/scenario-details/ToggleButtonGroup";
 import { FinancialItemsList } from "@/components/scenario-details/FinancialItemsList";
 import { AddRevenueModal } from "@/components/modal/AddRevenueModal";
 import { useCreateFinancialItem } from "@/hooks/useScenario";
 import { AppButton } from "@/components/wrappers/app-button";
-import { cn } from "@/utils/cn";
+import { differenceInMonths, startOfMonth } from "date-fns";
 
 const ScenarioDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -46,6 +45,11 @@ const ScenarioDetails: React.FC = () => {
         ...item,
         id: item.id || `item-${index}`,
         value: Number(item.value),
+        startsAt: Number(item.startsAt),
+        endsAt:
+          item.endsAt === null || item.endsAt === undefined
+            ? undefined
+            : Number(item.endsAt),
       })
     ) as FinancialItem[];
   }, [scenarioResponse?.data?.financialItems]);
@@ -61,44 +65,17 @@ const ScenarioDetails: React.FC = () => {
   // Derive start date from base items using useMemo
   const startDate = useMemo(() => {
     if (baseItems.length > 0) {
-      const dates = baseItems
-        .map((item) => new Date(item.startsAt))
-        .filter((d) => !isNaN(d.getTime()));
-      if (dates.length > 0) {
-        return new Date(Math.min(...dates.map((d) => d.getTime())));
-      }
+      const minIndex = Math.min(...baseItems.map((item) => item.startsAt || 0));
+      return indexToDate(minIndex);
     }
     return new Date();
   }, [baseItems]);
 
   // Generate time periods based on view mode and start date
-  const timePeriods = useMemo(
-    () => generateMonthlyPeriods(startDate, 12),
-    [startDate]
-  );
-
-  // Calculate overall totals across all periods
-  const overallTotals = useMemo(() => {
-    let totalRevenue = 0;
-    let totalCost = 0;
-
-    timePeriods.forEach((period) => {
-      items.forEach((item) => {
-        const periodValue = calculateItemPeriodValue(item, period);
-        if (item.type === "revenue") {
-          totalRevenue += periodValue;
-        } else {
-          totalCost += periodValue;
-        }
-      });
-    });
-
-    return {
-      revenue: totalRevenue,
-      cost: totalCost,
-      net: totalRevenue - totalCost,
-    };
-  }, [items, timePeriods]);
+  const timePeriods = useMemo(() => {
+    const count = Number(scenarioResponse?.data?.timelineLength ?? 12);
+    return generateMonthlyPeriods(startDate, count);
+  }, [startDate, scenarioResponse]);
 
   // Drag and Drop Handlers
   const handleDragStart = (e: React.DragEvent, item: FinancialItem) => {
@@ -141,8 +118,11 @@ const ScenarioDetails: React.FC = () => {
     e.preventDefault();
     e.stopPropagation();
 
-    // Format the target period's start date as YYYY-MM-DD
-    const formattedDate = formatDateForApi(targetPeriod.startDate);
+    const baseDate = startOfMonth(new Date());
+    const targetIndex = differenceInMonths(
+      startOfMonth(targetPeriod.startDate),
+      baseDate
+    );
 
     // Handle category drag (all items in category)
     if (draggedCategory) {
@@ -150,7 +130,7 @@ const ScenarioDetails: React.FC = () => {
         const updates: Record<string, Partial<FinancialItem>> = {};
         draggedCategory.items.forEach((item) => {
           updates[item.id || ""] = {
-            startsAt: formattedDate,
+            startsAt: targetIndex,
           };
         });
         return { ...prev, ...updates };
@@ -164,7 +144,7 @@ const ScenarioDetails: React.FC = () => {
       setItemModifications((prev) => ({
         ...prev,
         [draggedItem.id || ""]: {
-          startsAt: formattedDate,
+          startsAt: targetIndex,
         },
       }));
       setDraggedItem(null);
@@ -238,51 +218,6 @@ const ScenarioDetails: React.FC = () => {
       {viewType === "pipeline" && (
         <div className="flex-1 overflow-x-auto overflow-y-hidden min-h-0 w-full no-scrollbar">
           <div className="flex h-full w-full hide-scrollbar">
-            {/* Summary Column - First */}
-            <div className="flex flex-col h-full border-r border-zinc-800 bg-zinc-900/60 flex-1 min-w-[280px] flex-shrink-0">
-              <div className="p-4 border-b border-zinc-800 bg-zinc-900/50 backdrop-blur-sm sticky top-0 z-10 flex-shrink-0">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-xs font-medium text-white tracking-wide uppercase">
-                    Summary
-                  </span>
-                </div>
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-zinc-500">Total Revenue</span>
-                    <span className="font-mono text-emerald-500/70">
-                      ${overallTotals.revenue.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-zinc-500">Total Cost</span>
-                    <span className="font-mono text-rose-500/70">
-                      ${overallTotals.cost.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between pt-1 border-t border-zinc-800">
-                    <span className="text-zinc-500 text-xs font-medium">
-                      Net
-                    </span>
-                    <span
-                      className={cn(
-                        "font-mono text-sm font-medium",
-                        overallTotals.net >= 0
-                          ? "text-emerald-500/70"
-                          : "text-rose-500/70"
-                      )}
-                    >
-                      ${overallTotals.net.toLocaleString()}
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div className="flex-1 p-3">
-                <div className="text-[10px] text-zinc-600 uppercase tracking-widest">
-                  Overall totals across all periods
-                </div>
-              </div>
-            </div>
-
             {/* Time Period Columns */}
             {timePeriods.map((period) => (
               <TimelineColumn

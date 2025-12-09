@@ -17,8 +17,16 @@ const manualItemSchema = z.object({
   frequency: z.enum(["monthly", "one_time", "yearly"], {
     message: "Frequency is required",
   }),
-  startsAt: z.string().min(1, { message: "Start date is required" }),
-  endsAt: z.string().optional(),
+  startsAt: z.coerce
+    .number()
+    .int()
+    .nonnegative({ message: "Starts at must be >= 0 (timeline index)" }),
+  endsAt: z
+    .preprocess(
+      (val) => (val === "" || val === undefined ? undefined : val),
+      z.coerce.number().int().nonnegative()
+    )
+    .optional(),
 });
 
 type ManualItemFormValues = z.input<typeof manualItemSchema>;
@@ -30,8 +38,8 @@ type ManualTabProps = {
     type: "revenue" | "cost";
     value: number;
     frequency: "monthly" | "one_time" | "yearly";
-    startsAt: string;
-    endsAt?: string;
+    startsAt: number;
+    endsAt?: number | null;
   }) => void;
 };
 
@@ -44,8 +52,8 @@ export const ManualTab: React.FC<ManualTabProps> = ({ onAddItem }) => {
       type: "revenue",
       value: "",
       frequency: "monthly",
-      startsAt: new Date().toISOString().split("T")[0],
-      endsAt: "",
+      startsAt: 0,
+      endsAt: undefined,
     },
   });
 
@@ -58,7 +66,7 @@ export const ManualTab: React.FC<ManualTabProps> = ({ onAddItem }) => {
       value: parsed.value,
       frequency: parsed.frequency,
       startsAt: parsed.startsAt,
-      endsAt: parsed.endsAt || undefined,
+      endsAt: parsed.endsAt ?? undefined,
     });
     form.reset();
   });
@@ -127,7 +135,8 @@ export const ManualTab: React.FC<ManualTabProps> = ({ onAddItem }) => {
           label="Starts At"
           register={form.register("startsAt")}
           error={form.formState.errors.startsAt?.message}
-          type="date"
+          type="number"
+          min="0"
           variant="boxed"
         />
 
@@ -135,7 +144,8 @@ export const ManualTab: React.FC<ManualTabProps> = ({ onAddItem }) => {
           label="Ends At (Optional)"
           register={form.register("endsAt")}
           error={form.formState.errors.endsAt?.message}
-          type="date"
+          type="number"
+          min="0"
           variant="boxed"
         />
       </div>

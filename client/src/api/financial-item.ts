@@ -7,8 +7,8 @@ export type CreateFinancialItemPayload = {
   type: "cost" | "revenue";
   value: number;
   frequency: "monthly" | "one_time" | "yearly";
-  startsAt: string;
-  endsAt?: string;
+  startsAt: number;
+  endsAt?: number | null;
 };
 
 export type FinancialItemResponse = {

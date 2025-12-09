@@ -1,7 +1,5 @@
 import { type FinancialItem } from "@/api/scenario";
 import { type TimePeriod } from "../TimelineColumn";
-import { calculateItemPeriodValue } from "./dateHelpers";
-import { isItemActiveInPeriod } from "./dateHelpers"; // if not already in scope
 
 export type CategoryTotals = {
   revenue: number;
@@ -33,40 +31,15 @@ export const groupItemsByCategory = (
   return groups;
 };
 
-/**
- * Calculate period value for an item based on view mode
- * For monthly items: monthly view = value (as-is), quarterly view = value * 3
- */
+// Totals/calculations removed per pipeline view requirement
 export const calculateAnalytics = (
-  items: FinancialItem[],
-  periods: TimePeriod[]
+  _items: FinancialItem[],
+  _periods: TimePeriod[]
 ): Analytics => {
-  let totalRevenue = 0;
-  let totalCost = 0;
-  const categoryTotals: Record<string, CategoryTotals> = {};
-
-  // Calculate totals across all periods
-  periods.forEach((period) => {
-    items.forEach((item) => {
-      if (!isItemActiveInPeriod(item, period)) return;
-      const periodValue = calculateItemPeriodValue(item, period);
-      const cat = item.category || "Uncategorized";
-
-      if (!categoryTotals[cat]) {
-        categoryTotals[cat] = { revenue: 0, cost: 0 };
-      }
-
-      if (item.type === "revenue") {
-        totalRevenue += periodValue;
-        categoryTotals[cat].revenue += periodValue;
-      } else {
-        totalCost += periodValue;
-        categoryTotals[cat].cost += periodValue;
-      }
-    });
-  });
-
-  const net = totalRevenue - totalCost;
-
-  return { totalRevenue, totalCost, net, categoryTotals };
+  return {
+    totalRevenue: 0,
+    totalCost: 0,
+    net: 0,
+    categoryTotals: {},
+  };
 };

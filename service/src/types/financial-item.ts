@@ -7,8 +7,8 @@ export interface CreateFinancialItemDto {
   type: FinancialItemType;
   value: number;
   frequency: FinancialItemFrequency;
-  startsAt: string;
-  endsAt?: string;
+  startsAt: number;
+  endsAt?: number | null;
 }
 
 export interface FinancialItemDto extends CreateFinancialItemDto {

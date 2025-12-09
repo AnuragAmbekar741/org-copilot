@@ -4,8 +4,8 @@ export type FinancialItem = {
   type: "revenue" | "cost";
   value: number;
   frequency: "monthly" | "one_time" | "yearly";
-  startsAt: string;
-  endsAt?: string;
+  startsAt: number;
+  endsAt?: number | null;
 };
 
 export type Template = {
@@ -15,7 +15,7 @@ export type Template = {
   items: FinancialItem[];
 };
 
-const today = new Date().toISOString().split("T")[0];
+const nowIndex = 0; // current period index
 
 export const templates: Template[] = [
   {
@@ -29,7 +29,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 8000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "Senior Engineer",
@@ -37,7 +37,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 12000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "Cloud Infrastructure",
@@ -45,7 +45,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 500,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "Software Tools",
@@ -53,7 +53,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 300,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "Initial MRR",
@@ -61,7 +61,7 @@ export const templates: Template[] = [
         type: "revenue",
         value: 5000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
     ],
   },
@@ -76,7 +76,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 45000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "Engineering Team (5 engineers)",
@@ -84,7 +84,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 75000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "Marketing Lead",
@@ -92,7 +92,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 15000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "Marketing Budget",
@@ -100,7 +100,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 25000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "ARR Growth",
@@ -108,7 +108,7 @@ export const templates: Template[] = [
         type: "revenue",
         value: 150000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
     ],
   },
@@ -123,7 +123,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 40000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "PR & Events",
@@ -131,7 +131,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 15000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "Sales Commission",
@@ -139,7 +139,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 20000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "Launch Revenue",
@@ -147,7 +147,7 @@ export const templates: Template[] = [
         type: "revenue",
         value: 120000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
     ],
   },
@@ -162,7 +162,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 15000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "Office Furniture",
@@ -170,7 +170,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 75000,
         frequency: "one_time",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "IT Equipment",
@@ -178,7 +178,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 50000,
         frequency: "one_time",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "Utilities & Maintenance",
@@ -186,7 +186,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 2000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
     ],
   },
@@ -201,7 +201,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 20000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "Enterprise AEs (3)",
@@ -209,7 +209,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 60000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "Sales Development Reps (2)",
@@ -217,7 +217,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 12000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "Sales Tools & CRM",
@@ -225,7 +225,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 5000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "Enterprise Revenue",
@@ -233,7 +233,7 @@ export const templates: Template[] = [
         type: "revenue",
         value: 300000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
     ],
   },
@@ -248,7 +248,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 10000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "Support Team (2)",
@@ -256,7 +256,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 12000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "Support Tools",
@@ -264,7 +264,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 2000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "Upsell Revenue",
@@ -272,7 +272,7 @@ export const templates: Template[] = [
         type: "revenue",
         value: 40000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
     ],
   },
@@ -287,7 +287,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 15000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "Local Sales Team",
@@ -295,7 +295,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 30000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "Legal & Compliance",
@@ -303,7 +303,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 10000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "Market Entry Costs",
@@ -311,7 +311,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 100000,
         frequency: "one_time",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "International Revenue",
@@ -319,7 +319,7 @@ export const templates: Template[] = [
         type: "revenue",
         value: 80000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
     ],
   },
@@ -334,7 +334,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 45000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "Product Manager",
@@ -342,7 +342,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 14000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "R&D Tools & Licenses",
@@ -350,7 +350,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 5000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "Future Product Revenue",
@@ -358,10 +358,8 @@ export const templates: Template[] = [
         type: "revenue",
         value: 0,
         frequency: "monthly",
-        startsAt: today,
-        endsAt: new Date(Date.now() + 6 * 30 * 24 * 60 * 60 * 1000)
-          .toISOString()
-          .split("T")[0],
+        startsAt: nowIndex,
+        endsAt: 6,
       },
     ],
   },
@@ -376,7 +374,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 50000,
         frequency: "one_time",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "Vendor Negotiation Savings",
@@ -384,7 +382,7 @@ export const templates: Template[] = [
         type: "revenue",
         value: 15000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "Infrastructure Optimization",
@@ -392,7 +390,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 20000,
         frequency: "one_time",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "Monthly Savings",
@@ -400,7 +398,7 @@ export const templates: Template[] = [
         type: "revenue",
         value: 8000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
     ],
   },
@@ -415,7 +413,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 12000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "Partner Enablement",
@@ -423,7 +421,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 15000,
         frequency: "one_time",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "Partner Commissions",
@@ -431,7 +429,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 25000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "Channel Revenue",
@@ -439,7 +437,7 @@ export const templates: Template[] = [
         type: "revenue",
         value: 100000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
     ],
   },
@@ -454,7 +452,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 200000,
         frequency: "yearly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "Annual Marketing Budget",
@@ -462,7 +460,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 500000,
         frequency: "yearly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "Annual Revenue Target",
@@ -470,7 +468,7 @@ export const templates: Template[] = [
         type: "revenue",
         value: 5000000,
         frequency: "yearly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "Annual Infrastructure",
@@ -478,7 +476,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 100000,
         frequency: "yearly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
     ],
   },
@@ -493,10 +491,8 @@ export const templates: Template[] = [
         type: "cost",
         value: 40000,
         frequency: "monthly",
-        startsAt: today,
-        endsAt: new Date(Date.now() + 3 * 30 * 24 * 60 * 60 * 1000)
-          .toISOString()
-          .split("T")[0],
+        startsAt: nowIndex,
+        endsAt: 3,
       },
       {
         title: "Integration Costs",
@@ -504,7 +500,7 @@ export const templates: Template[] = [
         type: "cost",
         value: 200000,
         frequency: "one_time",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "Acquired Revenue",
@@ -512,7 +508,7 @@ export const templates: Template[] = [
         type: "revenue",
         value: 250000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
       {
         title: "Cost Synergies",
@@ -520,7 +516,7 @@ export const templates: Template[] = [
         type: "revenue",
         value: 50000,
         frequency: "monthly",
-        startsAt: today,
+        startsAt: nowIndex,
       },
     ],
   },

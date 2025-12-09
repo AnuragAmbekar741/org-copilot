@@ -3,7 +3,6 @@ import { GripVertical } from "lucide-react";
 import { cn } from "@/utils/cn";
 import { type FinancialItem } from "@/api/scenario";
 import { type TimePeriod } from "./TimelineColumn";
-import { calculateItemPeriodValue } from "./helpers/dateHelpers";
 
 type GroupedCategoryCardProps = {
   category: string;
@@ -26,23 +25,6 @@ export const GroupedCategoryCard: React.FC<GroupedCategoryCardProps> = ({
   onDragEnd,
   isDragged = false,
 }) => {
-  const totals = items.reduce(
-    (acc, item) => {
-      const periodValue = calculateItemPeriodValue(item, period);
-      if (item.type === "revenue") {
-        acc.revenue += periodValue;
-      } else {
-        acc.cost += periodValue;
-      }
-      return acc;
-    },
-    { revenue: 0, cost: 0 }
-  );
-
-  const hasRevenue = totals.revenue > 0;
-  const hasCost = totals.cost > 0;
-  const net = totals.revenue - totals.cost;
-
   const handleDragStart = (e: React.DragEvent) => {
     onDragStart(e, category, items);
     if (e.currentTarget instanceof HTMLElement) {
@@ -82,34 +64,9 @@ export const GroupedCategoryCard: React.FC<GroupedCategoryCardProps> = ({
       </div>
 
       <div className="mt-3 pt-3 border-t border-zinc-900 space-y-1.5">
-        {hasRevenue && (
-          <div className="flex items-center justify-between">
-            <span className="text-[9px] text-zinc-500 uppercase">Revenue</span>
-            <span className="font-mono text-xs text-zinc-300">
-              ${totals.revenue.toLocaleString()}
-            </span>
-          </div>
-        )}
-        {hasCost && (
-          <div className="flex items-center justify-between">
-            <span className="text-[9px] text-zinc-500 uppercase">Cost</span>
-            <span className="font-mono text-xs text-zinc-400">
-              ${totals.cost.toLocaleString()}
-            </span>
-          </div>
-        )}
-        {(hasRevenue || hasCost) && (
-          <div className="flex items-center justify-between pt-1 border-t border-zinc-900">
-            <span className="text-[9px] text-zinc-500 uppercase font-medium">
-              Net
-            </span>
-            <span
-              className={cn("font-mono text-xs font-medium", "text-zinc-200")}
-            >
-              ${net.toLocaleString()}
-            </span>
-          </div>
-        )}
+        <div className="text-[10px] text-zinc-600 uppercase tracking-widest">
+          {items.length} item{items.length !== 1 ? "s" : ""}
+        </div>
       </div>
     </div>
   );

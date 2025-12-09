@@ -18,6 +18,7 @@ const ensureScenarioOwnership = async (scenarioId: string, userId: string) => {
 
 type FinancialItemRow = typeof financialItems.$inferSelect;
 
+// mapItem: return numbers, not ISO strings
 const mapItem = (item: FinancialItemRow): FinancialItemDto => ({
   id: item.id,
   scenarioId: item.scenarioId,
@@ -26,8 +27,8 @@ const mapItem = (item: FinancialItemRow): FinancialItemDto => ({
   type: item.type as "cost" | "revenue",
   value: Number(item.value),
   frequency: item.frequency as "monthly" | "one_time" | "yearly",
-  startsAt: item.startsAt.toISOString(),
-  endsAt: item.endsAt ? item.endsAt.toISOString() : undefined,
+  startsAt: item.startsAt, // number
+  endsAt: item.endsAt ?? undefined, // optional number
   createdAt: item.createdAt,
   updatedAt: item.updatedAt,
 });
@@ -48,10 +49,10 @@ export const createFinancialItem = async (
       title: data.title,
       category: data.category,
       type: data.type,
-      value: data.value.toString(),
+      value: data.value.toString(), // or data.value if preferred
       frequency: data.frequency,
-      startsAt: new Date(data.startsAt),
-      endsAt: data.endsAt ? new Date(data.endsAt) : null,
+      startsAt: data.startsAt, // number
+      endsAt: data.endsAt ?? null, // null if not provided
     })
     .returning();
 
@@ -76,10 +77,10 @@ export const createFinancialItemsBulk = async (
         title: item.title,
         category: item.category,
         type: item.type,
-        value: item.value.toString(),
+        value: item.value.toString(), // or item.value
         frequency: item.frequency,
-        startsAt: new Date(item.startsAt),
-        endsAt: item.endsAt ? new Date(item.endsAt) : null,
+        startsAt: item.startsAt, // number
+        endsAt: item.endsAt ?? null, // null if not provided
       }))
     )
     .returning();

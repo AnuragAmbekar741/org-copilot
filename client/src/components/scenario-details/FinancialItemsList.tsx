@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
 import { type FinancialItem } from "@/api/scenario";
 import {
   Table,
@@ -15,6 +15,7 @@ import {
   calculateAnalytics,
 } from "./helpers/financialItemsHelpers";
 import { type TimePeriod } from "./TimelineColumn";
+import { indexToDate } from "./helpers/dateHelpers";
 import { Separator } from "../ui/separator";
 
 type FinancialItemsListProps = {
@@ -166,7 +167,7 @@ export const FinancialItemsList: React.FC<FinancialItemsListProps> = ({
           </span>
         </TableCell>
         <TableCell className="text-zinc-500 text-xs font-mono py-3">
-          {format(parseISO(item.startsAt), "MMM dd, yyyy")}
+          {format(indexToDate(item.startsAt), "MMM dd, yyyy")}
         </TableCell>
       </TableRow>
     );

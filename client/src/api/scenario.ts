@@ -7,14 +7,15 @@ export interface FinancialItem {
   type: "cost" | "revenue";
   value: number;
   frequency: "monthly" | "one_time" | "yearly";
-  startsAt: string;
-  endsAt?: string;
+  startsAt: number;
+  endsAt?: number | null;
 }
 
 export type CreateScenarioPayload = {
   title: string;
   description?: string;
   financialItems?: FinancialItem[];
+  timelineLength: number;
 };
 
 export type Scenario = {
@@ -25,6 +26,7 @@ export type Scenario = {
   financialItems?: unknown[];
   createdAt?: string;
   updatedAt?: string;
+  timelineLength: number;
 };
 
 export type ScenarioResponse = {
