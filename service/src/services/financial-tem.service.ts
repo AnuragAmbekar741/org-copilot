@@ -150,3 +150,29 @@ export const deleteFinancialItem = async (
 
   return result.length > 0;
 };
+
+export const updateFinancialItem = async (
+  id: string,
+  scenarioId: string,
+  data: Partial<CreateFinancialItemDto>
+): Promise<FinancialItemDto | null> => {
+  const rows = await db
+    .update(financialItems)
+    .set({
+      ...(data.title !== undefined && { title: data.title }),
+      ...(data.category !== undefined && { category: data.category }),
+      ...(data.type !== undefined && { type: data.type }),
+      ...(data.value !== undefined && { value: String(data.value) }),
+      ...(data.frequency !== undefined && { frequency: data.frequency }),
+      ...(data.startsAt !== undefined && { startsAt: data.startsAt }),
+      ...(data.endsAt !== undefined && { endsAt: data.endsAt }),
+      updatedAt: new Date(),
+    })
+    .where(
+      and(eq(financialItems.id, id), eq(financialItems.scenarioId, scenarioId))
+    )
+    .returning();
+
+  if (rows.length === 0) return null;
+  return mapItem(rows[0]);
+};

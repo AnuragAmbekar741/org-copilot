@@ -2,7 +2,12 @@ import React, { useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { Loader2, Plus } from "lucide-react";
 import { type FinancialItem } from "@/api/scenario";
-import { useScenario } from "@/hooks/useScenario";
+import {
+  useScenario,
+  useCreateFinancialItem,
+  useUpdateFinancialItem,
+  useDeleteFinancialItem,
+} from "@/hooks/useScenario";
 import { TimelineColumn } from "@/components/scenario-details/TimelineColumn";
 import { type TimePeriod } from "@/components/scenario-details/TimelineColumn";
 import { generateMonthlyPeriods } from "@/components/scenario-details/helpers/monthlyView";
@@ -14,7 +19,6 @@ import {
 import { ToggleButtonGroup } from "@/components/scenario-details/ToggleButtonGroup";
 import { FinancialItemsList } from "@/components/scenario-details/FinancialItemsList";
 import { AddRevenueModal } from "@/components/modal/AddRevenueModal";
-import { useCreateFinancialItem } from "@/hooks/useScenario";
 import { AppButton } from "@/components/wrappers/app-button";
 import { differenceInMonths, startOfMonth } from "date-fns";
 
@@ -35,6 +39,8 @@ const ScenarioDetails: React.FC = () => {
   const [isAddRevenueOpen, setIsAddRevenueOpen] = useState(false);
   const { mutateAsync: createFinancialItem, isPending: isCreatingItem } =
     useCreateFinancialItem(id || "");
+  const { mutateAsync: updateFinancialItem } = useUpdateFinancialItem(id || "");
+  const { mutateAsync: deleteFinancialItem } = useDeleteFinancialItem(id || "");
 
   // Derive base items from API response using useMemo
   const baseItems = useMemo(() => {
@@ -151,6 +157,17 @@ const ScenarioDetails: React.FC = () => {
     }
   };
 
+  const handleUpdateItem = async (
+    itemId: string,
+    payload: Partial<FinancialItem>
+  ) => {
+    await updateFinancialItem({ itemId, payload });
+  };
+
+  const handleDeleteItem = async (itemId: string) => {
+    await deleteFinancialItem(itemId);
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full w-full bg-zinc-950">
@@ -179,7 +196,7 @@ const ScenarioDetails: React.FC = () => {
       <div className="h-16 border-b border-zinc-800 flex items-center justify-between px-6 flex-shrink-0">
         <div className="flex items-center gap-4">
           <h1 className="text-lg font-light text-white tracking-wide">
-            {scenario.title}
+            {scenario.timelineLength} months
           </h1>
         </div>
 
@@ -219,11 +236,13 @@ const ScenarioDetails: React.FC = () => {
         <div className="flex-1 overflow-x-auto overflow-y-hidden min-h-0 w-full no-scrollbar">
           <div className="flex h-full w-full hide-scrollbar">
             {/* Time Period Columns */}
-            {timePeriods.map((period) => (
+            {timePeriods.map((period, index) => (
               <TimelineColumn
                 key={period.id}
                 period={period}
+                periodIndex={index}
                 items={items}
+                timelineLength={scenarioResponse?.data?.timelineLength ?? 12}
                 draggedItem={draggedItem}
                 draggedCategory={draggedCategory}
                 onDragOver={handleDragOver}
@@ -247,6 +266,9 @@ const ScenarioDetails: React.FC = () => {
             items={items}
             groupMode={groupMode}
             periods={timePeriods}
+            timelineLength={scenarioResponse?.data?.timelineLength ?? 12}
+            onUpdate={handleUpdateItem}
+            onDelete={handleDeleteItem}
           />
         </div>
       )}

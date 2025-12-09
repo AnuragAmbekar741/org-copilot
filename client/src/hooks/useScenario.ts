@@ -11,6 +11,8 @@ import {
 } from "@/api/scenario";
 import {
   createFinancialItemApi,
+  deleteFinancialItemApi,
+  updateFinancialItemApi,
   type CreateFinancialItemPayload,
 } from "@/api/financial-item";
 import { previewScenarioFromPromptApi } from "@/api/ai";
@@ -123,6 +125,48 @@ export const useDeleteScenario = () => {
         description:
           error.message || "An error occurred while deleting the scenario.",
         duration: 4000,
+      });
+    },
+  });
+};
+
+export const useUpdateFinancialItem = (scenarioId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      itemId,
+      payload,
+    }: {
+      itemId: string;
+      payload: Partial<CreateFinancialItemPayload>;
+    }) => {
+      return updateFinancialItemApi(scenarioId, itemId, payload);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["scenario", scenarioId] });
+      toast.success("Item updated");
+    },
+    onError: (error: Error) => {
+      toast.error("Failed to update item", {
+        description: error.message,
+      });
+    },
+  });
+};
+
+export const useDeleteFinancialItem = (scenarioId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (itemId: string) => deleteFinancialItemApi(itemId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["scenario", scenarioId] });
+      toast.success("Item deleted");
+    },
+    onError: (error: Error) => {
+      toast.error("Failed to delete item", {
+        description: error.message,
       });
     },
   });

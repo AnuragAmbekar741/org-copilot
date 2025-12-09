@@ -4,6 +4,7 @@ import { cn } from "@/utils/cn";
 import { FinancialItemCard } from "./FinancialItemCard";
 import { GroupedCategoryCard } from "./GroupedCategoryCard";
 import { type FinancialItem } from "@/api/scenario";
+import { calculateCumulativeAnalytics } from "./helpers/analytics";
 
 export type TimePeriod = {
   id: string;
@@ -27,8 +28,14 @@ type TimelineColumnProps = {
   ) => void;
   onDragEnd: (e: React.DragEvent) => void;
   shouldDisplayItem: (item: FinancialItem, period: TimePeriod) => boolean;
-  isItemActiveInPeriod: (item: FinancialItem, period: TimePeriod) => boolean;
+  isItemActiveInPeriod: (
+    item: FinancialItem,
+    period: TimePeriod,
+    periodIndex: number
+  ) => boolean;
   groupMode: "group" | "ungroup";
+  timelineLength: number;
+  periodIndex: number;
 };
 
 export const TimelineColumn: React.FC<TimelineColumnProps> = ({
@@ -43,6 +50,9 @@ export const TimelineColumn: React.FC<TimelineColumnProps> = ({
   onDragEnd,
   shouldDisplayItem,
   groupMode,
+  timelineLength,
+  isItemActiveInPeriod,
+  periodIndex,
 }) => {
   // Items to display as cards (only in their start period)
   const itemsToDisplay = items.filter((item) =>
@@ -79,6 +89,19 @@ export const TimelineColumn: React.FC<TimelineColumnProps> = ({
 
     return { revenue: revenueGroups, cost: costGroups };
   }, [itemsToDisplay, groupMode]);
+
+  // NEW: Items active in this period for analytics
+  const activeItems = useMemo(
+    () =>
+      items.filter((item) => isItemActiveInPeriod(item, period, periodIndex)),
+    [items, period, periodIndex, isItemActiveInPeriod]
+  );
+
+  // NEW: Calculate analytics for this column
+  const analytics = useMemo(
+    () => calculateCumulativeAnalytics(items, periodIndex, timelineLength),
+    [items, periodIndex, timelineLength]
+  );
 
   const renderItems = (itemsToRender: FinancialItem[]) => {
     return itemsToRender.map((item) => (
@@ -127,7 +150,7 @@ export const TimelineColumn: React.FC<TimelineColumnProps> = ({
     >
       {/* Period Header */}
       <div className="p-4 border-b border-zinc-800 bg-zinc-900/40 backdrop-blur-sm sticky top-0 z-10 shrink-0">
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <Calendar className="w-3.5 h-3.5 text-zinc-500" />
             <span className="text-xs font-medium text-white tracking-wide uppercase">
@@ -135,11 +158,61 @@ export const TimelineColumn: React.FC<TimelineColumnProps> = ({
             </span>
           </div>
           <span className="text-[10px] text-zinc-500 font-mono">
-            {itemsToDisplay.length}
+            {activeItems.length} active
           </span>
         </div>
 
-        {/* Totals removed as per request */}
+        {/* Analytics Summary - Revenue, Cost, Net, Carry Forward */}
+        <div className="flex flex-col gap-1 mt-2">
+          <div className="flex items-center justify-between text-[10px]">
+            <span className="text-zinc-600">Revenue</span>
+            <span className="text-emerald-400 font-mono">
+              $
+              {analytics.periodRevenue.toLocaleString(undefined, {
+                maximumFractionDigits: 0,
+              })}
+            </span>
+          </div>
+          <div className="flex items-center justify-between text-[10px]">
+            <span className="text-zinc-600">Cost</span>
+            <span className="text-rose-400 font-mono">
+              $
+              {analytics.periodCost.toLocaleString(undefined, {
+                maximumFractionDigits: 0,
+              })}
+            </span>
+          </div>
+          <div className="flex items-center justify-between text-[10px]">
+            <span className="text-zinc-600">Net</span>
+            <span
+              className={cn(
+                "font-mono",
+                analytics.periodNet >= 0 ? "text-emerald-400" : "text-rose-400"
+              )}
+            >
+              {analytics.periodNet >= 0 ? "+" : "-"}$
+              {Math.abs(analytics.periodNet).toLocaleString(undefined, {
+                maximumFractionDigits: 0,
+              })}
+            </span>
+          </div>
+          <div className="flex items-center justify-between text-[10px] border-t border-zinc-800 pt-1 mt-1">
+            <span className="text-zinc-500">Balance</span>
+            <span
+              className={cn(
+                "font-mono font-medium",
+                analytics.carryForward >= 0
+                  ? "text-emerald-300"
+                  : "text-rose-300"
+              )}
+            >
+              {analytics.carryForward >= 0 ? "" : "-"}$
+              {Math.abs(analytics.carryForward).toLocaleString(undefined, {
+                maximumFractionDigits: 0,
+              })}
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Period Content */}

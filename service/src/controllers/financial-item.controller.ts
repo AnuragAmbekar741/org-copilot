@@ -6,6 +6,7 @@ import {
   getFinancialItemsByScenario,
   getFinancialItemById,
   deleteFinancialItem,
+  updateFinancialItem,
 } from "../services/financial-tem.service";
 import { CreateFinancialItemDto } from "../types/financial-item";
 
@@ -203,6 +204,47 @@ export const deleteFinancialItemController = async (
     res.status(500).json({
       success: false,
       error: "Failed to delete financial item",
+    });
+  }
+};
+
+export const updateFinancialItemController = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const { scenarioId, id } = req.params;
+    const data = req.body;
+
+    if (!scenarioId || !id) {
+      res.status(400).json({
+        success: false,
+        error: "Scenario ID and Item ID are required",
+      });
+      return;
+    }
+
+    const updated = await updateFinancialItem(id, scenarioId, data);
+
+    if (!updated) {
+      res.status(404).json({
+        success: false,
+        error: "Financial item not found",
+      });
+      return;
+    }
+
+    res.json({
+      success: true,
+      data: updated,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to update financial item",
     });
   }
 };

@@ -1,4 +1,4 @@
-import { post } from "@/utils/request";
+import { post, del, put } from "@/utils/request";
 import { type FinancialItem } from "./scenario";
 
 export type CreateFinancialItemPayload = {
@@ -23,6 +23,25 @@ export const createFinancialItemApi = async (
   const data = await post<FinancialItemResponse, CreateFinancialItemPayload>(
     `/scenarios/${scenarioId}/financial-items`,
     payload
+  );
+  return data;
+};
+
+export const updateFinancialItemApi = async (
+  scenarioId: string,
+  itemId: string,
+  payload: Partial<CreateFinancialItemPayload>
+) => {
+  const data = await put<
+    FinancialItemResponse,
+    Partial<CreateFinancialItemPayload>
+  >(`/scenarios/${scenarioId}/financial-items/${itemId}`, payload);
+  return data;
+};
+
+export const deleteFinancialItemApi = async (itemId: string) => {
+  const data = await del<{ success: boolean; message?: string }>(
+    `/financial-items/${itemId}`
   );
   return data;
 };

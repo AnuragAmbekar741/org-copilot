@@ -11,6 +11,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { type Scenario } from "@/api/scenario";
 import { cn } from "@/utils/cn";
+import { Separator } from "@radix-ui/react-select";
 
 type DashboardHeaderProps = {
   isSidebarOpen: boolean;
@@ -104,6 +105,15 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                   ))}
                 </SelectContent>
               </Select>
+              <Separator className="bg-zinc-800 h-8 w-[1px]" />
+              <span className="text-sm text-zinc-400">
+                {
+                  scenarios.filter(
+                    (scenario) => scenario.id === currentScenarioId
+                  )[0].timelineLength
+                }{" "}
+                months
+              </span>
             </div>
           )}
         </div>

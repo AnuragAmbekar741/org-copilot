@@ -5,6 +5,7 @@ import {
   getFinancialItemsByScenarioController,
   getFinancialItemByIdController,
   deleteFinancialItemController,
+  updateFinancialItemController,
 } from "../controllers/financial-item.controller";
 import { authenticate } from "../middlewares/auth.middleware";
 
@@ -34,6 +35,12 @@ router.delete(
   "/financial-items/:id",
   authenticate,
   deleteFinancialItemController
+);
+
+router.put(
+  "/scenarios/:scenarioId/financial-items/:id",
+  authenticate,
+  updateFinancialItemController
 );
 
 export default router;

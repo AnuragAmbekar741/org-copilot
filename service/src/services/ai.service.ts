@@ -50,7 +50,9 @@ Analyze this description and create a complete financial scenario. Make sure to:
 - Include appropriate categories
 - Set appropriate frequencies (monthly for salaries/recurring revenue, one_time for funding)
 - Treat funding as REVENUE (one_time)
-- Use today's date (${today}) for startsAt
+- startsAt is a 0-based month index (0 = first month, 1 = second month, etc.)
+- Items that start immediately should have startsAt: 0
+- Items that start next month should have startsAt: 1
 - Create a short title (max 2-3 words) and description
 - Set timelineLength to a positive integer that covers the span of the scenario (default to 12 if not specified)`;
 
@@ -74,7 +76,7 @@ Analyze this description and create a complete financial scenario. Make sure to:
         type: item.type,
         value: item.value,
         frequency: item.frequency,
-        startsAt: item.startsAt,
+        startsAt: item.startsAt || 1,
         endsAt: item.endsAt ?? undefined,
       })),
       timelineLength: result.timelineLength ?? 12,

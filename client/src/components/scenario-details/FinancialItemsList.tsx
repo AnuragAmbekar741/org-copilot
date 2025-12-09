@@ -1,5 +1,5 @@
-import React, { useMemo } from "react";
-import { format } from "date-fns";
+import React, { useMemo, useState } from "react";
+import { Trash2 } from "lucide-react";
 import { type FinancialItem } from "@/api/scenario";
 import {
   Table,
@@ -10,38 +10,151 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/utils/cn";
-import {
-  groupItemsByCategory,
-  calculateAnalytics,
-} from "./helpers/financialItemsHelpers";
+import { groupItemsByCategory } from "./helpers/financialItemsHelpers";
 import { type TimePeriod } from "./TimelineColumn";
-import { indexToDate } from "./helpers/dateHelpers";
-import { Separator } from "../ui/separator";
+import { FinancialAnalytics } from "./FinancialAnalyticsList";
 
 type FinancialItemsListProps = {
   items: FinancialItem[];
   groupMode: "group" | "ungroup";
   periods: TimePeriod[];
+  timelineLength: number;
+  onUpdate?: (itemId: string, payload: Partial<FinancialItem>) => Promise<void>;
+  onDelete?: (itemId: string) => Promise<void>;
 };
+
+type EditingCell = {
+  itemId: string;
+  field: keyof FinancialItem;
+} | null;
 
 export const FinancialItemsList: React.FC<FinancialItemsListProps> = ({
   items,
   groupMode,
-  periods,
+  timelineLength,
+  onUpdate,
+  onDelete,
 }) => {
-  // Group items by category if groupMode is "group"
+  const [editingCell, setEditingCell] = useState<EditingCell>(null);
+  const [editValue, setEditValue] = useState<string | number>("");
+
   const groupedItems = useMemo(() => {
-    if (groupMode === "ungroup") {
-      return null; // No grouping needed
-    }
+    if (groupMode === "ungroup") return null;
     return groupItemsByCategory(items);
   }, [items, groupMode]);
 
-  // Analytics Calculations - period-aware
-  const analytics = useMemo(() => calculateAnalytics(), [periods]);
+  const handleCellClick = (
+    itemId: string,
+    field: keyof FinancialItem,
+    currentValue: FinancialItem[keyof FinancialItem]
+  ) => {
+    if (!onUpdate) return;
+    setEditingCell({ itemId, field });
+    setEditValue(currentValue ?? "");
+  };
 
-  const getItemDisplayValue = (item: FinancialItem): number => {
-    return item.value; // display stored (annualized) value directly
+  const handleSave = async () => {
+    if (!editingCell || !onUpdate) return;
+
+    const { itemId, field } = editingCell;
+    const item = items.find((i) => i.id === itemId);
+    if (!item) return;
+
+    // Check if value actually changed
+    const currentValue = item[field];
+    let newValue: string | number | null;
+
+    if (field === "value" || field === "startsAt") {
+      newValue = Number(editValue);
+    } else if (field === "endsAt") {
+      newValue = editValue === "" ? null : Number(editValue);
+    } else {
+      newValue = editValue;
+    }
+
+    // Skip API call if value hasn't changed
+    if (currentValue === newValue) {
+      setEditingCell(null);
+      setEditValue("");
+      return;
+    }
+
+    const payload: Partial<FinancialItem> = { [field]: newValue };
+    await onUpdate(itemId, payload);
+
+    setEditingCell(null);
+    setEditValue("");
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") handleSave();
+    if (e.key === "Escape") {
+      setEditingCell(null);
+      setEditValue("");
+    }
+  };
+
+  const inputClass =
+    "bg-zinc-900 border border-zinc-700 text-zinc-200 text-xs px-2 py-1 focus:outline-none focus:border-zinc-500";
+
+  const isEditing = (itemId: string, field: keyof FinancialItem) =>
+    editingCell?.itemId === itemId && editingCell?.field === field;
+
+  const renderEditableCell = (
+    item: FinancialItem,
+    field: keyof FinancialItem,
+    displayValue: React.ReactNode,
+    inputType: "text" | "number" | "select" = "text",
+    options?: { value: string; label: string }[]
+  ) => {
+    if (isEditing(item.id!, field)) {
+      if (inputType === "select" && options) {
+        return (
+          <select
+            value={editValue as string}
+            onChange={(e) => setEditValue(e.target.value)}
+            onBlur={handleSave}
+            onKeyDown={handleKeyDown}
+            className={cn(inputClass, "w-full")}
+            autoFocus
+          >
+            {options.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        );
+      }
+      return (
+        <input
+          type={inputType}
+          value={editValue}
+          onChange={(e) =>
+            setEditValue(
+              inputType === "number" ? e.target.value : e.target.value
+            )
+          }
+          onBlur={handleSave}
+          onKeyDown={handleKeyDown}
+          className={cn(
+            inputClass,
+            "w-full",
+            inputType === "number" && "text-right font-mono"
+          )}
+          autoFocus
+        />
+      );
+    }
+
+    return (
+      <span
+        onClick={() => handleCellClick(item.id!, field, item[field])}
+        className="cursor-pointer hover:bg-zinc-800/50 px-1 -mx-1 rounded"
+      >
+        {displayValue}
+      </span>
+    );
   };
 
   const renderTableHeader = () => (
@@ -60,8 +173,15 @@ export const FinancialItemsList: React.FC<FinancialItemsListProps> = ({
           Value
         </TableHead>
         <TableHead className="text-zinc-500 text-[10px] uppercase tracking-widest font-normal h-9">
-          {groupMode === "group" ? "Count" : "Starts At"}
+          Frequency
         </TableHead>
+        <TableHead className="text-zinc-500 text-[10px] uppercase tracking-widest font-normal h-9">
+          Starts
+        </TableHead>
+        <TableHead className="text-zinc-500 text-[10px] uppercase tracking-widest font-normal h-9">
+          Ends
+        </TableHead>
+        <TableHead className="text-zinc-500 text-[10px] uppercase tracking-widest font-normal h-9 w-10"></TableHead>
       </TableRow>
     </TableHeader>
   );
@@ -125,60 +245,140 @@ export const FinancialItemsList: React.FC<FinancialItemsListProps> = ({
     );
   };
 
-  const renderItemRow = (item: FinancialItem) => {
-    const displayValue = getItemDisplayValue(item);
-    return (
-      <TableRow
-        key={item.id}
-        className="border-zinc-800/50 hover:bg-zinc-800/30 group transition-colors"
-      >
-        <TableCell className="text-zinc-300 text-xs py-3 font-medium pl-6">
-          {item.title}
-        </TableCell>
-        <TableCell className="py-3">
-          <span className="inline-block text-[10px] text-zinc-400 uppercase tracking-wider border border-zinc-800 px-1.5 py-0.5 bg-zinc-900">
+  const renderItemRow = (item: FinancialItem) => (
+    <TableRow
+      key={item.id}
+      className="border-zinc-800/50 hover:bg-zinc-800/30 group transition-colors no-scrollbar"
+    >
+      {/* Title */}
+      <TableCell className="py-2 pl-6">
+        {renderEditableCell(
+          item,
+          "title",
+          <span className="text-zinc-300 text-xs">{item.title}</span>,
+          "text"
+        )}
+      </TableCell>
+
+      {/* Category */}
+      <TableCell className="py-2">
+        {renderEditableCell(
+          item,
+          "category",
+          <span className="text-[10px] text-zinc-400 uppercase">
             {item.category}
-          </span>
-        </TableCell>
-        <TableCell className="py-3">
+          </span>,
+          "text"
+        )}
+      </TableCell>
+
+      {/* Type */}
+      <TableCell className="py-2">
+        {renderEditableCell(
+          item,
+          "type",
           <span
             className={cn(
-              "text-[9px] uppercase tracking-wider px-1.5 py-0.5",
+              "text-[9px] uppercase px-1.5 py-0.5 border",
               item.type === "revenue"
-                ? "bg-emerald-500/10 text-emerald-500/70 border border-emerald-500/20"
-                : "bg-rose-500/10 text-rose-500/70 border border-rose-500/20"
+                ? "bg-emerald-500/10 text-emerald-500/70 border-emerald-500/20"
+                : "bg-rose-500/10 text-rose-500/70 border-rose-500/20"
             )}
           >
             {item.type}
-          </span>
-        </TableCell>
-        <TableCell className="text-right py-3">
-          <span
-            key={`${item.id}-${displayValue}`}
-            className={cn(
-              "font-mono text-xs inline-block animate-in fade-in zoom-in-95 duration-300",
-              item.type === "revenue" ? "text-zinc-200" : "text-zinc-400"
-            )}
+          </span>,
+          "select",
+          [
+            { value: "cost", label: "Cost" },
+            { value: "revenue", label: "Revenue" },
+          ]
+        )}
+      </TableCell>
+
+      {/* Value */}
+      <TableCell className="text-right py-2">
+        {renderEditableCell(
+          item,
+          "value",
+          <span className="font-mono text-xs text-zinc-300">
+            ${item.value.toLocaleString()}
+          </span>,
+          "number"
+        )}
+      </TableCell>
+
+      {/* Frequency */}
+      <TableCell className="py-2">
+        {renderEditableCell(
+          item,
+          "frequency",
+          <span className="text-[10px] text-zinc-500 uppercase">
+            {item.frequency.replace("_", " ")}
+          </span>,
+          "select",
+          [
+            { value: "monthly", label: "Monthly" },
+            { value: "yearly", label: "Yearly" },
+            { value: "one_time", label: "One Time" },
+          ]
+        )}
+      </TableCell>
+
+      {/* Starts At */}
+      <TableCell className="py-2">
+        {renderEditableCell(
+          item,
+          "startsAt",
+          <span className="text-zinc-500 text-xs font-mono">
+            {item.startsAt}
+          </span>,
+          "number"
+        )}
+      </TableCell>
+
+      {/* Ends At */}
+      <TableCell className="py-2">
+        {renderEditableCell(
+          item,
+          "endsAt",
+          <span className="text-zinc-500 text-xs font-mono">
+            {item.endsAt ?? "—"}
+          </span>,
+          "number"
+        )}
+      </TableCell>
+
+      {/* Delete */}
+      <TableCell className="py-2 pr-4">
+        {onDelete && item.id && (
+          <button
+            onClick={() => onDelete(item.id!)}
+            className="p-1 text-zinc-600 hover:text-rose-400 opacity-0 group-hover:opacity-100 transition-all"
           >
-            ${displayValue.toLocaleString()}
-          </span>
-        </TableCell>
-        <TableCell className="text-zinc-500 text-xs font-mono py-3">
-          {format(indexToDate(item.startsAt), "MMM dd, yyyy")}
-        </TableCell>
-      </TableRow>
-    );
-  };
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        )}
+      </TableCell>
+    </TableRow>
+  );
 
   const renderTableBody = () => {
     if (groupMode === "group" && groupedItems) {
       return (
-        <TableBody>
+        <TableBody className="no-scrollbar">
           {Object.entries(groupedItems).map(([category, categoryItems]) => {
-            const totals = analytics.categoryTotals[category] || {
+            const totals = {
               revenue: 0,
               cost: 0,
             };
+            categoryItems.forEach((item) => {
+              const monthlyValue = item.value; // Use item.value directly
+              if (item.type === "revenue") {
+                totals.revenue += monthlyValue;
+              } else {
+                totals.cost += monthlyValue;
+              }
+            });
             return renderCategoryRow(category, totals, categoryItems.length);
           })}
         </TableBody>
@@ -189,11 +389,11 @@ export const FinancialItemsList: React.FC<FinancialItemsListProps> = ({
   };
 
   return (
-    <div className="flex h-full w-full overflow-hidden">
+    <div className="flex h-full w-full overflow-hidden no-scrollbar">
       {/* List Section - 60% */}
-      <div className="w-[60%] h-full flex flex-col border-r border-zinc-800 bg-zinc-950/50 overflow-hidden">
-        <div className="flex-1 overflow-y-auto p-0 scrollbar-hide">
-          <Table>
+      <div className="w-[60%] h-full flex flex-col border-r border-zinc-800 bg-zinc-950/50 overflow-hidden no-scrollbar">
+        <div className="flex-1 overflow-y-auto p-0 no-scrollbar">
+          <Table className="no-scrollbar">
             {renderTableHeader()}
             {renderTableBody()}
           </Table>
@@ -201,16 +401,8 @@ export const FinancialItemsList: React.FC<FinancialItemsListProps> = ({
       </div>
 
       {/* Analytics Section - 40% */}
-      <div className="w-[40%] h-full bg-zinc-950 overflow-y-auto">
-        <div className="px-3 py-2.5">
-          <h3 className="text-xs font-medium text-zinc-500 uppercase tracking-widest">
-            Financial Overview
-          </h3>
-        </div>
-
-        <Separator className="w-full bg-zinc-800" />
-
-        <div className="p-3">{/* Future content goes here */}</div>
+      <div className="w-[40%] h-full">
+        <FinancialAnalytics items={items} timelineLength={timelineLength} />
       </div>
     </div>
   );

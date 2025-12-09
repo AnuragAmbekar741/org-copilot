@@ -1,34 +1,47 @@
-import { addMonths, startOfMonth, isWithinInterval } from "date-fns";
+import { addMonths, startOfMonth } from "date-fns";
 import { type FinancialItem } from "@/api/scenario";
 import { type TimePeriod } from "../TimelineColumn";
 
-const baseDate = startOfMonth(new Date());
-export const indexToDate = (index: number) => addMonths(baseDate, index);
+// Use a consistent base date function that can be reused
+export const getBaseDate = () => startOfMonth(new Date());
+
+export const indexToDate = (index: number, baseDate?: Date) => {
+  const base = baseDate ?? getBaseDate();
+  return addMonths(base, index);
+};
 
 // Only used for item placement/display in pipeline
 export const shouldDisplayItem = (
   item: FinancialItem,
   period: TimePeriod
 ): boolean => {
-  const itemStart = indexToDate(item.startsAt);
-  return isWithinInterval(itemStart, {
-    start: period.startDate,
-    end: period.endDate,
-  });
+  // Use the period's start date as the base for consistency
+  const periodIndex = Math.round(
+    (period.startDate.getTime() - getBaseDate().getTime()) /
+      (30 * 24 * 60 * 60 * 1000)
+  );
+  return (
+    item.startsAt === periodIndex ||
+    (period.startDate <= indexToDate(item.startsAt) &&
+      indexToDate(item.startsAt) <= period.endDate)
+  );
 };
 
-// Minimal active check for visibility
+// Check if item is active in period using index comparison
 export const isItemActiveInPeriod = (
   item: FinancialItem,
-  period: TimePeriod
+  period: TimePeriod,
+  periodIndex: number
 ): boolean => {
-  const itemStart = indexToDate(item.startsAt);
-  const itemEnd =
-    item.endsAt !== undefined && item.endsAt !== null
-      ? indexToDate(item.endsAt)
-      : null;
+  const itemStart = item.startsAt;
+  const itemEnd = item.endsAt;
 
-  if (itemStart > period.endDate) return false;
-  if (itemEnd && itemEnd < period.startDate) return false;
+  // Item hasn't started yet
+  if (itemStart > periodIndex) return false;
+
+  // Item has ended before this period
+  if (itemEnd !== undefined && itemEnd !== null && itemEnd < periodIndex)
+    return false;
+
   return true;
 };

@@ -34,3 +34,9 @@ export const patch = <TResponse, TData>(
 
 export const del = <TResponse>(url: string, config?: AxiosRequestConfig) =>
   unwrap<TResponse>(apiClient.delete<TResponse>(url, config));
+
+export const put = <TResponse, TData>(
+  url: string,
+  data: TData,
+  config?: AxiosRequestConfig
+) => unwrap<TResponse>(apiClient.put<TResponse>(url, data, config));
