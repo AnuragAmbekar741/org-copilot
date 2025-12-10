@@ -33,8 +33,12 @@ const isActiveInPeriod = (
   item: FinancialItem,
   periodIndex: number
 ): boolean => {
+  // startsAt is 1-based (1 = first month), periodIndex is 0-based (0 = first month)
+  // Convert startsAt to 0-based for comparison: startsAt - 1
+  const itemStartPeriod = item.startsAt - 1;
+
   // Item hasn't started yet
-  if (item.startsAt > periodIndex) return false;
+  if (itemStartPeriod > periodIndex) return false;
 
   // endsAt of 0 or null/undefined means "no end date" (ongoing)
   // Only check endsAt if it's a positive number greater than startsAt
@@ -45,7 +49,11 @@ const isActiveInPeriod = (
     item.endsAt >= item.startsAt;
 
   // Item has ended before this period
-  if (hasValidEndDate && item.endsAt! < periodIndex) return false;
+  if (hasValidEndDate) {
+    if (!item.endsAt) return false;
+    const itemEndPeriod = item.endsAt - 1; // Convert to 0-based
+    if (itemEndPeriod < periodIndex) return false;
+  }
 
   return true;
 };

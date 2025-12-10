@@ -115,10 +115,10 @@ export const DashboardLayout = () => {
                   key={item.path}
                   onClick={() => navigate(item.path)}
                   className={cn(
-                    "group flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm transition-all duration-200 ease-in-out whitespace-nowrap",
+                    "group flex w-full items-center gap-3 rounded-none px-3 py-2 text-sm transition-all duration-200 ease-in-out whitespace-nowrap border",
                     isActive
-                      ? "bg-sidebar text-zinc-50 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]"
-                      : "text-zinc-400 hover:bg-sidebar hover:text-zinc-200"
+                      ? "bg-sidebar text-zinc-50 border-zinc-700 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]"
+                      : "text-zinc-400 hover:bg-sidebar hover:text-zinc-200 border-transparent hover:border-zinc-800"
                   )}
                 >
                   <Icon
@@ -131,7 +131,7 @@ export const DashboardLayout = () => {
                   />
                   <span>{item.title}</span>
                   {isActive && (
-                    <div className="ml-auto h-1.5 w-1.5 rounded-full bg-zinc-400 shadow-[0_0_8px_rgba(161,161,170,0.5)]" />
+                    <div className="ml-auto h-1.5 w-1.5 rounded-none bg-zinc-400 shadow-[0_0_8px_rgba(161,161,170,0.5)]" />
                   )}
                 </button>
               );
