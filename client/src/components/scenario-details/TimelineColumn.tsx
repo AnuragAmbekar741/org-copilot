@@ -36,6 +36,7 @@ type TimelineColumnProps = {
   groupMode: "group" | "ungroup";
   timelineLength: number;
   periodIndex: number;
+  loadingItemIds?: Set<string>;
 };
 
 export const TimelineColumn: React.FC<TimelineColumnProps> = ({
@@ -53,6 +54,7 @@ export const TimelineColumn: React.FC<TimelineColumnProps> = ({
   timelineLength,
   isItemActiveInPeriod,
   periodIndex,
+  loadingItemIds = new Set(),
 }) => {
   // Items to display as cards (only in their start period)
   const itemsToDisplay = items.filter((item) =>
@@ -110,6 +112,7 @@ export const TimelineColumn: React.FC<TimelineColumnProps> = ({
         item={item}
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
+        isLoading={loadingItemIds.has(item.id || "")}
       />
     ));
   };
@@ -123,6 +126,11 @@ export const TimelineColumn: React.FC<TimelineColumnProps> = ({
           categoryItems.some((ci) => ci.id === item.id)
         );
 
+      const categoryLoadingIds = categoryItems
+        .map((item) => item.id)
+        .filter((id): id is string => Boolean(id))
+        .filter((id) => loadingItemIds.has(id));
+
       return (
         <GroupedCategoryCard
           key={category}
@@ -132,6 +140,7 @@ export const TimelineColumn: React.FC<TimelineColumnProps> = ({
           onDragStart={(e) => onCategoryDragStart(e, category, categoryItems)}
           onDragEnd={onDragEnd}
           isDragged={isDragged}
+          isLoading={categoryLoadingIds.length > 0}
         />
       );
     });

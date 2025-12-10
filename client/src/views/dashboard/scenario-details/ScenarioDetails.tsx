@@ -21,6 +21,7 @@ import { FinancialItemsList } from "@/components/scenario-details/FinancialItems
 import { AddRevenueModal } from "@/components/modal/AddRevenueModal";
 import { AppButton } from "@/components/wrappers/app-button";
 import { differenceInMonths, startOfMonth } from "date-fns";
+import { toast } from "sonner";
 
 const ScenarioDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -35,6 +36,7 @@ const ScenarioDetails: React.FC = () => {
   const [itemModifications, setItemModifications] = useState<
     Record<string, Partial<FinancialItem>>
   >({});
+  const [loadingItemIds, setLoadingItemIds] = useState<Set<string>>(new Set());
 
   const [isAddRevenueOpen, setIsAddRevenueOpen] = useState(false);
   const { mutateAsync: createFinancialItem, isPending: isCreatingItem } =
@@ -120,40 +122,102 @@ const ScenarioDetails: React.FC = () => {
     e.dataTransfer.dropEffect = "move";
   };
 
-  const handleDrop = (e: React.DragEvent, targetPeriod: TimePeriod) => {
+  const handleDrop = async (e: React.DragEvent, targetPeriod: TimePeriod) => {
     e.preventDefault();
     e.stopPropagation();
 
-    const baseDate = startOfMonth(new Date());
+    // Calculate targetIndex relative to the scenario's startDate (not current month)
     const targetIndex = differenceInMonths(
       startOfMonth(targetPeriod.startDate),
-      baseDate
+      startOfMonth(startDate) // Use scenario's startDate, not new Date()
     );
+
+    // Convert 0-based period index to 1-based startsAt
+    const newStartsAt = targetIndex + 1;
 
     // Handle category drag (all items in category)
     if (draggedCategory) {
+      const itemIds = draggedCategory.items
+        .map((item) => item.id || "")
+        .filter(Boolean);
+
+      // Set loading state
+      setLoadingItemIds(new Set(itemIds));
+
+      // Update local state optimistically
       setItemModifications((prev) => {
         const updates: Record<string, Partial<FinancialItem>> = {};
         draggedCategory.items.forEach((item) => {
           updates[item.id || ""] = {
-            startsAt: targetIndex,
+            startsAt: newStartsAt,
           };
         });
         return { ...prev, ...updates };
       });
+
       setDraggedCategory(null);
+
+      // Update all items via API
+      try {
+        await Promise.all(
+          draggedCategory.items.map((item) => {
+            if (!item.id) return Promise.resolve();
+            return updateFinancialItem({
+              itemId: item.id,
+              payload: { startsAt: newStartsAt },
+            });
+          })
+        );
+      } catch (error) {
+        toast.error("Failed to update items");
+        // Revert optimistic update on error
+        setItemModifications((prev) => {
+          const reverted = { ...prev };
+          draggedCategory.items.forEach((item) => {
+            delete reverted[item.id || ""];
+          });
+          return reverted;
+        });
+      } finally {
+        setLoadingItemIds(new Set());
+      }
       return;
     }
 
     // Handle single item drag
-    if (draggedItem) {
+    if (draggedItem && draggedItem.id) {
+      const itemId = draggedItem.id;
+
+      // Set loading state
+      setLoadingItemIds(new Set([itemId]));
+
+      // Update local state optimistically
       setItemModifications((prev) => ({
         ...prev,
-        [draggedItem.id || ""]: {
-          startsAt: targetIndex,
+        [itemId]: {
+          startsAt: newStartsAt,
         },
       }));
+
       setDraggedItem(null);
+
+      // Update via API
+      try {
+        await updateFinancialItem({
+          itemId,
+          payload: { startsAt: newStartsAt },
+        });
+      } catch (error) {
+        toast.error("Failed to update item");
+        // Revert optimistic update on error
+        setItemModifications((prev) => {
+          const reverted = { ...prev };
+          delete reverted[itemId];
+          return reverted;
+        });
+      } finally {
+        setLoadingItemIds(new Set());
+      }
     }
   };
 
@@ -249,6 +313,7 @@ const ScenarioDetails: React.FC = () => {
                 shouldDisplayItem={shouldDisplayItem}
                 isItemActiveInPeriod={isItemActiveInPeriod}
                 groupMode={groupMode}
+                loadingItemIds={loadingItemIds}
               />
             ))}
           </div>
