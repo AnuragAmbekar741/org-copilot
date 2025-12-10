@@ -32,12 +32,17 @@ Key guidelines:
 9. Include standard operational costs if not mentioned (e.g., cloud infrastructure, tools, office space)
 10. Name team members simply (e.g., "Engineer 1", "Sales Rep 1") WITHOUT including salary in the title
 11. Provide timelineLength as a positive integer number of timeline columns (e.g., months). Default to 12 if not obvious, but ensure it covers the latest startsAt/endsAt of all items.
+12. IMPORTANT: For revenue that GROWS or CHANGES over time (like MRR projections), do NOT stack values. Use endsAt to mark when one revenue phase ends before the next begins. Example: "MRR is $15k now, grows to $35k by month 6" means:
+    - "Current MRR" $15k/month, startsAt: 0, endsAt: 5 (ends before month 6)
+    - "Growth MRR" $35k/month, startsAt: 6, endsAt: null (ongoing)
+    Revenue should REPLACE, not ADD when it "grows".
 
 Example conversions:
 - "1M funding" = $1,000,000 one-time revenue (Category: Funding)
 - "50k ARR" = $50,000 monthly revenue (or $4,167 monthly if annual)
 - "3 engineers at 150k each" = 3 items titled "Engineer 1", "Engineer 2", "Engineer 3" with $12,500 monthly cost
 - "150k salary" = $12,500 monthly cost
+- "MRR $15k growing to $35k by month 6" = Two items: MRR $15k (startsAt:0, endsAt:5), MRR $35k (startsAt:6, endsAt:null)
 
 Return a structured response matching the CreateScenarioDto type with title, optional description, and optional financialItems array.`;
 

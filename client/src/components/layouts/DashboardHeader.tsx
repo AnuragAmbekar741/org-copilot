@@ -109,8 +109,8 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
               <span className="text-sm text-zinc-400">
                 {
                   scenarios.filter(
-                    (scenario) => scenario.id === currentScenarioId
-                  )[0].timelineLength
+                    (scenario) => scenario?.id === currentScenarioId
+                  )[0]?.timelineLength
                 }{" "}
                 months
               </span>
