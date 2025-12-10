@@ -12,8 +12,6 @@ import { AppButton } from "@/components/wrappers/app-button";
 import { usePreviewScenarioFromPrompt } from "@/hooks/useScenario";
 import { type CreateScenarioPayload } from "@/api/scenario";
 import { cn } from "@/utils/cn";
-import { validateScenarioViability } from "@/utils/scenarioValidation";
-import { toast } from "sonner";
 
 type AIModeProps = {
   onPreviewGenerated: (data: CreateScenarioPayload) => void;

@@ -6,7 +6,13 @@ import {
   useSearchParams,
   useParams,
 } from "react-router-dom";
-import { Home, FileText, Settings, PanelLeftClose, LogOut } from "lucide-react";
+import {
+  FileChartColumn,
+  FilePlusCorner,
+  Settings,
+  PanelLeftClose,
+  LogOut,
+} from "lucide-react";
 import { cn } from "@/utils/cn";
 import { Button } from "@/components/ui/button";
 import { clearAccessToken } from "@/utils/storage";
@@ -16,12 +22,12 @@ import { useScenarios, useScenario } from "@/hooks/useScenario";
 const menuItems = [
   {
     title: "Create",
-    icon: Home,
+    icon: FilePlusCorner,
     path: "/dashboard/home",
   },
   {
     title: "Analyze",
-    icon: FileText,
+    icon: FileChartColumn,
     path: "/dashboard/scenario",
   },
   {
@@ -100,9 +106,6 @@ export const DashboardLayout = () => {
             isSidebarOpen ? "opacity-100" : "opacity-0 lg:pointer-events-none"
           )}
         >
-          <div className="mb-2 px-2 text-[10px] uppercase tracking-wider text-zinc-500 font-medium whitespace-nowrap">
-            Main Module
-          </div>
           <nav className="space-y-0.5">
             {menuItems.map((item) => {
               const Icon = item.icon;

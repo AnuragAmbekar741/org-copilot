@@ -168,7 +168,7 @@ const ScenarioDetails: React.FC = () => {
             });
           })
         );
-      } catch (error) {
+      } catch {
         toast.error("Failed to update items");
         // Revert optimistic update on error
         setItemModifications((prev) => {
@@ -207,7 +207,7 @@ const ScenarioDetails: React.FC = () => {
           itemId,
           payload: { startsAt: newStartsAt },
         });
-      } catch (error) {
+      } catch {
         toast.error("Failed to update item");
         // Revert optimistic update on error
         setItemModifications((prev) => {

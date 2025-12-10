@@ -34,14 +34,14 @@ export const Home: React.FC = () => {
       opacity: 1,
       transition: {
         duration: 0.4,
-        ease: "easeOut",
+        ease: [0.4, 0, 0.2, 1] as const, // Add 'as const' to make it a tuple
       },
     },
     exit: {
       opacity: 0,
       transition: {
         duration: 0.3,
-        ease: "easeIn",
+        ease: [0.4, 0, 1, 1] as const, // Add 'as const'
       },
     },
   };
@@ -53,7 +53,7 @@ export const Home: React.FC = () => {
       x: 0,
       transition: {
         duration: 0.5,
-        ease: "easeOut",
+        ease: [0.4, 0, 0.2, 1] as const, // Add 'as const'
       },
     },
     exit: {
@@ -61,7 +61,7 @@ export const Home: React.FC = () => {
       x: -20,
       transition: {
         duration: 0.3,
-        ease: "easeIn",
+        ease: [0.4, 0, 1, 1] as const, // Add 'as const'
       },
     },
   };
