@@ -1,5 +1,15 @@
 import React, { useMemo, useState } from "react";
 import { Trash2 } from "lucide-react";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
 import { type FinancialItem } from "@/api/scenario";
 import {
   Table,
@@ -13,6 +23,7 @@ import { cn } from "@/utils/cn";
 import { groupItemsByCategory } from "./helpers/financialItemsHelpers";
 import { type TimePeriod } from "./TimelineColumn";
 import { FinancialAnalytics } from "./FinancialAnalyticsList";
+import { calculateTimelineData } from "./helpers/analytics";
 
 type FinancialItemsListProps = {
   items: FinancialItem[];
@@ -388,15 +399,100 @@ export const FinancialItemsList: React.FC<FinancialItemsListProps> = ({
     return <TableBody>{items.map((item) => renderItemRow(item))}</TableBody>;
   };
 
+  const chartData = useMemo(
+    () => calculateTimelineData(items, timelineLength),
+    [items, timelineLength]
+  );
+
   return (
     <div className="flex h-full w-full overflow-hidden no-scrollbar">
       {/* List Section - 60% */}
       <div className="w-[60%] h-full flex flex-col border-r border-zinc-800 bg-zinc-950/50 overflow-hidden no-scrollbar">
+        {/* Table */}
         <div className="flex-1 overflow-y-auto p-0 no-scrollbar">
           <Table className="no-scrollbar">
             {renderTableHeader()}
             {renderTableBody()}
           </Table>
+        </div>
+
+        {/* Monthly Cost vs Revenue Chart */}
+        <div className="h-[208px] border-t border-zinc-800 px-3 py-2 bg-zinc-900/30 shrink-0">
+          <p className="text-[10px] text-zinc-500 uppercase tracking-widest mb-5">
+            Monthly Cash Flow
+          </p>
+          <ResponsiveContainer width="100%" height={150}>
+            <AreaChart
+              data={chartData}
+              margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
+            >
+              <defs>
+                <linearGradient
+                  id="revenueGradient"
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
+                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="costGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#f43f5e" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
+              <XAxis
+                dataKey="label"
+                tick={{ fill: "#71717a", fontSize: 10 }}
+                axisLine={{ stroke: "#3f3f46" }}
+                tickLine={false}
+              />
+              <YAxis
+                tick={{ fill: "#71717a", fontSize: 10 }}
+                axisLine={{ stroke: "#3f3f46" }}
+                tickLine={false}
+                tickFormatter={(value) =>
+                  value >= 1000 ? `$${(value / 1000).toFixed(0)}k` : `$${value}`
+                }
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "#18181b",
+                  border: "1px solid #3f3f46",
+                  borderRadius: "0",
+                  fontSize: "12px",
+                }}
+                labelStyle={{ color: "#a1a1aa" }}
+                formatter={(value: number, name: string) => [
+                  `$${value.toLocaleString()}`,
+                  name.charAt(0).toUpperCase() + name.slice(1),
+                ]}
+              />
+              <Legend
+                wrapperStyle={{ fontSize: "10px" }}
+                iconType="rect"
+                iconSize={8}
+              />
+              <Area
+                type="monotone"
+                dataKey="revenue"
+                stroke="#10b981"
+                strokeWidth={2}
+                fill="url(#revenueGradient)"
+                name="Revenue"
+              />
+              <Area
+                type="monotone"
+                dataKey="cost"
+                stroke="#f43f5e"
+                strokeWidth={2}
+                fill="url(#costGradient)"
+                name="Cost"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
         </div>
       </div>
 

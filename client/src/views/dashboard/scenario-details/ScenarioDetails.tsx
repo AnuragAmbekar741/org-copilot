@@ -188,18 +188,12 @@ const ScenarioDetails: React.FC = () => {
     );
   }
 
-  const scenario = scenarioResponse.data;
+  // const scenario = scenarioResponse.data;
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
       {/* Top Bar */}
       <div className="h-16 border-b border-zinc-800 flex items-center justify-between px-6 flex-shrink-0">
-        <div className="flex items-center gap-4">
-          <h1 className="text-lg font-light text-white tracking-wide">
-            {scenario.timelineLength} months
-          </h1>
-        </div>
-
         <div className="flex items-center gap-4">
           {/* View Type Toggle - List/Pipeline */}
           <ToggleButtonGroup
@@ -220,7 +214,9 @@ const ScenarioDetails: React.FC = () => {
             value={groupMode}
             onChange={setGroupMode}
           />
+        </div>
 
+        <div className="flex items-center gap-4">
           {/* Add Revenue Button */}
           <AppButton
             variant="default"

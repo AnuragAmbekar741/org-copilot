@@ -166,3 +166,36 @@ export const calculateAnalytics = (
     revenueByCategory: formatCategories(revenueByCategory, totalRevenue),
   };
 };
+
+// Calculate monthly data for the entire timeline (for charts)
+export const calculateTimelineData = (
+  items: FinancialItem[],
+  timelineLength: number
+) => {
+  const data: {
+    month: number;
+    label: string;
+    revenue: number;
+    cost: number;
+    net: number;
+    cumulativeNet: number;
+  }[] = [];
+
+  let cumulativeNet = 0;
+
+  for (let i = 0; i < timelineLength; i++) {
+    const periodAnalytics = calculatePeriodAnalytics(items, i, timelineLength);
+    cumulativeNet += periodAnalytics.net;
+
+    data.push({
+      month: i,
+      label: `M${i + 1}`,
+      revenue: Math.round(periodAnalytics.revenue),
+      cost: Math.round(periodAnalytics.cost),
+      net: Math.round(periodAnalytics.net),
+      cumulativeNet: Math.round(cumulativeNet),
+    });
+  }
+
+  return data;
+};
