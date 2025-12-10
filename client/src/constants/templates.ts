@@ -521,3 +521,179 @@ export const templates: Template[] = [
     ],
   },
 ];
+
+// Individual item templates for modals
+export type ItemTemplate = {
+  id: string;
+  title: string;
+  category: string;
+  value: number;
+  frequency: "monthly" | "one_time" | "yearly";
+  description: string;
+};
+
+export const REVENUE_ITEM_TEMPLATES: ItemTemplate[] = [
+  {
+    id: "mrr",
+    title: "Monthly Recurring Revenue",
+    category: "Subscription",
+    value: 10000,
+    frequency: "monthly",
+    description: "SaaS subscriptions, memberships",
+  },
+  {
+    id: "arr",
+    title: "Annual Contract",
+    category: "Subscription",
+    value: 50000,
+    frequency: "yearly",
+    description: "Annual software licenses",
+  },
+  {
+    id: "funding-seed",
+    title: "Seed Funding",
+    category: "Funding",
+    value: 500000,
+    frequency: "one_time",
+    description: "Seed investment round",
+  },
+  {
+    id: "funding-series-a",
+    title: "Series A Funding",
+    category: "Funding",
+    value: 3000000,
+    frequency: "one_time",
+    description: "Series A investment round",
+  },
+  {
+    id: "enterprise-deal",
+    title: "Enterprise Deal",
+    category: "Sales",
+    value: 100000,
+    frequency: "one_time",
+    description: "Large one-time contract",
+  },
+  {
+    id: "consulting",
+    title: "Consulting Revenue",
+    category: "Services",
+    value: 15000,
+    frequency: "monthly",
+    description: "Professional services, consulting",
+  },
+  {
+    id: "grant",
+    title: "Grant / Award",
+    category: "Funding",
+    value: 25000,
+    frequency: "one_time",
+    description: "Government grants, awards",
+  },
+  {
+    id: "upsell",
+    title: "Upsell Revenue",
+    category: "Sales",
+    value: 5000,
+    frequency: "monthly",
+    description: "Expansion revenue from existing customers",
+  },
+];
+
+export const COST_ITEM_TEMPLATES: ItemTemplate[] = [
+  {
+    id: "engineer",
+    title: "Software Engineer",
+    category: "Engineering",
+    value: 12500,
+    frequency: "monthly",
+    description: "Full-time engineer salary",
+  },
+  {
+    id: "senior-engineer",
+    title: "Senior Engineer",
+    category: "Engineering",
+    value: 16000,
+    frequency: "monthly",
+    description: "Senior/Staff level engineer",
+  },
+  {
+    id: "product-manager",
+    title: "Product Manager",
+    category: "Engineering",
+    value: 14000,
+    frequency: "monthly",
+    description: "Product management role",
+  },
+  {
+    id: "designer",
+    title: "Designer",
+    category: "Engineering",
+    value: 10000,
+    frequency: "monthly",
+    description: "Product/UX designer",
+  },
+  {
+    id: "sales-rep",
+    title: "Sales Representative",
+    category: "Sales",
+    value: 10000,
+    frequency: "monthly",
+    description: "Sales rep base salary",
+  },
+  {
+    id: "sales-commission",
+    title: "Sales Commission",
+    category: "Sales",
+    value: 5000,
+    frequency: "monthly",
+    description: "Variable sales compensation",
+  },
+  {
+    id: "marketing-budget",
+    title: "Marketing Budget",
+    category: "Marketing",
+    value: 15000,
+    frequency: "monthly",
+    description: "Paid ads, content, events",
+  },
+  {
+    id: "cloud-infra",
+    title: "Cloud Infrastructure",
+    category: "Infrastructure",
+    value: 5000,
+    frequency: "monthly",
+    description: "AWS, GCP, Azure costs",
+  },
+  {
+    id: "office-rent",
+    title: "Office Rent",
+    category: "Operations",
+    value: 8000,
+    frequency: "monthly",
+    description: "Monthly office lease",
+  },
+  {
+    id: "software-tools",
+    title: "Software Tools",
+    category: "Operations",
+    value: 2000,
+    frequency: "monthly",
+    description: "SaaS subscriptions, dev tools",
+  },
+  {
+    id: "legal-accounting",
+    title: "Legal & Accounting",
+    category: "Operations",
+    value: 3000,
+    frequency: "monthly",
+    description: "Professional services",
+  },
+  {
+    id: "equipment",
+    title: "Equipment Purchase",
+    category: "Infrastructure",
+    value: 50000,
+    frequency: "one_time",
+    description: "Laptops, monitors, furniture",
+  },
+];

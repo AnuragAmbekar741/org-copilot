@@ -36,6 +36,12 @@ Key guidelines:
     - "Current MRR" $15k/month, startsAt: 0, endsAt: 5 (ends before month 6)
     - "Growth MRR" $35k/month, startsAt: 6, endsAt: null (ongoing)
     Revenue should REPLACE, not ADD when it "grows".
+13. CRITICAL VIABILITY CHECK: Ensure the scenario is financially viable in the first month (period 0). Total available cash (monthly revenue + one-time funding) MUST be greater than or equal to first month costs. If the user's description would result in an unviable scenario, adjust by:
+    - Adding appropriate funding if not mentioned
+    - Reducing initial costs if they're too high
+    - Delaying some costs to later months if reasonable
+    - Adding initial revenue if missing
+    Always ensure survival is possible in month 1.
 
 Example conversions:
 - "1M funding" = $1,000,000 one-time revenue (Category: Funding)

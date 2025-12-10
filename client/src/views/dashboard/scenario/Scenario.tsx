@@ -49,17 +49,17 @@ export const Scenario: React.FC = () => {
           </div>
 
           {/* Replaced by EmptyScenarioState when no scenarios */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {scenarios.map((scenario) => (
-              <ScenarioCard
-                key={scenario.id}
-                scenario={scenario}
-                onClick={handleScenarioClick}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {scenarios.map((scenario) => (
+                <ScenarioCard
+                  key={scenario.id}
+                  scenario={scenario}
+                  onClick={handleScenarioClick}
                 onDelete={handleDelete}
                 isDeleting={isDeleting}
-              />
-            ))}
-          </div>
+                />
+              ))}
+            </div>
         </div>
       </div>
     </div>

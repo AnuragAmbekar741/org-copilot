@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 
 export function LandingPage() {
   return (
@@ -13,69 +14,110 @@ export function LandingPage() {
       {/* Hero Content */}
       <main className="relative z-10 flex flex-col items-center justify-center text-center px-4 w-full max-w-4xl lg:max-w-5xl 2xl:max-w-7xl mx-auto h-screen">
         {/* Tech Badge */}
-        <div className="mb-16 md:mb-20 flex items-center gap-2 border border-zinc-800 bg-black/50 px-4 py-1.5 text-[10px] md:text-xs uppercase tracking-[0.2em] text-zinc-500 font-medium backdrop-blur-md">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="mb-16 md:mb-20 flex items-center gap-2 border border-zinc-800 bg-black/50 px-4 py-1.5 text-[10px] md:text-xs uppercase tracking-[0.2em] text-zinc-500 font-medium backdrop-blur-md"
+        >
           <div className="h-1.5 w-1.5 bg-zinc-500 animate-pulse rounded-full" />
           System Active
-        </div>
+        </motion.div>
 
         {/* Boxy Headline */}
         <div className="relative p-4 md:p-8">
-          {/* Decorative Corners */}
-          <div className="absolute top-0 left-0 w-4 h-4 border-t border-l border-zinc-700" />
-          <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-zinc-700" />
-          <div className="absolute bottom-0 left-0 w-4 h-4 border-b border-l border-zinc-700" />
-          <div className="absolute bottom-0 right-0 w-4 h-4 border-b border-r border-zinc-700" />
+          {/* Decorative Corners - Animated */}
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="absolute top-0 left-0 w-4 h-4 border-t border-l border-zinc-700"
+          />
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="absolute top-0 right-0 w-4 h-4 border-t border-r border-zinc-700"
+          />
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="absolute bottom-0 left-0 w-4 h-4 border-b border-l border-zinc-700"
+          />
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            className="absolute bottom-0 right-0 w-4 h-4 border-b border-r border-zinc-700"
+          />
 
           <h1 className="text-5xl md:text-7xl lg:text-8xl 2xl:text-9xl font-light tracking-tighter text-white/90 leading-[0.9] uppercase">
-            Will You{" "}
-            <span className="bg-zinc-100 text-black px-2 md:px-4">Make It</span>
-            <br />
-            <span className="text-zinc-700">Or Break It?</span>
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+            >
+              Will You{" "}
+              <span className="bg-zinc-100 text-black px-2 md:px-4">
+                Make It
+              </span>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              className="text-zinc-700"
+            >
+              Or Break It?
+            </motion.div>
           </h1>
         </div>
 
         {/* Data Readout Grid */}
-        <div className="mt-20 md:mt-24 grid grid-cols-1 md:grid-cols-3 gap-px bg-zinc-800 border border-zinc-800 max-w-xl lg:max-w-3xl w-full text-left">
-          <div className="bg-black p-6 group hover:bg-zinc-950 transition-colors">
-            <p className="text-[10px] text-zinc-600 uppercase mb-2 tracking-widest">
-              Burn Rate
-            </p>
-            <p className="text-sm md:text-base text-zinc-400 font-light group-hover:text-white transition-colors">
-              Real-time Analysis
-            </p>
-          </div>
-          <div className="bg-black p-6 group hover:bg-zinc-950 transition-colors">
-            <p className="text-[10px] text-zinc-600 uppercase mb-2 tracking-widest">
-              Runway
-            </p>
-            <p className="text-sm md:text-base text-zinc-400 font-light group-hover:text-white transition-colors">
-              Scenario Modeling
-            </p>
-          </div>
-          <div className="bg-black p-6 group hover:bg-zinc-950 transition-colors">
-            <p className="text-[10px] text-zinc-600 uppercase mb-2 tracking-widest">
-              Status
-            </p>
-            <p className="text-sm md:text-base text-zinc-400 font-light group-hover:text-white transition-colors">
-              Precision Ready
-            </p>
-          </div>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.8 }}
+          className="mt-20 md:mt-24 grid grid-cols-1 md:grid-cols-3 gap-px bg-zinc-800 border border-zinc-800 max-w-xl lg:max-w-3xl w-full text-left"
+        >
+          {[
+            { label: "Burn Rate", value: "Real-time Analysis" },
+            { label: "Runway", value: "Scenario Modeling" },
+            { label: "Status", value: "Precision Ready" },
+          ].map((item) => (
+            <div
+              key={item.label}
+              className="bg-black p-6 group hover:bg-zinc-950 transition-colors"
+            >
+              <p className="text-[10px] text-zinc-600 uppercase mb-2 tracking-widest">
+                {item.label}
+              </p>
+              <p className="text-sm md:text-base text-zinc-400 font-light group-hover:text-white transition-colors">
+                {item.value}
+              </p>
+            </div>
+          ))}
+        </motion.div>
 
         {/* Tech CTA */}
-        <div className="mt-16 md:mt-24">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 1.2 }}
+          className="mt-16 md:mt-24"
+        >
           <Link
             to="/signup"
             className="group relative inline-flex items-center justify-center focus:outline-none"
           >
-            {/* Layer 1: The Deep Shadow/Base (Furthest back) */}
-            {/* Stays anchored but moves slightly to react to the press */}
+            {/* Layer 1: The Deep Shadow/Base */}
             <div className="absolute inset-0 translate-x-4 translate-y-4 bg-[linear-gradient(45deg,#18181b_25%,transparent_25%,transparent_50%,#18181b_50%,#18181b_75%,transparent_75%,transparent_100%)] bg-[size:8px_8px] border border-zinc-800 opacity-60 transition-transform duration-300 ease-out group-hover:translate-x-2 group-hover:translate-y-2" />
 
-            {/* Layer 2: The Solid Mid-Block (Gives the thickness) */}
+            {/* Layer 2: The Solid Mid-Block */}
             <div className="absolute inset-0 translate-x-2 translate-y-2 bg-zinc-800 border border-zinc-700 transition-transform duration-300 ease-out group-hover:translate-x-1 group-hover:translate-y-1 group-hover:bg-zinc-700" />
 
-            {/* Layer 3: The Main Button Face (Top) */}
+            {/* Layer 3: The Main Button Face */}
             <Button
               size="lg"
               className="relative h-16 min-w-[240px] rounded-none border border-zinc-500 bg-black text-white hover:bg-zinc-100 hover:text-black hover:border-white transition-all duration-300 ease-out uppercase tracking-[0.15em] group-active:translate-x-2 group-active:translate-y-2"
@@ -85,14 +127,14 @@ export function LandingPage() {
                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </div>
 
-              {/* Technical Corners on the Button Face */}
+              {/* Technical Corners */}
               <div className="absolute top-0 left-0 w-1.5 h-1.5 bg-zinc-500 group-hover:bg-black transition-colors" />
               <div className="absolute bottom-0 right-0 w-1.5 h-1.5 bg-zinc-500 group-hover:bg-black transition-colors" />
               <div className="absolute top-0 right-0 w-1.5 h-1.5 border-t border-r border-zinc-500 group-hover:border-black transition-colors" />
               <div className="absolute bottom-0 left-0 w-1.5 h-1.5 border-b border-l border-zinc-500 group-hover:border-black transition-colors" />
             </Button>
           </Link>
-        </div>
+        </motion.div>
       </main>
     </div>
   );

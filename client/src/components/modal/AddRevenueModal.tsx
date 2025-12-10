@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -12,7 +12,9 @@ import {
 import { FormField } from "@/components/wrappers/form-field";
 import { FormSelect } from "@/components/wrappers/form-select";
 import { AppButton } from "@/components/wrappers/app-button";
-import { Plus } from "lucide-react";
+import { Plus, FileText, PenLine, ArrowLeft, Check } from "lucide-react";
+import { cn } from "@/utils/cn";
+import { REVENUE_ITEM_TEMPLATES } from "@/constants/templates";
 
 const addRevenueSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
@@ -49,12 +51,17 @@ type AddRevenueModalProps = {
   isPending?: boolean;
 };
 
+type ModalStep = "choose" | "template" | "manual";
+
 export const AddRevenueModal: React.FC<AddRevenueModalProps> = ({
   open,
   onOpenChange,
   onAdd,
   isPending,
 }) => {
+  const [step, setStep] = useState<ModalStep>("choose");
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+
   const form = useForm<AddRevenueFormValues>({
     resolver: zodResolver(addRevenueSchema),
     defaultValues: {
@@ -67,8 +74,31 @@ export const AddRevenueModal: React.FC<AddRevenueModalProps> = ({
     },
   });
 
+  const handleClose = () => {
+    setStep("choose");
+    setSelectedTemplate(null);
+    form.reset();
+    onOpenChange(false);
+  };
+
+  const handleSelectTemplate = (templateId: string) => {
+    const template = REVENUE_ITEM_TEMPLATES.find((t) => t.id === templateId);
+    if (template) {
+      form.setValue("title", template.title);
+      form.setValue("category", template.category);
+      form.setValue("value", template.value);
+      form.setValue("frequency", template.frequency);
+      setSelectedTemplate(templateId);
+    }
+  };
+
+  const handleUseTemplate = () => {
+    if (selectedTemplate) {
+      setStep("manual"); // Go to form with pre-filled values
+    }
+  };
+
   const onSubmit = form.handleSubmit((values) => {
-    // Parse values again to ensure types are transformed (e.g. value string to number)
     const parsed = addRevenueSchema.parse(values);
     onAdd({
       title: parsed.title,
@@ -79,97 +109,230 @@ export const AddRevenueModal: React.FC<AddRevenueModalProps> = ({
       startsAt: parsed.startsAt,
       endsAt: parsed.endsAt ?? undefined,
     });
-    form.reset();
-    onOpenChange(false);
+    handleClose();
   });
 
+  // Step 1: Choose Template or Manual
+  const renderChooseStep = () => (
+    <div className="space-y-4 pt-4">
+      <button
+        onClick={() => setStep("template")}
+        className="w-full p-4 border border-zinc-800 hover:border-zinc-600 bg-zinc-900/50 hover:bg-zinc-800/50 transition-all group text-left"
+      >
+        <div className="flex items-start gap-4">
+          <div className="p-2 bg-emerald-500/10 border border-emerald-500/20">
+            <FileText className="h-5 w-5 text-emerald-500" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-medium text-zinc-200 group-hover:text-white">
+              Use a Template
+            </p>
+            <p className="text-xs text-zinc-500 mt-1">
+              Choose from common revenue types like MRR, funding rounds, or
+              enterprise deals
+            </p>
+          </div>
+        </div>
+      </button>
+
+      <button
+        onClick={() => setStep("manual")}
+        className="w-full p-4 border border-zinc-800 hover:border-zinc-600 bg-zinc-900/50 hover:bg-zinc-800/50 transition-all group text-left"
+      >
+        <div className="flex items-start gap-4">
+          <div className="p-2 bg-blue-500/10 border border-blue-500/20">
+            <PenLine className="h-5 w-5 text-blue-500" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-medium text-zinc-200 group-hover:text-white">
+              Add Manually
+            </p>
+            <p className="text-xs text-zinc-500 mt-1">
+              Create a custom revenue item with your own details
+            </p>
+          </div>
+        </div>
+      </button>
+    </div>
+  );
+
+  // Step 2a: Template Selection
+  const renderTemplateStep = () => (
+    <div className="space-y-4 pt-4">
+      <button
+        onClick={() => setStep("choose")}
+        className="flex items-center gap-2 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+      >
+        <ArrowLeft className="h-3 w-3" />
+        Back
+      </button>
+
+      <div className="grid grid-cols-2 gap-3 max-h-[300px] overflow-y-auto">
+        {REVENUE_ITEM_TEMPLATES.map((template) => (
+          <button
+            key={template.id}
+            onClick={() => handleSelectTemplate(template.id)}
+            className={cn(
+              "p-3 border text-left transition-all",
+              selectedTemplate === template.id
+                ? "border-emerald-500 bg-emerald-500/10"
+                : "border-zinc-800 hover:border-zinc-600 bg-zinc-900/50 hover:bg-zinc-800/50"
+            )}
+          >
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-xs font-medium text-zinc-200">
+                {template.title}
+              </p>
+              {selectedTemplate === template.id && (
+                <Check className="h-3 w-3 text-emerald-500" />
+              )}
+            </div>
+            <p className="text-[10px] text-zinc-500">{template.description}</p>
+            <div className="flex items-center gap-2 mt-2">
+              <span className="text-[10px] text-emerald-400 font-mono">
+                ${template.value.toLocaleString()}
+              </span>
+              <span className="text-[10px] text-zinc-600">•</span>
+              <span className="text-[10px] text-zinc-500 uppercase">
+                {template.frequency.replace("_", " ")}
+              </span>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      <div className="flex justify-end gap-3 pt-2">
+        <AppButton
+          type="button"
+          variant="default"
+          label="Cancel"
+          onClick={handleClose}
+          className="w-auto h-10 border-none bg-transparent hover:bg-zinc-800 text-zinc-400"
+        />
+        <AppButton
+          type="button"
+          variant="outline"
+          label="Customize Template"
+          onClick={handleUseTemplate}
+          disabled={!selectedTemplate}
+          className="w-auto px-6 h-10"
+        />
+      </div>
+    </div>
+  );
+
+  // Step 2b: Manual Form (or customizing template)
+  const renderManualStep = () => (
+    <form onSubmit={onSubmit} className="space-y-6 pt-4">
+      {step === "manual" && selectedTemplate && (
+        <button
+          type="button"
+          onClick={() => setStep("template")}
+          className="flex items-center gap-2 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+        >
+          <ArrowLeft className="h-3 w-3" />
+          Back to templates
+        </button>
+      )}
+
+      <div className="grid grid-cols-2 gap-4">
+        <FormField
+          label="Title"
+          register={form.register("title")}
+          error={form.formState.errors.title?.message}
+          placeholder="e.g. SaaS Subscription"
+          variant="boxed"
+        />
+        <FormField
+          label="Category"
+          register={form.register("category")}
+          error={form.formState.errors.category?.message}
+          placeholder="e.g. Sales"
+          variant="boxed"
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <FormField
+          label="Value ($)"
+          register={form.register("value")}
+          error={form.formState.errors.value?.message}
+          placeholder="0.00"
+          type="number"
+          step="0.01"
+          variant="boxed"
+        />
+        <FormSelect
+          label="Frequency"
+          control={form.control}
+          name="frequency"
+          error={form.formState.errors.frequency?.message}
+          options={[
+            { value: "monthly", label: "Monthly" },
+            { value: "one_time", label: "One Time" },
+            { value: "yearly", label: "Yearly" },
+          ]}
+          variant="boxed"
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <FormField
+          label="Starts At (Month)"
+          register={form.register("startsAt")}
+          error={form.formState.errors.startsAt?.message}
+          type="number"
+          variant="boxed"
+        />
+        <FormField
+          label="Ends At (Optional)"
+          register={form.register("endsAt")}
+          error={form.formState.errors.endsAt?.message}
+          type="number"
+          variant="boxed"
+        />
+      </div>
+
+      <div className="flex justify-end gap-3 pt-2">
+        <AppButton
+          type="button"
+          variant="default"
+          label="Cancel"
+          onClick={handleClose}
+          className="w-auto h-10 border-none bg-transparent hover:bg-zinc-800 text-zinc-400"
+        />
+        <AppButton
+          type="submit"
+          variant="outline"
+          label={isPending ? "Adding..." : "Add Revenue"}
+          icon={Plus}
+          disabled={isPending}
+          className="w-auto px-6 h-10"
+        />
+      </div>
+    </form>
+  );
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Add Revenue</DialogTitle>
+          <DialogTitle>
+            {step === "choose" && "Add Revenue"}
+            {step === "template" && "Choose Template"}
+            {step === "manual" &&
+              (selectedTemplate ? "Customize Revenue" : "Add Revenue Manually")}
+          </DialogTitle>
           <DialogDescription>
-            Add a new revenue stream to your scenario.
+            {step === "choose" && "How would you like to add a revenue item?"}
+            {step === "template" && "Select a template to get started quickly"}
+            {step === "manual" && "Fill in the details for your revenue item"}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={onSubmit} className="space-y-6 pt-4">
-          <div className="grid grid-cols-2 gap-4">
-            <FormField
-              label="Title"
-              register={form.register("title")}
-              error={form.formState.errors.title?.message}
-              placeholder="e.g. SaaS Subscription"
-              variant="boxed"
-            />
-            <FormField
-              label="Category"
-              register={form.register("category")}
-              error={form.formState.errors.category?.message}
-              placeholder="e.g. Sales"
-              variant="boxed"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <FormField
-              label="Value ($)"
-              register={form.register("value")}
-              error={form.formState.errors.value?.message}
-              placeholder="0.00"
-              type="number"
-              step="0.01"
-              variant="boxed"
-            />
-            <FormSelect
-              label="Frequency"
-              control={form.control}
-              name="frequency"
-              error={form.formState.errors.frequency?.message}
-              options={[
-                { value: "monthly", label: "Monthly" },
-                { value: "one_time", label: "One Time" },
-                { value: "yearly", label: "Yearly" },
-              ]}
-              variant="boxed"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <FormField
-              label="Starts At"
-              register={form.register("startsAt")}
-              error={form.formState.errors.startsAt?.message}
-              type="number"
-              variant="boxed"
-            />
-            <FormField
-              label="Ends At (Optional)"
-              register={form.register("endsAt")}
-              error={form.formState.errors.endsAt?.message}
-              type="number"
-              variant="boxed"
-            />
-          </div>
-
-          <div className="flex justify-end gap-3 pt-2">
-            <AppButton
-              type="button"
-              variant="default"
-              label="Cancel"
-              onClick={() => onOpenChange(false)}
-              className="w-auto h-10 border-none bg-transparent hover:bg-zinc-800 text-zinc-400"
-            />
-            <AppButton
-              type="submit"
-              variant="outline"
-              label={isPending ? "Adding..." : "Add Revenue"}
-              icon={Plus}
-              disabled={isPending}
-              className="w-auto px-6 h-10"
-            />
-          </div>
-        </form>
+        {step === "choose" && renderChooseStep()}
+        {step === "template" && renderTemplateStep()}
+        {step === "manual" && renderManualStep()}
       </DialogContent>
     </Dialog>
   );

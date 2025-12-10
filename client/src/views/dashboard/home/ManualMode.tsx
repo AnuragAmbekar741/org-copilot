@@ -12,6 +12,8 @@ import { ManualTab } from "@/components/home/ManualTab";
 import { useCreateScenario } from "@/hooks/useScenario";
 import { AppButton } from "@/components/wrappers/app-button";
 import type { CreateScenarioPayload } from "@/api/scenario";
+import { validateScenarioViability } from "@/utils/scenarioValidation";
+import { toast } from "sonner";
 
 type FinancialItem = {
   title: string;
@@ -156,7 +158,19 @@ export const ManualMode: React.FC<ManualModeProps> = ({ previewData }) => {
             : null,
         timelineLength: Number(values.timelineLength) || 12,
       };
-      console.log(payload);
+
+      // Validate scenario viability
+      if (payload.financialItems && payload.financialItems.length > 0) {
+        const validation = validateScenarioViability(
+          payload.financialItems,
+          payload.timelineLength
+        );
+
+        if (!validation.isValid) {
+          toast.error(validation.error || "Scenario is not viable");
+          return;
+        }
+      }
 
       await createScenario(payload);
     },

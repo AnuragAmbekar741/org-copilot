@@ -12,6 +12,8 @@ import { AppButton } from "@/components/wrappers/app-button";
 import { usePreviewScenarioFromPrompt } from "@/hooks/useScenario";
 import { type CreateScenarioPayload } from "@/api/scenario";
 import { cn } from "@/utils/cn";
+import { validateScenarioViability } from "@/utils/scenarioValidation";
+import { toast } from "sonner";
 
 type AIModeProps = {
   onPreviewGenerated: (data: CreateScenarioPayload) => void;
@@ -25,18 +27,18 @@ export const AIMode: React.FC<AIModeProps> = ({ onPreviewGenerated }) => {
   const quickStarts = [
     {
       icon: Users,
-      label: "Tech Startup",
-      text: "We are a team of 4 engineers with $50k MRR, planning to hire 2 more next quarter...",
+      label: "Seed Stage SaaS",
+      text: "Seed-funded SaaS startup with $500k funding. Current team: 2 engineers at $12k/month each, 1 designer at $8k/month. Monthly MRR is $8k. Planning to hire 1 sales rep at $10k/month starting month 3. Infrastructure costs $2k/month. Timeline: 12 months.",
     },
     {
       icon: DollarSign,
-      label: "Growth Phase",
-      text: "Series A funded SaaS with $2M ARR looking to double headcount in engineering...",
+      label: "Series A Growth",
+      text: "Series A fintech with $3M funding. Team: 3 senior engineers at $15k/month, 1 PM at $12k/month, 2 sales reps at $10k/month each. Current MRR $25k/month, projected to grow to $60k by month 6. AWS costs $5k/month, office rent $6k/month. Timeline: 18 months.",
     },
     {
       icon: Building2,
-      label: "Agency Model",
-      text: "Design agency with 10 retainers of $5k/mo, calculating burn rate for new office...",
+      label: "Bootstrapped Agency",
+      text: "Design agency with no funding. 3 designers at $7k/month each, 1 account manager at $8k/month. Monthly retainer revenue: $45k from 8 clients. Office space $4k/month, software tools $1.5k/month. Planning to add 1 designer in month 4. Timeline: 12 months.",
     },
   ];
 

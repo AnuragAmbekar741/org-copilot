@@ -66,7 +66,7 @@ export const GroupedCategoryCard: React.FC<GroupedCategoryCardProps> = ({
       <div className="mt-3 pt-3 border-t border-zinc-900 space-y-1.5">
         <div className="text-[10px] text-zinc-600 uppercase tracking-widest">
           {items.length} item{items.length !== 1 ? "s" : ""}
-        </div>
+          </div>
       </div>
     </div>
   );
