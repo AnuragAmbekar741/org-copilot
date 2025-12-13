@@ -1,7 +1,8 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { loginApi, signupApi, type AuthResponse } from "@/api/auth";
+import { getMeApi, type User } from "@/api/user";
 import { saveAccessToken } from "@/utils/storage";
 
 type LoginPayload = { email: string; password: string };
@@ -58,5 +59,17 @@ export const useSignup = () => {
         duration: 4000,
       });
     },
+  });
+};
+
+export const useMe = () => {
+  return useQuery({
+    queryKey: ["me"],
+    queryFn: async () => {
+      const data = await getMeApi();
+      return data;
+    },
+    retry: 1,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };

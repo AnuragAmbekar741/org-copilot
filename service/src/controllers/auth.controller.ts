@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import { register, login, LoginDto } from "../services/auth.service";
 import { CreateUserDto } from "../types/user";
+import { getUserById } from "../services/user.service";
+import { AuthRequest } from "../middlewares/auth.middleware";
 
 export const registerController = async (
   req: Request,
@@ -58,6 +60,46 @@ export const loginController = async (
     res.status(401).json({
       success: false,
       error: error instanceof Error ? error.message : "Login failed",
+    });
+  }
+};
+
+export const getMeController = async (
+  req: AuthRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const userId = req.userId!;
+
+    if (!userId) {
+      res.status(401).json({
+        success: false,
+        error: "Unauthorized",
+      });
+      return;
+    }
+
+    const user = await getUserById(userId);
+
+    if (!user) {
+      res.status(404).json({
+        success: false,
+        error: "User not found",
+      });
+      return;
+    }
+
+    // Remove password from response
+    const { password, ...userWithoutPassword } = user;
+
+    res.json({
+      success: true,
+      data: userWithoutPassword,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to get user",
     });
   }
 };

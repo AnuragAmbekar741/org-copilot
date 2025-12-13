@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { clearAccessToken } from "@/utils/storage";
 import { DashboardHeader } from "./DashboardHeader";
 import { useScenarios, useScenario } from "@/hooks/useScenario";
+import { useMe } from "@/hooks/useAuth";
 
 const menuItems = [
   {
@@ -52,6 +53,10 @@ export const DashboardLayout = () => {
   // Fetch current scenario if on detail page
   const { data: currentScenarioResponse } = useScenario(scenarioId);
   const currentScenario = currentScenarioResponse?.data;
+
+  // Fetch current user data
+  const { data: meResponse, isLoading: isLoadingUser } = useMe();
+  const user = meResponse?.data;
 
   const toggleManualMode = () => {
     if (isManualMode) {
@@ -147,15 +152,35 @@ export const DashboardLayout = () => {
         >
           <div className="flex items-center gap-3 px-2 py-2 rounded-none">
             <div className="h-8 w-8 rounded-full bg-sidebar flex items-center justify-center text-xs text-zinc-400 font-medium shrink-0">
-              US
+              {user?.name
+                ? user.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .toUpperCase()
+                    .slice(0, 2)
+                : "US"}
             </div>
             <div className="flex flex-col min-w-0 flex-1">
-              <span className="text-xs text-zinc-300 font-medium whitespace-nowrap">
-                User Pilot
-              </span>
-              <span className="text-[10px] text-zinc-500 whitespace-nowrap">
-                Level 3 Clearance
-              </span>
+              {isLoadingUser ? (
+                <>
+                  <span className="text-xs text-zinc-300 font-medium whitespace-nowrap animate-pulse">
+                    Loading...
+                  </span>
+                  <span className="text-[10px] text-zinc-500 whitespace-nowrap animate-pulse">
+                    ...
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="text-xs text-zinc-300 font-medium whitespace-nowrap">
+                    {user?.name || "User"}
+                  </span>
+                  <span className="text-[10px] text-zinc-500 whitespace-nowrap truncate">
+                    {user?.email || "No email"}
+                  </span>
+                </>
+              )}
             </div>
             <button
               onClick={handleLogout}
