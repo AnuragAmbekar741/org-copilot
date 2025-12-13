@@ -38,7 +38,7 @@ const ScenarioDetails: React.FC = () => {
   >({});
   const [loadingItemIds, setLoadingItemIds] = useState<Set<string>>(new Set());
 
-  const [isAddRevenueOpen, setIsAddRevenueOpen] = useState(false);
+  const [isAddItemOpen, setIsAddItemOpen] = useState(false);
   const { mutateAsync: createFinancialItem, isPending: isCreatingItem } =
     useCreateFinancialItem(id || "");
   const { mutateAsync: updateFinancialItem } = useUpdateFinancialItem(id || "");
@@ -281,12 +281,12 @@ const ScenarioDetails: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-4">
-          {/* Add Revenue Button */}
+          {/* Financial Item Button */}
           <AppButton
             variant="default"
             label="Financial Item"
             icon={Plus}
-            onClick={() => setIsAddRevenueOpen(true)}
+            onClick={() => setIsAddItemOpen(true)}
           />
         </div>
       </div>
@@ -335,8 +335,8 @@ const ScenarioDetails: React.FC = () => {
       )}
 
       <AddRevenueModal
-        open={isAddRevenueOpen}
-        onOpenChange={setIsAddRevenueOpen}
+        open={isAddItemOpen}
+        onOpenChange={setIsAddItemOpen}
         onAdd={async (item) => {
           if (!id) return;
           const annualValue =

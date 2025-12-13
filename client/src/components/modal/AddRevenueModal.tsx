@@ -14,7 +14,10 @@ import { FormSelect } from "@/components/wrappers/form-select";
 import { AppButton } from "@/components/wrappers/app-button";
 import { Plus, FileText, PenLine, ArrowLeft, Check } from "lucide-react";
 import { cn } from "@/utils/cn";
-import { REVENUE_ITEM_TEMPLATES } from "@/constants/templates";
+import {
+  REVENUE_ITEM_TEMPLATES,
+  COST_ITEM_TEMPLATES,
+} from "@/constants/templates";
 
 const addRevenueSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
@@ -42,25 +45,37 @@ type AddRevenueModalProps = {
   onAdd: (item: {
     title: string;
     category: string;
-    type: "revenue";
+    type: "revenue" | "cost";
     value: number;
     frequency: "monthly" | "one_time" | "yearly";
     startsAt: number;
     endsAt?: number | null;
   }) => void;
   isPending?: boolean;
+  itemType?: "revenue" | "cost"; // Add this prop
 };
 
-type ModalStep = "choose" | "template" | "manual";
+type ModalStep = "type" | "choose" | "template" | "manual";
 
 export const AddRevenueModal: React.FC<AddRevenueModalProps> = ({
   open,
   onOpenChange,
   onAdd,
   isPending,
+  itemType = "revenue", // Default to revenue for backward compatibility
 }) => {
-  const [step, setStep] = useState<ModalStep>("choose");
+  const [step, setStep] = useState<ModalStep>("type");
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+  const [selectedItemType, setSelectedItemType] = useState<"revenue" | "cost">(
+    itemType
+  );
+
+  // Get templates based on selected item type
+  const templates =
+    selectedItemType === "revenue"
+      ? REVENUE_ITEM_TEMPLATES
+      : COST_ITEM_TEMPLATES;
+  const itemTypeLabel = selectedItemType === "revenue" ? "Revenue" : "Cost";
 
   const form = useForm<AddRevenueFormValues>({
     resolver: zodResolver(addRevenueSchema),
@@ -75,14 +90,15 @@ export const AddRevenueModal: React.FC<AddRevenueModalProps> = ({
   });
 
   const handleClose = () => {
-    setStep("choose");
+    setStep("type");
     setSelectedTemplate(null);
+    setSelectedItemType(itemType); // Reset to default
     form.reset();
     onOpenChange(false);
   };
 
   const handleSelectTemplate = (templateId: string) => {
-    const template = REVENUE_ITEM_TEMPLATES.find((t) => t.id === templateId);
+    const template = templates.find((t) => t.id === templateId);
     if (template) {
       form.setValue("title", template.title);
       form.setValue("category", template.category);
@@ -103,7 +119,7 @@ export const AddRevenueModal: React.FC<AddRevenueModalProps> = ({
     onAdd({
       title: parsed.title,
       category: parsed.category,
-      type: "revenue",
+      type: selectedItemType,
       value: parsed.value,
       frequency: parsed.frequency,
       startsAt: parsed.startsAt,
@@ -116,20 +132,44 @@ export const AddRevenueModal: React.FC<AddRevenueModalProps> = ({
   const renderChooseStep = () => (
     <div className="space-y-4 pt-4">
       <button
+        onClick={() => setStep("type")}
+        className="flex items-center gap-2 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+      >
+        <ArrowLeft className="h-3 w-3" />
+        Back
+      </button>
+
+      <button
         onClick={() => setStep("template")}
         className="w-full p-4 border border-zinc-800 hover:border-zinc-600 bg-zinc-900/50 hover:bg-zinc-800/50 transition-all group text-left"
       >
         <div className="flex items-start gap-4">
-          <div className="p-2 bg-emerald-500/10 border border-emerald-500/20">
-            <FileText className="h-5 w-5 text-emerald-500" />
+          <div
+            className={cn(
+              "p-2 border",
+              selectedItemType === "revenue"
+                ? "bg-emerald-500/10 border-emerald-500/20"
+                : "bg-red-500/10 border-red-500/20"
+            )}
+          >
+            <FileText
+              className={cn(
+                "h-5 w-5",
+                selectedItemType === "revenue"
+                  ? "text-emerald-500"
+                  : "text-red-500"
+              )}
+            />
           </div>
           <div className="flex-1">
             <p className="text-sm font-medium text-zinc-200 group-hover:text-white">
               Use a Template
             </p>
             <p className="text-xs text-zinc-500 mt-1">
-              Choose from common revenue types like MRR, funding rounds, or
-              enterprise deals
+              Choose from common {selectedItemType.toLowerCase()} types like{" "}
+              {selectedItemType === "revenue"
+                ? "MRR, funding rounds, or enterprise deals"
+                : "salaries, infrastructure, or marketing costs"}
             </p>
           </div>
         </div>
@@ -148,7 +188,8 @@ export const AddRevenueModal: React.FC<AddRevenueModalProps> = ({
               Add Manually
             </p>
             <p className="text-xs text-zinc-500 mt-1">
-              Create a custom revenue item with your own details
+              Create a custom {selectedItemType.toLowerCase()} item with your
+              own details
             </p>
           </div>
         </div>
@@ -168,14 +209,16 @@ export const AddRevenueModal: React.FC<AddRevenueModalProps> = ({
       </button>
 
       <div className="grid grid-cols-2 gap-3 max-h-[300px] overflow-y-auto">
-        {REVENUE_ITEM_TEMPLATES.map((template) => (
+        {templates.map((template) => (
           <button
             key={template.id}
             onClick={() => handleSelectTemplate(template.id)}
             className={cn(
               "p-3 border text-left transition-all",
               selectedTemplate === template.id
-                ? "border-emerald-500 bg-emerald-500/10"
+                ? selectedItemType === "revenue"
+                  ? "border-emerald-500 bg-emerald-500/10"
+                  : "border-red-500 bg-red-500/10"
                 : "border-zinc-800 hover:border-zinc-600 bg-zinc-900/50 hover:bg-zinc-800/50"
             )}
           >
@@ -184,12 +227,26 @@ export const AddRevenueModal: React.FC<AddRevenueModalProps> = ({
                 {template.title}
               </p>
               {selectedTemplate === template.id && (
-                <Check className="h-3 w-3 text-emerald-500" />
+                <Check
+                  className={cn(
+                    "h-3 w-3",
+                    selectedItemType === "revenue"
+                      ? "text-emerald-500"
+                      : "text-red-500"
+                  )}
+                />
               )}
             </div>
             <p className="text-[10px] text-zinc-500">{template.description}</p>
             <div className="flex items-center gap-2 mt-2">
-              <span className="text-[10px] text-emerald-400 font-mono">
+              <span
+                className={cn(
+                  "text-[10px] font-mono",
+                  selectedItemType === "revenue"
+                    ? "text-emerald-400"
+                    : "text-red-400"
+                )}
+              >
                 ${template.value.toLocaleString()}
               </span>
               <span className="text-[10px] text-zinc-600">•</span>
@@ -240,7 +297,11 @@ export const AddRevenueModal: React.FC<AddRevenueModalProps> = ({
           label="Title"
           register={form.register("title")}
           error={form.formState.errors.title?.message}
-          placeholder="e.g. SaaS Subscription"
+          placeholder={`e.g. ${
+            selectedItemType === "revenue"
+              ? "SaaS Subscription"
+              : "Software Engineer"
+          }`}
           variant="boxed"
         />
         <FormField
@@ -304,7 +365,7 @@ export const AddRevenueModal: React.FC<AddRevenueModalProps> = ({
         <AppButton
           type="submit"
           variant="outline"
-          label={isPending ? "Adding..." : "Add Revenue"}
+          label={isPending ? `Adding...` : `Add ${itemTypeLabel}`}
           icon={Plus}
           disabled={isPending}
           className="w-auto px-6 h-10"
@@ -313,23 +374,80 @@ export const AddRevenueModal: React.FC<AddRevenueModalProps> = ({
     </form>
   );
 
+  // New step: Type selection
+  const renderTypeStep = () => (
+    <div className="space-y-4 pt-4">
+      <button
+        onClick={() => {
+          setSelectedItemType("revenue");
+          setStep("choose");
+        }}
+        className="w-full p-4 border border-zinc-800 hover:border-zinc-600 bg-zinc-900/50 hover:bg-zinc-800/50 transition-all group text-left"
+      >
+        <div className="flex items-start gap-4">
+          <div className="p-2 bg-emerald-500/10 border border-emerald-500/20">
+            <FileText className="h-5 w-5 text-emerald-500" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-medium text-zinc-200 group-hover:text-white">
+              Add Revenue
+            </p>
+            <p className="text-xs text-zinc-500 mt-1">
+              MRR, funding rounds, enterprise deals, and other income sources
+            </p>
+          </div>
+        </div>
+      </button>
+
+      <button
+        onClick={() => {
+          setSelectedItemType("cost");
+          setStep("choose");
+        }}
+        className="w-full p-4 border border-zinc-800 hover:border-zinc-600 bg-zinc-900/50 hover:bg-zinc-800/50 transition-all group text-left"
+      >
+        <div className="flex items-start gap-4">
+          <div className="p-2 bg-red-500/10 border border-red-500/20">
+            <FileText className="h-5 w-5 text-red-500" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-medium text-zinc-200 group-hover:text-white">
+              Add Cost
+            </p>
+            <p className="text-xs text-zinc-500 mt-1">
+              Salaries, infrastructure, marketing, and other expenses
+            </p>
+          </div>
+        </div>
+      </button>
+    </div>
+  );
+
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>
-            {step === "choose" && "Add Revenue"}
+            {step === "type" && "Add Financial Item"}
+            {step === "choose" && `Add ${itemTypeLabel}`}
             {step === "template" && "Choose Template"}
             {step === "manual" &&
-              (selectedTemplate ? "Customize Revenue" : "Add Revenue Manually")}
+              (selectedTemplate
+                ? `Customize ${itemTypeLabel}`
+                : `Add ${itemTypeLabel} Manually`)}
           </DialogTitle>
           <DialogDescription>
-            {step === "choose" && "How would you like to add a revenue item?"}
+            {step === "type" &&
+              "What type of financial item would you like to add?"}
+            {step === "choose" &&
+              `How would you like to add a ${itemTypeLabel.toLowerCase()} item?`}
             {step === "template" && "Select a template to get started quickly"}
-            {step === "manual" && "Fill in the details for your revenue item"}
+            {step === "manual" &&
+              `Fill in the details for your ${itemTypeLabel.toLowerCase()} item`}
           </DialogDescription>
         </DialogHeader>
 
+        {step === "type" && renderTypeStep()}
         {step === "choose" && renderChooseStep()}
         {step === "template" && renderTemplateStep()}
         {step === "manual" && renderManualStep()}
