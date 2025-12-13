@@ -92,7 +92,7 @@ export const AddRevenueModal: React.FC<AddRevenueModalProps> = ({
   const handleClose = () => {
     setStep("type");
     setSelectedTemplate(null);
-    setSelectedItemType(itemType); // Reset to default
+    setSelectedItemType(itemType);
     form.reset();
     onOpenChange(false);
   };

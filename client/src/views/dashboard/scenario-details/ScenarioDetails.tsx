@@ -339,10 +339,7 @@ const ScenarioDetails: React.FC = () => {
         onOpenChange={setIsAddItemOpen}
         onAdd={async (item) => {
           if (!id) return;
-          const annualValue =
-            item.frequency === "monthly"
-              ? Number(item.value) * 12
-              : Number(item.value);
+          const annualValue = Number(item.value);
           await createFinancialItem({ ...item, value: annualValue });
         }}
         isPending={isCreatingItem}
