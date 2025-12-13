@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
-import { Loader2, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { type FinancialItem } from "@/api/scenario";
 import {
   useScenario,
@@ -22,6 +22,8 @@ import { AddRevenueModal } from "@/components/modal/AddRevenueModal";
 import { AppButton } from "@/components/wrappers/app-button";
 import { differenceInMonths, startOfMonth } from "date-fns";
 import { toast } from "sonner";
+import { PipelineSkeleton } from "@/components/scenario-details/PipelineSkeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ScenarioDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -234,8 +236,18 @@ const ScenarioDetails: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full w-full bg-zinc-950">
-        <Loader2 className="w-6 h-6 animate-spin text-zinc-500" />
+      <div className="h-full flex flex-col overflow-hidden">
+        {/* Top Bar Skeleton */}
+        <div className="h-16 border-b border-zinc-800 flex items-center justify-between px-6 flex-shrink-0">
+          <div className="flex items-center gap-4">
+            <Skeleton className="h-8 w-24 bg-zinc-800" />
+            <Skeleton className="h-8 w-24 bg-zinc-800" />
+          </div>
+          <Skeleton className="h-9 w-32 bg-zinc-800" />
+        </div>
+
+        {/* Pipeline Skeleton */}
+        <PipelineSkeleton />
       </div>
     );
   }
