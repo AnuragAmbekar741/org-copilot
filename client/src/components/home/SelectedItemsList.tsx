@@ -23,7 +23,16 @@ export const SelectedItemsList: React.FC<SelectedItemsListProps> = ({
   onToggleExpand,
   onRemove,
 }) => {
-  if (fields.length === 0) return null;
+  if (fields.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-48  bg-gradient-to-br from-zinc-900/60 via-zinc-900/40 to-zinc-800/20 rounded-none text-zinc-500 text-sm text-center">
+        <span>No items selected yet.</span>
+        <span className="mt-1 text-xs text-zinc-600">
+          Add financial items from the right to build your scenario.
+        </span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-2">
@@ -111,14 +120,12 @@ export const SelectedItemsList: React.FC<SelectedItemsListProps> = ({
                     label="Starts At"
                     register={form.register(`financialItems.${index}.startsAt`)}
                     type="number"
-                    min="0"
                     variant="boxed"
                   />
                   <FormField
                     label="Ends At"
                     register={form.register(`financialItems.${index}.endsAt`)}
                     type="number"
-                    min="0"
                     variant="boxed"
                   />
                 </div>

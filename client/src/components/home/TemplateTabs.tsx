@@ -12,7 +12,7 @@ export const TemplatesTab: React.FC<TemplatesTabProps> = ({
   onTemplateSelect,
 }) => {
   return (
-    <div className="max-h-[calc(100vh-15rem)] overflow-y-auto pr-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+    <div className="max-h-[calc(100vh-11rem)] overflow-y-auto pr-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
       <div className="space-y-3">
         {templates.map((template) => (
           <TemplateCard

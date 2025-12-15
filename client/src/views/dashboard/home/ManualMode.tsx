@@ -204,7 +204,7 @@ export const ManualMode: React.FC<ManualModeProps> = ({ previewData }) => {
             <Label className="text-xs uppercase tracking-widest text-zinc-500 my-1">
               Selected Items ({fields.length})
             </Label>
-            <div className="max-h-[250px] 2xl:max-h-[400px] overflow-y-auto pr-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <div className="max-h-[200px] py-1 2xl:max-h-[400px] overflow-y-auto pr-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               <SelectedItemsList
                 fields={fields}
                 remove={remove}
