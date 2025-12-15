@@ -18,7 +18,7 @@ export function LandingPage() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="mb-4 md:mb-20 flex items-center gap-2 border border-zinc-800 bg-black/50 px-4 py-1.5 text-[10px] md:text-xs uppercase tracking-[0.2em] text-zinc-500 font-medium backdrop-blur-md"
+          className="mb-4 md:mb-16 flex items-center gap-2 border border-zinc-800 bg-black/50 px-4 py-1.5 text-[10px] md:text-xs uppercase tracking-[0.2em] text-zinc-500 font-medium backdrop-blur-md"
         >
           <div className="h-1.5 w-1.5 bg-zinc-500 animate-pulse rounded-full" />
           System Active
@@ -79,7 +79,7 @@ export function LandingPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.8 }}
-          className="mt-10 md:mt-24 grid grid-cols-1 md:grid-cols-3 gap-px bg-zinc-800 border border-zinc-800 max-w-xl lg:max-w-3xl w-full text-left"
+          className="mt-8 md:mt-16 grid grid-cols-1 md:grid-cols-3 gap-px bg-zinc-800 border border-zinc-800 max-w-xl lg:max-w-3xl w-full text-left"
         >
           {[
             { label: "Burn Rate", value: "Real-time Analysis" },
@@ -88,7 +88,7 @@ export function LandingPage() {
           ].map((item) => (
             <div
               key={item.label}
-              className="bg-black p-6 group hover:bg-zinc-950 transition-colors"
+              className="bg-black p-4 md:p-8 group hover:bg-zinc-950 transition-colors"
             >
               <p className="text-[10px] text-zinc-600 uppercase mb-2 tracking-widest">
                 {item.label}
@@ -105,7 +105,7 @@ export function LandingPage() {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 1.2 }}
-          className="mt-12 md:mt-24"
+          className="mt-12 md:mt-16"
         >
           <Link
             to="/signup"
