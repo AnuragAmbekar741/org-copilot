@@ -50,7 +50,7 @@ export function Signup() {
   return (
     <div className="flex min-h-screen w-full bg-zinc-900 text-white font-mono selection:bg-zinc-800">
       {/* Left: Signup Form */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 sm:px-12 lg:px-24 relative z-10 bg-zinc-900">
+      <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 sm:px-12 lg:px-24 relative z-10 bg-zinc-950/70">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -107,12 +107,12 @@ export function Signup() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
             >
-            <FormField
-              label="Full Name"
-              register={form.register("name")}
-              error={form.formState.errors.name?.message}
-              placeholder="John Doe"
-            />
+              <FormField
+                label="Full Name"
+                register={form.register("name")}
+                error={form.formState.errors.name?.message}
+                placeholder="John Doe"
+              />
             </motion.div>
 
             <motion.div
@@ -120,13 +120,13 @@ export function Signup() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
             >
-            <FormField
-              label="Email Address"
-              register={form.register("email")}
-              error={form.formState.errors.email?.message}
-              placeholder="name@company.com"
-              type="email"
-            />
+              <FormField
+                label="Email Address"
+                register={form.register("email")}
+                error={form.formState.errors.email?.message}
+                placeholder="name@company.com"
+                type="email"
+              />
             </motion.div>
 
             <motion.div
@@ -134,13 +134,13 @@ export function Signup() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7 }}
             >
-            <FormField
-              label="Password"
-              register={form.register("password")}
-              error={form.formState.errors.password?.message}
-              placeholder="••••••••"
-              type="password"
-            />
+              <FormField
+                label="Password"
+                register={form.register("password")}
+                error={form.formState.errors.password?.message}
+                placeholder="••••••••"
+                type="password"
+              />
             </motion.div>
 
             <motion.div
@@ -148,14 +148,14 @@ export function Signup() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8 }}
             >
-            <Button
-              type="submit"
-              disabled={isPending}
-              className="w-full h-14 mt-8 rounded-none bg-white text-black hover:bg-zinc-200 text-xs uppercase tracking-[0.15em] font-medium group transition-all"
-            >
-              {isPending ? "Creating..." : "Create Account"}
-              <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-            </Button>
+              <Button
+                type="submit"
+                disabled={isPending}
+                className="w-full h-14 mt-8 rounded-none bg-white text-black hover:bg-zinc-200 text-xs uppercase tracking-[0.15em] font-medium group transition-all"
+              >
+                {isPending ? "Creating..." : "Create Account"}
+                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </Button>
             </motion.div>
           </form>
 
@@ -261,7 +261,7 @@ export function Signup() {
                     }}
                     className="h-1 bg-zinc-700 mb-1"
                   />
-              <div className="h-1 w-8 bg-zinc-800" />
+                  <div className="h-1 w-8 bg-zinc-800" />
                 </motion.div>
               );
             })}
