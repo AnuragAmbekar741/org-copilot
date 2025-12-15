@@ -8,7 +8,7 @@ export function LandingPage() {
     <div className="relative min-h-screen w-full bg-black/50 text-white overflow-hidden font-mono selection:bg-zinc-800 flex flex-col items-center justify-center">
       {/* Centered Grid Background - visible only in center */}
       <div className="absolute inset-0 flex justify-center pointer-events-none">
-        <div className="w-full max-w-4xl lg:max-w-6xl h-full bg-[linear-gradient(to_right,#222_1px,transparent_1px),linear-gradient(to_bottom,#222_1px,transparent_1px)] bg-[size:1.5rem_1.5rem] [mask-image:linear-gradient(to_bottom,transparent,black_10%,black_90%,transparent)] opacity-20 border-x border-zinc-500/30" />
+        <div className="w-full max-w-4xl lg:max-w-6xl h-full bg-[linear-gradient(to_right,#444_1px,transparent_1px),linear-gradient(to_bottom,#444_1px,transparent_1px)] bg-[size:1.5rem_1.5rem] [mask-image:linear-gradient(to_bottom,transparent,black_10%,black_90%,transparent)] opacity-40 border-x border-zinc-500/30" />
       </div>
 
       {/* Hero Content */}
