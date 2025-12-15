@@ -85,18 +85,75 @@ export function LandingPage() {
             { label: "Burn Rate", value: "Real-time Analysis" },
             { label: "Runway", value: "Scenario Modeling" },
             { label: "Status", value: "Precision Ready" },
-          ].map((item) => (
-            <div
+          ].map((item, index) => (
+            <motion.div
               key={item.label}
-              className="bg-black p-4 md:p-8 group hover:bg-zinc-950 transition-colors"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.5,
+                delay: 0.8 + index * 0.1,
+                ease: "easeOut",
+              }}
+              className="relative bg-black p-4 md:p-8 group cursor-pointer overflow-hidden"
             >
-              <p className="text-[10px] text-zinc-600 uppercase mb-2 tracking-widest">
-                {item.label}
-              </p>
-              <p className="text-sm md:text-base text-zinc-400 font-light group-hover:text-white transition-colors">
-                {item.value}
-              </p>
-            </div>
+              {/* 1. Scanner Line Effect */}
+              <motion.div
+                className="absolute top-0 bottom-0 w-[1px] bg-gradient-to-b from-transparent via-zinc-500 to-transparent opacity-0 z-20"
+                initial={{ left: "-10%" }}
+                whileHover={{
+                  left: "120%",
+                  opacity: 1,
+                  transition: {
+                    duration: 1,
+                    ease: "easeInOut",
+                    repeat: Infinity,
+                  },
+                }}
+              />
+
+              {/* 2. Background Highlight */}
+              <motion.div
+                className="absolute inset-0 bg-zinc-900/0"
+                whileHover={{ backgroundColor: "rgba(24, 24, 27, 0.5)" }} // zinc-950/50
+                transition={{ duration: 0.2 }}
+              />
+
+              {/* 3. Tech Corners (appear on hover) */}
+              <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-zinc-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-zinc-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-zinc-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-zinc-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+              {/* Content */}
+              <div className="relative z-10">
+                <motion.p
+                  className="text-[10px] text-zinc-600 uppercase mb-2 tracking-widest"
+                  whileHover={{ color: "rgb(161, 161, 170)" }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {item.label}
+                </motion.p>
+                <motion.p
+                  className="text-sm md:text-base text-zinc-400 font-light"
+                  whileHover={{
+                    color: "rgb(255, 255, 255)",
+                    textShadow: "0 0 8px rgba(255,255,255,0.5)", // Slight glow on text
+                  }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {item.value}
+                </motion.p>
+              </div>
+
+              {/* Status Indicator (Blinking) */}
+              <motion.div
+                className="absolute top-4 right-4 w-1 h-1 bg-emerald-500/0 rounded-full"
+                whileHover={{ backgroundColor: "rgb(16, 185, 129)" }} // emerald-500
+                animate={{ opacity: [0, 1, 0] }}
+                transition={{ duration: 1, repeat: Infinity }}
+              />
+            </motion.div>
           ))}
         </motion.div>
 
