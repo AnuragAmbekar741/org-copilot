@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowRight, Calendar, Trash } from "lucide-react";
+import { ArrowRight, Calendar, Trash, Clock } from "lucide-react";
 import { type Scenario, type FinancialItem } from "@/api/scenario";
 import { formatCompactNumber } from "@/utils/general";
 type ScenarioCardProps = {
@@ -38,20 +38,29 @@ export const ScenarioCard: React.FC<ScenarioCardProps> = ({
       className="group relative flex flex-col h-full bg-black border border-zinc-800 hover:border-zinc-500 transition-all duration-300 cursor-pointer overflow-hidden"
     >
       {/* 1. Header Section */}
-      <div className="p-6 border-b border-zinc-800 bg-zinc-900/10">
+      <div className="p-4 border-b border-zinc-800 bg-zinc-900/10">
         <h3 className="text-xl font-light text-white tracking-tight mb-2 group-hover:text-emerald-400 transition-colors">
           {scenario.title}
         </h3>
-        <p className="text-xs text-zinc-500 line-clamp-2 leading-relaxed h-8">
+        <p className="text-xs text-zinc-500 line-clamp-2 leading-relaxed ">
           {scenario.description || "System scenario description placeholder."}
         </p>
       </div>
 
-      {/* Badges (date only) */}
-      <div className="px-6 py-4 flex flex-wrap gap-2 border-b border-zinc-800 bg-zinc-900/20">
-        <div className="flex items-center gap-1.5 px-2 py-1 bg-zinc-900 border border-zinc-800 text-[10px] uppercase tracking-wider text-zinc-400">
-          <Calendar className="w-3 h-3" />
-          <span>{formattedDate}</span>
+      {/* Meta Info Grid (Date + Timeline) */}
+      <div className="grid grid-cols-2 divide-x divide-zinc-800 border-b border-zinc-800 bg-zinc-900/20">
+        <div className="p-4 flex items-center justify-center gap-2 bg-zinc-900/5 group-hover:bg-zinc-900/10 transition-colors">
+          <Calendar className="w-3.5 h-3.5 text-zinc-500" />
+          <span className="text-[10px] uppercase tracking-wider text-zinc-400">
+            {formattedDate}
+          </span>
+        </div>
+        <div className="p-4 flex items-center justify-center gap-2 bg-zinc-900/5 group-hover:bg-zinc-900/10 transition-colors">
+          <Clock className="w-3.5 h-3.5 text-zinc-500" />
+          <span className="text-[10px] uppercase tracking-wider text-zinc-400">
+            {scenario.timelineLength}{" "}
+            {scenario.timelineLength === 1 ? "Month" : "Months"}
+          </span>
         </div>
       </div>
 
