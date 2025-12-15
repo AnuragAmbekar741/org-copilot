@@ -5,10 +5,10 @@ import { motion } from "framer-motion";
 
 export function LandingPage() {
   return (
-    <div className="relative min-h-screen w-full bg-black text-white overflow-hidden font-mono selection:bg-zinc-800 flex flex-col items-center justify-center">
+    <div className="relative min-h-screen w-full bg-black/50 text-white overflow-hidden font-mono selection:bg-zinc-800 flex flex-col items-center justify-center">
       {/* Centered Grid Background - visible only in center */}
       <div className="absolute inset-0 flex justify-center pointer-events-none">
-        <div className="w-full max-w-4xl lg:max-w-6xl h-full bg-[linear-gradient(to_right,#222_1px,transparent_1px),linear-gradient(to_bottom,#222_1px,transparent_1px)] bg-[size:1.5rem_1.5rem] [mask-image:linear-gradient(to_bottom,transparent,black_10%,black_90%,transparent)] opacity-20 border-x border-zinc-900/30" />
+        <div className="w-full max-w-4xl lg:max-w-6xl h-full bg-[linear-gradient(to_right,#222_1px,transparent_1px),linear-gradient(to_bottom,#222_1px,transparent_1px)] bg-[size:1.5rem_1.5rem] [mask-image:linear-gradient(to_bottom,transparent,black_10%,black_90%,transparent)] opacity-20 border-x border-zinc-500/30" />
       </div>
 
       {/* Hero Content */}
@@ -18,7 +18,7 @@ export function LandingPage() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="mb-16 md:mb-20 flex items-center gap-2 border border-zinc-800 bg-black/50 px-4 py-1.5 text-[10px] md:text-xs uppercase tracking-[0.2em] text-zinc-500 font-medium backdrop-blur-md"
+          className="mb-4 md:mb-20 flex items-center gap-2 border border-zinc-800 bg-black/50 px-4 py-1.5 text-[10px] md:text-xs uppercase tracking-[0.2em] text-zinc-500 font-medium backdrop-blur-md"
         >
           <div className="h-1.5 w-1.5 bg-zinc-500 animate-pulse rounded-full" />
           System Active
@@ -79,7 +79,7 @@ export function LandingPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.8 }}
-          className="mt-20 md:mt-24 grid grid-cols-1 md:grid-cols-3 gap-px bg-zinc-800 border border-zinc-800 max-w-xl lg:max-w-3xl w-full text-left"
+          className="mt-10 md:mt-24 grid grid-cols-1 md:grid-cols-3 gap-px bg-zinc-800 border border-zinc-800 max-w-xl lg:max-w-3xl w-full text-left"
         >
           {[
             { label: "Burn Rate", value: "Real-time Analysis" },
@@ -105,7 +105,7 @@ export function LandingPage() {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 1.2 }}
-          className="mt-16 md:mt-24"
+          className="mt-12 md:mt-24"
         >
           <Link
             to="/signup"
