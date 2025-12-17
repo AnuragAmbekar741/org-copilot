@@ -37,6 +37,8 @@ type TimelineColumnProps = {
   timelineLength: number;
   periodIndex: number;
   loadingItemIds?: Set<string>;
+  isSelected?: boolean;
+  onSelect?: () => void;
 };
 
 export const TimelineColumn: React.FC<TimelineColumnProps> = ({
@@ -55,6 +57,8 @@ export const TimelineColumn: React.FC<TimelineColumnProps> = ({
   isItemActiveInPeriod,
   periodIndex,
   loadingItemIds = new Set(),
+  isSelected = false,
+  onSelect,
 }) => {
   // Items to display as cards (only in their start period)
   const itemsToDisplay = items.filter((item) =>
@@ -149,20 +153,32 @@ export const TimelineColumn: React.FC<TimelineColumnProps> = ({
   return (
     <div
       className={cn(
-        "flex flex-col h-full border-r border-zinc-800 bg-zinc-900/50 flex-1 min-w-[280px]",
-        draggedItem &&
-          draggedItem.id !== period.id &&
-          "bg-zinc-900/30 transition-colors"
+        "flex flex-col h-full border-r border-zinc-800 bg-zinc-900/50 flex-1 min-w-[280px] cursor-pointer transition-all relative",
+        draggedItem && draggedItem.id !== period.id && "bg-zinc-900/30",
+        isSelected && "bg-zinc-900/70 border-l border-l-zinc-600"
       )}
+      onClick={onSelect}
       onDragOver={onDragOver}
       onDrop={(e) => onDrop(e, period)}
     >
       {/* Period Header */}
-      <div className="p-4 border-b border-zinc-800 bg-zinc-900/40 backdrop-blur-sm sticky top-0 z-10 shrink-0">
+      <div
+        className={cn(
+          "p-4 border-b backdrop-blur-sm sticky top-0 z-10 shrink-0 transition-colors",
+          isSelected
+            ? "border-b-zinc-700 bg-zinc-900/60"
+            : "border-b-zinc-800 bg-zinc-900/40"
+        )}
+      >
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <Calendar className="w-3.5 h-3.5 text-zinc-500" />
-            <span className="text-xs font-medium text-white tracking-wide uppercase">
+            <span
+              className={cn(
+                "text-xs font-medium tracking-wide uppercase transition-colors",
+                isSelected ? "text-zinc-200" : "text-white"
+              )}
+            >
               {period.label}
             </span>
           </div>

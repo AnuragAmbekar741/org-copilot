@@ -39,6 +39,9 @@ const ScenarioDetails: React.FC = () => {
     Record<string, Partial<FinancialItem>>
   >({});
   const [loadingItemIds, setLoadingItemIds] = useState<Set<string>>(new Set());
+  const [selectedPeriodIndex, setSelectedPeriodIndex] = useState<number | null>(
+    null
+  );
 
   const [isAddItemOpen, setIsAddItemOpen] = useState(false);
   const { mutateAsync: createFinancialItem, isPending: isCreatingItem } =
@@ -303,31 +306,223 @@ const ScenarioDetails: React.FC = () => {
         </div>
       </div>
 
-      {/* Pipeline Board - Horizontal Scroll */}
+      {/* Pipeline Board - with Horizontal Analytics */}
       {viewType === "pipeline" && (
-        <div className="flex-1 overflow-x-auto overflow-y-hidden min-h-0 w-full no-scrollbar">
-          <div className="flex h-full w-full hide-scrollbar">
-            {/* Time Period Columns */}
-            {timePeriods.map((period, index) => (
-              <TimelineColumn
-                key={period.id}
-                period={period}
-                periodIndex={index}
-                items={items}
-                timelineLength={scenarioResponse?.data?.timelineLength ?? 12}
-                draggedItem={draggedItem}
-                draggedCategory={draggedCategory}
-                onDragOver={handleDragOver}
-                onDrop={handleDrop}
-                onDragStart={handleDragStart}
-                onCategoryDragStart={handleCategoryDragStart}
-                onDragEnd={handleDragEnd}
-                shouldDisplayItem={shouldDisplayItem}
-                isItemActiveInPeriod={isItemActiveInPeriod}
-                groupMode={groupMode}
-                loadingItemIds={loadingItemIds}
-              />
-            ))}
+        <div className="flex-1 flex flex-col min-h-0">
+          {/* Horizontal Analytics Bar */}
+          <div className="flex-shrink-0 border-b border-zinc-800 bg-zinc-950">
+            {/* Selected Period Indicator */}
+            {selectedPeriodIndex !== null && (
+              <div className="px-6 py-1.5 border-b border-zinc-800 bg-zinc-900/30 flex items-center justify-between">
+                <span className="text-[10px] text-zinc-500 uppercase tracking-widest">
+                  {timePeriods[selectedPeriodIndex]?.label}
+                </span>
+                <button
+                  onClick={() => setSelectedPeriodIndex(null)}
+                  className="text-[10px] text-zinc-500 hover:text-zinc-400 transition-colors"
+                >
+                  ×
+                </button>
+              </div>
+            )}
+            <div className="flex items-stretch divide-x divide-zinc-800">
+              {/* Revenue */}
+              <div className="flex-1 px-6 py-3">
+                <p className="text-[10px] text-zinc-600 uppercase tracking-widest">
+                  {selectedPeriodIndex !== null
+                    ? "Period Revenue"
+                    : "Monthly Revenue"}
+                </p>
+                <p className="text-lg font-mono text-emerald-400 mt-0.5">
+                  $
+                  {(() => {
+                    const timelineLength =
+                      scenarioResponse?.data?.timelineLength ?? 12;
+                    const filterActive = (i: FinancialItem) => {
+                      if (selectedPeriodIndex === null) return true;
+                      const start = (i.startsAt ?? 1) - 1;
+                      const end = i.endsAt ? i.endsAt - 1 : timelineLength - 1;
+                      return (
+                        selectedPeriodIndex >= start &&
+                        selectedPeriodIndex <= end
+                      );
+                    };
+                    return items
+                      .filter((i) => i.type === "revenue")
+                      .filter(filterActive)
+                      .reduce((sum, i) => {
+                        const val = Number(i.value);
+                        if (i.frequency === "monthly") return sum + val;
+                        if (i.frequency === "yearly") return sum + val / 12;
+                        return sum + val / timelineLength;
+                      }, 0);
+                  })().toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                </p>
+              </div>
+
+              {/* Cost */}
+              <div className="flex-1 px-6 py-3">
+                <p className="text-[10px] text-zinc-600 uppercase tracking-widest">
+                  {selectedPeriodIndex !== null
+                    ? "Period Cost"
+                    : "Monthly Cost"}
+                </p>
+                <p className="text-lg font-mono text-rose-400 mt-0.5">
+                  $
+                  {(() => {
+                    const timelineLength =
+                      scenarioResponse?.data?.timelineLength ?? 12;
+                    const filterActive = (i: FinancialItem) => {
+                      if (selectedPeriodIndex === null) return true;
+                      const start = (i.startsAt ?? 1) - 1;
+                      const end = i.endsAt ? i.endsAt - 1 : timelineLength - 1;
+                      return (
+                        selectedPeriodIndex >= start &&
+                        selectedPeriodIndex <= end
+                      );
+                    };
+                    return items
+                      .filter((i) => i.type === "cost")
+                      .filter(filterActive)
+                      .reduce((sum, i) => {
+                        const val = Number(i.value);
+                        if (i.frequency === "monthly") return sum + val;
+                        if (i.frequency === "yearly") return sum + val / 12;
+                        return sum + val / timelineLength;
+                      }, 0);
+                  })().toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                </p>
+              </div>
+
+              {/* Burn Rate */}
+              <div className="flex-1 px-6 py-3">
+                <p className="text-[10px] text-zinc-600 uppercase tracking-widest">
+                  Burn Rate
+                </p>
+                {(() => {
+                  const timelineLength =
+                    scenarioResponse?.data?.timelineLength ?? 12;
+                  const filterActive = (i: FinancialItem) => {
+                    if (selectedPeriodIndex === null) return true;
+                    const start = (i.startsAt ?? 1) - 1;
+                    const end = i.endsAt ? i.endsAt - 1 : timelineLength - 1;
+                    return (
+                      selectedPeriodIndex >= start && selectedPeriodIndex <= end
+                    );
+                  };
+                  const revenue = items
+                    .filter((i) => i.type === "revenue")
+                    .filter(filterActive)
+                    .reduce((sum, i) => {
+                      const val = Number(i.value);
+                      if (i.frequency === "monthly") return sum + val;
+                      if (i.frequency === "yearly") return sum + val / 12;
+                      return sum + val / timelineLength;
+                    }, 0);
+                  const cost = items
+                    .filter((i) => i.type === "cost")
+                    .filter(filterActive)
+                    .reduce((sum, i) => {
+                      const val = Number(i.value);
+                      if (i.frequency === "monthly") return sum + val;
+                      if (i.frequency === "yearly") return sum + val / 12;
+                      return sum + val / timelineLength;
+                    }, 0);
+                  const burnPercent = revenue > 0 ? (cost / revenue) * 100 : 0;
+                  return (
+                    <p
+                      className={`text-lg font-mono mt-0.5 ${
+                        burnPercent > 100 ? "text-rose-400" : "text-emerald-400"
+                      }`}
+                    >
+                      {burnPercent.toFixed(0)}%
+                    </p>
+                  );
+                })()}
+              </div>
+
+              {/* Net Cash Flow */}
+              <div className="flex-1 px-6 py-3">
+                <p className="text-[10px] text-zinc-600 uppercase tracking-widest">
+                  {selectedPeriodIndex !== null ? "Period Net" : "Net Monthly"}
+                </p>
+                {(() => {
+                  const timelineLength =
+                    scenarioResponse?.data?.timelineLength ?? 12;
+                  const filterActive = (i: FinancialItem) => {
+                    if (selectedPeriodIndex === null) return true;
+                    const start = (i.startsAt ?? 1) - 1;
+                    const end = i.endsAt ? i.endsAt - 1 : timelineLength - 1;
+                    return (
+                      selectedPeriodIndex >= start && selectedPeriodIndex <= end
+                    );
+                  };
+                  const revenue = items
+                    .filter((i) => i.type === "revenue")
+                    .filter(filterActive)
+                    .reduce((sum, i) => {
+                      const val = Number(i.value);
+                      if (i.frequency === "monthly") return sum + val;
+                      if (i.frequency === "yearly") return sum + val / 12;
+                      return sum + val / timelineLength;
+                    }, 0);
+                  const cost = items
+                    .filter((i) => i.type === "cost")
+                    .filter(filterActive)
+                    .reduce((sum, i) => {
+                      const val = Number(i.value);
+                      if (i.frequency === "monthly") return sum + val;
+                      if (i.frequency === "yearly") return sum + val / 12;
+                      return sum + val / timelineLength;
+                    }, 0);
+                  const net = revenue - cost;
+                  return (
+                    <p
+                      className={`text-lg font-mono mt-0.5 ${
+                        net >= 0 ? "text-emerald-400" : "text-rose-400"
+                      }`}
+                    >
+                      {net >= 0 ? "+" : ""}$
+                      {net.toLocaleString(undefined, {
+                        maximumFractionDigits: 0,
+                      })}
+                    </p>
+                  );
+                })()}
+              </div>
+            </div>
+          </div>
+
+          {/* Timeline Columns */}
+          <div className="flex-1 overflow-x-auto overflow-y-hidden min-h-0 w-full no-scrollbar">
+            <div className="flex h-full w-full hide-scrollbar">
+              {timePeriods.map((period, index) => (
+                <TimelineColumn
+                  key={period.id}
+                  period={period}
+                  periodIndex={index}
+                  items={items}
+                  timelineLength={scenarioResponse?.data?.timelineLength ?? 12}
+                  draggedItem={draggedItem}
+                  draggedCategory={draggedCategory}
+                  onDragOver={handleDragOver}
+                  onDrop={handleDrop}
+                  onDragStart={handleDragStart}
+                  onCategoryDragStart={handleCategoryDragStart}
+                  onDragEnd={handleDragEnd}
+                  shouldDisplayItem={shouldDisplayItem}
+                  isItemActiveInPeriod={isItemActiveInPeriod}
+                  groupMode={groupMode}
+                  loadingItemIds={loadingItemIds}
+                  isSelected={selectedPeriodIndex === index}
+                  onSelect={() =>
+                    setSelectedPeriodIndex(
+                      selectedPeriodIndex === index ? null : index
+                    )
+                  }
+                />
+              ))}
+            </div>
           </div>
         </div>
       )}
