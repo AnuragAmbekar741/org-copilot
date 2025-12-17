@@ -208,7 +208,7 @@ export const AddRevenueModal: React.FC<AddRevenueModalProps> = ({
         Back
       </button>
 
-      <div className="grid grid-cols-2 gap-3 max-h-[300px] overflow-y-auto">
+      <div className="grid grid-cols-2 gap-3 max-h-[300px] overflow-y-auto no-scrollbar">
         {templates.map((template) => (
           <button
             key={template.id}
