@@ -14,7 +14,7 @@ export const Home: React.FC = () => {
     null
   );
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const baseStyle = "flex w-full 2xl:max-w-6xl mx-auto";
+  const baseStyle = "flex w-full 2xl:max-w-6xl mx-auto no-scrollbar";
 
   const handlePreviewGenerated = (data: CreateScenarioPayload) => {
     setPreviewData(data);
@@ -67,7 +67,7 @@ export const Home: React.FC = () => {
   };
 
   return (
-    <div className={cn(baseStyle, "relative overflow-hidden")}>
+    <div className={cn(baseStyle, "relative overflow-hidden no-scrollbar")}>
       <AnimatePresence mode="wait">
         {isManualMode ? (
           <motion.div
