@@ -82,6 +82,13 @@ export const FinancialAnalytics: React.FC<FinancialAnalyticsProps> = ({
     [items, timelineLength]
   );
 
+  // Calculate Net and Funding Utilized
+  const net = analytics.totalRevenue - analytics.totalCost;
+  const fundingUtilized =
+    analytics.totalCost > analytics.totalRevenue
+      ? analytics.totalCost - analytics.totalRevenue
+      : 0;
+
   return (
     <div className="h-full bg-zinc-950 flex flex-col">
       <div className="px-6 py-2.5 border-b border-zinc-800">
@@ -91,12 +98,12 @@ export const FinancialAnalytics: React.FC<FinancialAnalyticsProps> = ({
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        {/* Summary Grid */}
+        {/* Summary Grid - Updated to show Revenue, Cost, Net, Funding, Funding Utilized, Runway */}
         <div className="grid grid-cols-2 auto-rows-fr">
-          {/* Box 1: Monthly Revenue */}
+          {/* Box 1: Revenue (Operational) */}
           <div className="p-4 border-r border-b border-zinc-800 min-h-[5rem]">
             <p className="text-[10px] text-zinc-600 uppercase tracking-widest">
-              Monthly Revenue
+              Revenue
             </p>
             <p className="text-xl font-mono text-emerald-400 mt-1">
               $
@@ -106,10 +113,10 @@ export const FinancialAnalytics: React.FC<FinancialAnalyticsProps> = ({
             </p>
           </div>
 
-          {/* Box 2: Monthly Cost */}
+          {/* Box 2: Cost */}
           <div className="p-4 border-b border-zinc-800 min-h-[5rem]">
             <p className="text-[10px] text-zinc-600 uppercase tracking-widest">
-              Monthly Cost
+              Cost
             </p>
             <p className="text-xl font-mono text-rose-400 mt-1">
               $
@@ -119,24 +126,56 @@ export const FinancialAnalytics: React.FC<FinancialAnalyticsProps> = ({
             </p>
           </div>
 
-          {/* Box 3: Burn Rate */}
+          {/* Box 3: Net (Revenue - Cost) */}
           <div className="p-4 border-r border-b border-zinc-800 min-h-[5rem]">
             <p className="text-[10px] text-zinc-600 uppercase tracking-widest">
-              Burn Rate
+              Net
             </p>
             <p
               className={cn(
                 "text-xl font-mono mt-1",
-                analytics.burnRatePercent > 100
-                  ? "text-rose-400"
-                  : "text-emerald-400"
+                net >= 0 ? "text-emerald-400" : "text-rose-400"
               )}
             >
-              {analytics.burnRatePercent.toFixed(0)}%
+              {net >= 0 ? "+" : ""}$
+              {Math.abs(net).toLocaleString(undefined, {
+                maximumFractionDigits: 0,
+              })}
             </p>
           </div>
 
-          {/* Box 4: Runway */}
+          {/* Box 4: Funding Available */}
+          <div className="p-4 border-b border-zinc-800 min-h-[5rem]">
+            <p className="text-[10px] text-zinc-600 uppercase tracking-widest">
+              Funding Available
+            </p>
+            <p className="text-xl font-mono text-violet-400 mt-1">
+              $
+              {analytics.totalFunding.toLocaleString(undefined, {
+                maximumFractionDigits: 0,
+              })}
+            </p>
+          </div>
+
+          {/* Box 5: Funding Utilized */}
+          <div className="p-4 border-r border-b border-zinc-800 min-h-[5rem]">
+            <p className="text-[10px] text-zinc-600 uppercase tracking-widest">
+              Funding Utilized
+            </p>
+            <p className="text-xl font-mono text-violet-400 mt-1">
+              $
+              {fundingUtilized.toLocaleString(undefined, {
+                maximumFractionDigits: 0,
+              })}
+            </p>
+            {fundingUtilized === 0 && (
+              <p className="text-[9px] text-emerald-500 mt-0.5">
+                Revenue covers cost
+              </p>
+            )}
+          </div>
+
+          {/* Box 6: Runway */}
           <div className="p-4 border-b border-zinc-800 min-h-[5rem]">
             <p className="text-[10px] text-zinc-600 uppercase tracking-widest">
               Runway
@@ -159,7 +198,7 @@ export const FinancialAnalytics: React.FC<FinancialAnalyticsProps> = ({
           </div>
         )}
 
-        {/* Revenue Breakdown */}
+        {/* Revenue Breakdown (Operational only) */}
         {analytics.revenueByCategory.length > 0 && (
           <div className="p-4 border-b border-zinc-800">
             <BarChart
@@ -167,6 +206,18 @@ export const FinancialAnalytics: React.FC<FinancialAnalyticsProps> = ({
               total={analytics.totalRevenue}
               label="Revenue Breakdown"
               totalColor="text-emerald-400"
+            />
+          </div>
+        )}
+
+        {/* Funding Breakdown */}
+        {analytics.fundingByCategory.length > 0 && (
+          <div className="p-4 border-b border-zinc-800">
+            <BarChart
+              data={analytics.fundingByCategory}
+              total={analytics.totalFunding}
+              label="Funding Breakdown"
+              totalColor="text-violet-400"
             />
           </div>
         )}
