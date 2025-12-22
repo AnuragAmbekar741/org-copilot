@@ -144,51 +144,57 @@ export const DashboardLayout = () => {
           </nav>
         </div>
 
+        {/* User Profile Card - Bottom of Sidebar */}
         <div
           className={cn(
-            "absolute bottom-0 w-full p-4 border-t border-border transition-opacity duration-300",
+            "absolute bottom-0 w-full p-2.5 border-t border-zinc-800 transition-opacity duration-300",
             isSidebarOpen ? "opacity-100" : "opacity-0 lg:pointer-events-none"
           )}
         >
-          <div className="flex items-center gap-3 px-2 py-2 rounded-none">
-            <div className="h-8 w-8 rounded-full bg-sidebar flex items-center justify-center text-xs text-zinc-400 font-medium shrink-0">
-              {user?.name
-                ? user.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")
-                    .toUpperCase()
-                    .slice(0, 2)
-                : "US"}
+          {/* Card Container */}
+          <div className="bg-zinc-900/60 border border-zinc-800 rounded-none p-2.5 hover:bg-zinc-900/80 hover:border-zinc-700 transition-all duration-200">
+            <div className="flex items-center gap-3">
+              {/* Avatar - Boxy Style */}
+              <div className="h-10 w-10 rounded-none bg-gradient-to-br from-zinc-800 to-zinc-900 border border-zinc-700 flex items-center justify-center text-xs font-semibold text-zinc-300 flex-shrink-0 shadow-[inset_0_1px_2px_rgba(255,255,255,0.05)]">
+                {user?.name
+                  ? user.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")
+                      .toUpperCase()
+                      .slice(0, 2)
+                  : "US"}
+              </div>
+
+              {/* User Info */}
+              <div className="flex flex-col min-w-0 flex-1">
+                {isLoadingUser ? (
+                  <>
+                    <div className="h-3 w-24 bg-zinc-700/50 rounded-none animate-pulse mb-1" />
+                    <div className="h-2 w-20 bg-zinc-700/30 rounded-none animate-pulse" />
+                  </>
+                ) : (
+                  <>
+                    <p className="text-xs font-semibold text-zinc-100 truncate">
+                      {user?.name || "User"}
+                    </p>
+                    <p className="text-[10px] text-zinc-500 truncate">
+                      {user?.email || "No email"}
+                    </p>
+                  </>
+                )}
+              </div>
+
+              {/* Logout Button */}
+              <button
+                onClick={handleLogout}
+                className="flex-shrink-0 p-1.5 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 border border-transparent hover:border-zinc-700 rounded-none transition-all duration-200"
+                title="Logout"
+                aria-label="Logout"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
             </div>
-            <div className="flex flex-col min-w-0 flex-1">
-              {isLoadingUser ? (
-                <>
-                  <span className="text-xs text-zinc-300 font-medium whitespace-nowrap animate-pulse">
-                    Loading...
-                  </span>
-                  <span className="text-[10px] text-zinc-500 whitespace-nowrap animate-pulse">
-                    ...
-                  </span>
-                </>
-              ) : (
-                <>
-                  <span className="text-xs text-zinc-300 font-medium whitespace-nowrap">
-                    {user?.name || "User"}
-                  </span>
-                  <span className="text-[10px] text-zinc-500 whitespace-nowrap truncate">
-                    {user?.email || "No email"}
-                  </span>
-                </>
-              )}
-            </div>
-            <button
-              onClick={handleLogout}
-              className="text-zinc-400 hover:text-zinc-200 transition-colors p-1.5 hover:bg-sidebar rounded-none"
-              title="Logout"
-            >
-              <LogOut className="h-4 w-4" />
-            </button>
           </div>
         </div>
       </aside>
