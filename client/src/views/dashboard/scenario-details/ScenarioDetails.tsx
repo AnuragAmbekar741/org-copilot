@@ -326,7 +326,7 @@ const ScenarioDetails: React.FC = () => {
               </div>
             )}
             <div className="flex items-stretch divide-x divide-zinc-800">
-              {/* Revenue */}
+              {/* Revenue (Operational) */}
               <div className="flex-1 px-6 py-3">
                 <p className="text-[10px] text-zinc-600 uppercase tracking-widest">
                   {selectedPeriodIndex !== null ? "Period Revenue" : "Revenue"}
@@ -360,10 +360,96 @@ const ScenarioDetails: React.FC = () => {
                 </p>
               </div>
 
-              {/* Funding */}
+              {/* Cost */}
               <div className="flex-1 px-6 py-3">
                 <p className="text-[10px] text-zinc-600 uppercase tracking-widest">
-                  {selectedPeriodIndex !== null ? "Period Funding" : "Funding"}
+                  {selectedPeriodIndex !== null ? "Period Cost" : "Cost"}
+                </p>
+                <p className="text-lg font-mono text-rose-400 mt-0.5">
+                  $
+                  {(() => {
+                    const timelineLength =
+                      scenarioResponse?.data?.timelineLength ?? 12;
+                    const filterActive = (i: FinancialItem) => {
+                      if (selectedPeriodIndex === null) return true;
+                      const start = (i.startsAt ?? 1) - 1;
+                      const end = i.endsAt ? i.endsAt - 1 : timelineLength - 1;
+                      return (
+                        selectedPeriodIndex >= start &&
+                        selectedPeriodIndex <= end
+                      );
+                    };
+                    return items
+                      .filter((i) => i.type === "cost")
+                      .filter(filterActive)
+                      .reduce((sum, i) => {
+                        const val = Number(i.value);
+                        if (i.frequency === "monthly") return sum + val;
+                        if (i.frequency === "yearly") return sum + val / 12;
+                        return sum + val / timelineLength;
+                      }, 0);
+                  })().toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                </p>
+              </div>
+
+              {/* Net (Revenue - Cost) */}
+              <div className="flex-1 px-6 py-3">
+                <p className="text-[10px] text-zinc-600 uppercase tracking-widest">
+                  {selectedPeriodIndex !== null ? "Period Net" : "Net"}
+                </p>
+                {(() => {
+                  const timelineLength =
+                    scenarioResponse?.data?.timelineLength ?? 12;
+                  const filterActive = (i: FinancialItem) => {
+                    if (selectedPeriodIndex === null) return true;
+                    const start = (i.startsAt ?? 1) - 1;
+                    const end = i.endsAt ? i.endsAt - 1 : timelineLength - 1;
+                    return (
+                      selectedPeriodIndex >= start && selectedPeriodIndex <= end
+                    );
+                  };
+                  const operationalRevenue = items
+                    .filter(
+                      (i) => i.type === "revenue" && i.category !== "Funding"
+                    )
+                    .filter(filterActive)
+                    .reduce((sum, i) => {
+                      const val = Number(i.value);
+                      if (i.frequency === "monthly") return sum + val;
+                      if (i.frequency === "yearly") return sum + val / 12;
+                      return sum + val / timelineLength;
+                    }, 0);
+                  const cost = items
+                    .filter((i) => i.type === "cost")
+                    .filter(filterActive)
+                    .reduce((sum, i) => {
+                      const val = Number(i.value);
+                      if (i.frequency === "monthly") return sum + val;
+                      if (i.frequency === "yearly") return sum + val / 12;
+                      return sum + val / timelineLength;
+                    }, 0);
+                  const net = operationalRevenue - cost;
+                  return (
+                    <p
+                      className={`text-lg font-mono mt-0.5 ${
+                        net >= 0 ? "text-emerald-400" : "text-rose-400"
+                      }`}
+                    >
+                      {net >= 0 ? "+" : ""}$
+                      {net.toLocaleString(undefined, {
+                        maximumFractionDigits: 0,
+                      })}
+                    </p>
+                  );
+                })()}
+              </div>
+
+              {/* Funding Available */}
+              <div className="flex-1 px-6 py-3">
+                <p className="text-[10px] text-zinc-600 uppercase tracking-widest">
+                  {selectedPeriodIndex !== null
+                    ? "Period Funding"
+                    : "Funding Available"}
                 </p>
                 <p className="text-lg font-mono text-violet-400 mt-0.5">
                   $
@@ -394,44 +480,12 @@ const ScenarioDetails: React.FC = () => {
                 </p>
               </div>
 
-              {/* Cost */}
+              {/* Funding Utilized (to fulfill cost) */}
               <div className="flex-1 px-6 py-3">
                 <p className="text-[10px] text-zinc-600 uppercase tracking-widest">
                   {selectedPeriodIndex !== null
-                    ? "Period Cost"
-                    : "Monthly Cost"}
-                </p>
-                <p className="text-lg font-mono text-rose-400 mt-0.5">
-                  $
-                  {(() => {
-                    const timelineLength =
-                      scenarioResponse?.data?.timelineLength ?? 12;
-                    const filterActive = (i: FinancialItem) => {
-                      if (selectedPeriodIndex === null) return true;
-                      const start = (i.startsAt ?? 1) - 1;
-                      const end = i.endsAt ? i.endsAt - 1 : timelineLength - 1;
-                      return (
-                        selectedPeriodIndex >= start &&
-                        selectedPeriodIndex <= end
-                      );
-                    };
-                    return items
-                      .filter((i) => i.type === "cost")
-                      .filter(filterActive)
-                      .reduce((sum, i) => {
-                        const val = Number(i.value);
-                        if (i.frequency === "monthly") return sum + val;
-                        if (i.frequency === "yearly") return sum + val / 12;
-                        return sum + val / timelineLength;
-                      }, 0);
-                  })().toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                </p>
-              </div>
-
-              {/* Burn Rate */}
-              <div className="flex-1 px-6 py-3">
-                <p className="text-[10px] text-zinc-600 uppercase tracking-widest">
-                  Burn Rate
+                    ? "Period Funding Utilized"
+                    : "Funding Utilized"}
                 </p>
                 {(() => {
                   const timelineLength =
@@ -444,7 +498,6 @@ const ScenarioDetails: React.FC = () => {
                       selectedPeriodIndex >= start && selectedPeriodIndex <= end
                     );
                   };
-                  // Operational revenue only (exclude funding)
                   const operationalRevenue = items
                     .filter(
                       (i) => i.type === "revenue" && i.category !== "Funding"
@@ -465,155 +518,25 @@ const ScenarioDetails: React.FC = () => {
                       if (i.frequency === "yearly") return sum + val / 12;
                       return sum + val / timelineLength;
                     }, 0);
-                  // Burn rate = Cost - Operational Revenue
-                  const burnRate = cost - operationalRevenue;
-                  const burnPercent =
-                    operationalRevenue > 0
-                      ? (cost / operationalRevenue) * 100
-                      : 0;
-                  return (
-                    <div>
-                      <p
-                        className={`text-lg font-mono mt-0.5 ${
-                          burnPercent > 100
-                            ? "text-rose-400"
-                            : "text-emerald-400"
-                        }`}
-                      >
-                        {burnPercent.toFixed(0)}%
-                      </p>
-                      <p className="text-[9px] text-zinc-500 mt-0.5">
-                        ${burnRate >= 0 ? "+" : ""}
-                        {burnRate.toLocaleString(undefined, {
-                          maximumFractionDigits: 0,
-                        })}
-                        /mo
-                      </p>
-                    </div>
-                  );
-                })()}
-              </div>
-
-              {/* Funding Usage */}
-              <div className="flex-1 px-6 py-3">
-                <p className="text-[10px] text-zinc-600 uppercase tracking-widest">
-                  {selectedPeriodIndex !== null
-                    ? "Period Funding Usage"
-                    : "Funding Usage"}
-                </p>
-                {(() => {
-                  const timelineLength =
-                    scenarioResponse?.data?.timelineLength ?? 12;
-                  const filterActive = (i: FinancialItem) => {
-                    if (selectedPeriodIndex === null) return true;
-                    const start = (i.startsAt ?? 1) - 1;
-                    const end = i.endsAt ? i.endsAt - 1 : timelineLength - 1;
-                    return (
-                      selectedPeriodIndex >= start && selectedPeriodIndex <= end
-                    );
-                  };
-                  // Operational revenue only (exclude funding)
-                  const operationalRevenue = items
-                    .filter(
-                      (i) => i.type === "revenue" && i.category !== "Funding"
-                    )
-                    .filter(filterActive)
-                    .reduce((sum, i) => {
-                      const val = Number(i.value);
-                      if (i.frequency === "monthly") return sum + val;
-                      if (i.frequency === "yearly") return sum + val / 12;
-                      return sum + val / timelineLength;
-                    }, 0);
-                  const cost = items
-                    .filter((i) => i.type === "cost")
-                    .filter(filterActive)
-                    .reduce((sum, i) => {
-                      const val = Number(i.value);
-                      if (i.frequency === "monthly") return sum + val;
-                      if (i.frequency === "yearly") return sum + val / 12;
-                      return sum + val / timelineLength;
-                    }, 0);
-                  // Funding usage = Cost - Operational Revenue (how much funding is being consumed)
-                  const fundingUsage = cost - operationalRevenue;
-
-                  // Total funding available
-                  const totalFunding = items
-                    .filter(
-                      (i) => i.type === "revenue" && i.category === "Funding"
-                    )
-                    .filter(filterActive)
-                    .reduce((sum, i) => {
-                      const val = Number(i.value);
-                      if (i.frequency === "monthly") return sum + val;
-                      if (i.frequency === "yearly") return sum + val / 12;
-                      return sum + val / timelineLength;
-                    }, 0);
+                  // Funding utilized = Cost - Revenue (the gap that funding fills)
+                  // If revenue covers cost, no funding is utilized
+                  const fundingUtilized =
+                    cost > operationalRevenue ? cost - operationalRevenue : 0;
 
                   return (
                     <div>
                       <p className="text-lg font-mono text-violet-400 mt-0.5">
-                        ${fundingUsage >= 0 ? "" : ""}
-                        {fundingUsage.toLocaleString(undefined, {
+                        $
+                        {fundingUtilized.toLocaleString(undefined, {
                           maximumFractionDigits: 0,
                         })}
                       </p>
-                      {totalFunding > 0 && fundingUsage > 0 && (
-                        <p className="text-[9px] text-zinc-500 mt-0.5">
-                          {((fundingUsage / totalFunding) * 100).toFixed(1)}% of
-                          funding
+                      {fundingUtilized === 0 && (
+                        <p className="text-[9px] text-emerald-500 mt-0.5">
+                          Revenue covers cost
                         </p>
                       )}
                     </div>
-                  );
-                })()}
-              </div>
-
-              {/* Net Cash Flow */}
-              <div className="flex-1 px-6 py-3">
-                <p className="text-[10px] text-zinc-600 uppercase tracking-widest">
-                  {selectedPeriodIndex !== null ? "Period Net" : "Net Monthly"}
-                </p>
-                {(() => {
-                  const timelineLength =
-                    scenarioResponse?.data?.timelineLength ?? 12;
-                  const filterActive = (i: FinancialItem) => {
-                    if (selectedPeriodIndex === null) return true;
-                    const start = (i.startsAt ?? 1) - 1;
-                    const end = i.endsAt ? i.endsAt - 1 : timelineLength - 1;
-                    return (
-                      selectedPeriodIndex >= start && selectedPeriodIndex <= end
-                    );
-                  };
-                  const revenue = items
-                    .filter((i) => i.type === "revenue")
-                    .filter(filterActive)
-                    .reduce((sum, i) => {
-                      const val = Number(i.value);
-                      if (i.frequency === "monthly") return sum + val;
-                      if (i.frequency === "yearly") return sum + val / 12;
-                      return sum + val / timelineLength;
-                    }, 0);
-                  const cost = items
-                    .filter((i) => i.type === "cost")
-                    .filter(filterActive)
-                    .reduce((sum, i) => {
-                      const val = Number(i.value);
-                      if (i.frequency === "monthly") return sum + val;
-                      if (i.frequency === "yearly") return sum + val / 12;
-                      return sum + val / timelineLength;
-                    }, 0);
-                  const net = revenue - cost;
-                  return (
-                    <p
-                      className={`text-lg font-mono mt-0.5 ${
-                        net >= 0 ? "text-emerald-400" : "text-rose-400"
-                      }`}
-                    >
-                      {net >= 0 ? "+" : ""}$
-                      {net.toLocaleString(undefined, {
-                        maximumFractionDigits: 0,
-                      })}
-                    </p>
                   );
                 })()}
               </div>
