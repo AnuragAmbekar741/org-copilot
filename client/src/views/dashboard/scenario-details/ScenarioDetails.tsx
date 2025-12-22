@@ -329,9 +329,7 @@ const ScenarioDetails: React.FC = () => {
               {/* Revenue */}
               <div className="flex-1 px-6 py-3">
                 <p className="text-[10px] text-zinc-600 uppercase tracking-widest">
-                  {selectedPeriodIndex !== null
-                    ? "Period Revenue"
-                    : "Monthly Revenue"}
+                  {selectedPeriodIndex !== null ? "Period Revenue" : "Revenue"}
                 </p>
                 <p className="text-lg font-mono text-emerald-400 mt-0.5">
                   $
@@ -348,7 +346,43 @@ const ScenarioDetails: React.FC = () => {
                       );
                     };
                     return items
-                      .filter((i) => i.type === "revenue")
+                      .filter(
+                        (i) => i.type === "revenue" && i.category !== "Funding"
+                      )
+                      .filter(filterActive)
+                      .reduce((sum, i) => {
+                        const val = Number(i.value);
+                        if (i.frequency === "monthly") return sum + val;
+                        if (i.frequency === "yearly") return sum + val / 12;
+                        return sum + val / timelineLength;
+                      }, 0);
+                  })().toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                </p>
+              </div>
+
+              {/* Funding */}
+              <div className="flex-1 px-6 py-3">
+                <p className="text-[10px] text-zinc-600 uppercase tracking-widest">
+                  {selectedPeriodIndex !== null ? "Period Funding" : "Funding"}
+                </p>
+                <p className="text-lg font-mono text-violet-400 mt-0.5">
+                  $
+                  {(() => {
+                    const timelineLength =
+                      scenarioResponse?.data?.timelineLength ?? 12;
+                    const filterActive = (i: FinancialItem) => {
+                      if (selectedPeriodIndex === null) return true;
+                      const start = (i.startsAt ?? 1) - 1;
+                      const end = i.endsAt ? i.endsAt - 1 : timelineLength - 1;
+                      return (
+                        selectedPeriodIndex >= start &&
+                        selectedPeriodIndex <= end
+                      );
+                    };
+                    return items
+                      .filter(
+                        (i) => i.type === "revenue" && i.category === "Funding"
+                      )
                       .filter(filterActive)
                       .reduce((sum, i) => {
                         const val = Number(i.value);
@@ -410,8 +444,11 @@ const ScenarioDetails: React.FC = () => {
                       selectedPeriodIndex >= start && selectedPeriodIndex <= end
                     );
                   };
-                  const revenue = items
-                    .filter((i) => i.type === "revenue")
+                  // Operational revenue only (exclude funding)
+                  const operationalRevenue = items
+                    .filter(
+                      (i) => i.type === "revenue" && i.category !== "Funding"
+                    )
                     .filter(filterActive)
                     .reduce((sum, i) => {
                       const val = Number(i.value);
@@ -428,15 +465,105 @@ const ScenarioDetails: React.FC = () => {
                       if (i.frequency === "yearly") return sum + val / 12;
                       return sum + val / timelineLength;
                     }, 0);
-                  const burnPercent = revenue > 0 ? (cost / revenue) * 100 : 0;
+                  // Burn rate = Cost - Operational Revenue
+                  const burnRate = cost - operationalRevenue;
+                  const burnPercent =
+                    operationalRevenue > 0
+                      ? (cost / operationalRevenue) * 100
+                      : 0;
                   return (
-                    <p
-                      className={`text-lg font-mono mt-0.5 ${
-                        burnPercent > 100 ? "text-rose-400" : "text-emerald-400"
-                      }`}
-                    >
-                      {burnPercent.toFixed(0)}%
-                    </p>
+                    <div>
+                      <p
+                        className={`text-lg font-mono mt-0.5 ${
+                          burnPercent > 100
+                            ? "text-rose-400"
+                            : "text-emerald-400"
+                        }`}
+                      >
+                        {burnPercent.toFixed(0)}%
+                      </p>
+                      <p className="text-[9px] text-zinc-500 mt-0.5">
+                        ${burnRate >= 0 ? "+" : ""}
+                        {burnRate.toLocaleString(undefined, {
+                          maximumFractionDigits: 0,
+                        })}
+                        /mo
+                      </p>
+                    </div>
+                  );
+                })()}
+              </div>
+
+              {/* Funding Usage */}
+              <div className="flex-1 px-6 py-3">
+                <p className="text-[10px] text-zinc-600 uppercase tracking-widest">
+                  {selectedPeriodIndex !== null
+                    ? "Period Funding Usage"
+                    : "Funding Usage"}
+                </p>
+                {(() => {
+                  const timelineLength =
+                    scenarioResponse?.data?.timelineLength ?? 12;
+                  const filterActive = (i: FinancialItem) => {
+                    if (selectedPeriodIndex === null) return true;
+                    const start = (i.startsAt ?? 1) - 1;
+                    const end = i.endsAt ? i.endsAt - 1 : timelineLength - 1;
+                    return (
+                      selectedPeriodIndex >= start && selectedPeriodIndex <= end
+                    );
+                  };
+                  // Operational revenue only (exclude funding)
+                  const operationalRevenue = items
+                    .filter(
+                      (i) => i.type === "revenue" && i.category !== "Funding"
+                    )
+                    .filter(filterActive)
+                    .reduce((sum, i) => {
+                      const val = Number(i.value);
+                      if (i.frequency === "monthly") return sum + val;
+                      if (i.frequency === "yearly") return sum + val / 12;
+                      return sum + val / timelineLength;
+                    }, 0);
+                  const cost = items
+                    .filter((i) => i.type === "cost")
+                    .filter(filterActive)
+                    .reduce((sum, i) => {
+                      const val = Number(i.value);
+                      if (i.frequency === "monthly") return sum + val;
+                      if (i.frequency === "yearly") return sum + val / 12;
+                      return sum + val / timelineLength;
+                    }, 0);
+                  // Funding usage = Cost - Operational Revenue (how much funding is being consumed)
+                  const fundingUsage = cost - operationalRevenue;
+
+                  // Total funding available
+                  const totalFunding = items
+                    .filter(
+                      (i) => i.type === "revenue" && i.category === "Funding"
+                    )
+                    .filter(filterActive)
+                    .reduce((sum, i) => {
+                      const val = Number(i.value);
+                      if (i.frequency === "monthly") return sum + val;
+                      if (i.frequency === "yearly") return sum + val / 12;
+                      return sum + val / timelineLength;
+                    }, 0);
+
+                  return (
+                    <div>
+                      <p className="text-lg font-mono text-violet-400 mt-0.5">
+                        ${fundingUsage >= 0 ? "" : ""}
+                        {fundingUsage.toLocaleString(undefined, {
+                          maximumFractionDigits: 0,
+                        })}
+                      </p>
+                      {totalFunding > 0 && fundingUsage > 0 && (
+                        <p className="text-[9px] text-zinc-500 mt-0.5">
+                          {((fundingUsage / totalFunding) * 100).toFixed(1)}% of
+                          funding
+                        </p>
+                      )}
+                    </div>
                   );
                 })()}
               </div>

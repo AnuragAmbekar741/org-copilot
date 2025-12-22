@@ -129,16 +129,26 @@ export const calculateAnalytics = (
   timelineLength: number
 ) => {
   let totalRevenue = 0;
+  let totalFunding = 0; // NEW: Separate funding
   let totalCost = 0;
   const costByCategory: Record<string, number> = {};
   const revenueByCategory: Record<string, number> = {};
+  const fundingByCategory: Record<string, number> = {}; // NEW
 
   items.forEach((item) => {
     const monthlyValue = getMonthlyValue(item, timelineLength);
     if (item.type === "revenue") {
-      totalRevenue += monthlyValue;
-      revenueByCategory[item.category] =
-        (revenueByCategory[item.category] || 0) + monthlyValue;
+      if (item.category === "Funding") {
+        // Funding is separate from operational revenue
+        totalFunding += monthlyValue;
+        fundingByCategory[item.category] =
+          (fundingByCategory[item.category] || 0) + monthlyValue;
+      } else {
+        // Operational revenue (MRR, sales, etc.)
+        totalRevenue += monthlyValue;
+        revenueByCategory[item.category] =
+          (revenueByCategory[item.category] || 0) + monthlyValue;
+      }
     } else {
       totalCost += monthlyValue;
       costByCategory[item.category] =
@@ -159,22 +169,32 @@ export const calculateAnalytics = (
         color: COLORS[index % COLORS.length],
       }));
 
-  const burnRate = totalCost - totalRevenue;
+  // Burn rate = Cost - Operational Revenue (NOT including funding)
+  const operationalBurnRate = totalCost - totalRevenue;
   const burnRatePercent =
     totalRevenue > 0 ? (totalCost / totalRevenue) * 100 : 0;
-  const runway = burnRate > 0 ? Math.floor(totalRevenue / burnRate) : Infinity;
+
+  // Runway calculation: How long funding lasts given operational burn
+  const runway =
+    operationalBurnRate > 0
+      ? totalFunding > 0
+        ? Math.floor(totalFunding / operationalBurnRate)
+        : Infinity
+      : Infinity; // If profitable, infinite runway
 
   return {
     totalRevenue,
+    totalFunding,
     totalCost,
-    burnRate,
+    burnRate: operationalBurnRate, // Cost - Operational Revenue
+    monthlyFundingUsage: operationalBurnRate > 0 ? operationalBurnRate : 0,
     runway,
     burnRatePercent,
     costByCategory: formatCategories(costByCategory, totalCost),
     revenueByCategory: formatCategories(revenueByCategory, totalRevenue),
+    fundingByCategory: formatCategories(fundingByCategory, totalFunding), // NEW
   };
 };
-
 // Calculate monthly data for the entire timeline (for charts)
 export const calculateTimelineData = (
   items: FinancialItem[],
